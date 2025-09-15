@@ -41,7 +41,6 @@ CREATE TABLE PLATEFORME (
     nbPersonnesRequises INT,
     coutJournalier DECIMAL(10, 2),
     intervalleMaintenance INT,
-    derniereMaintenance INT,
     PRIMARY KEY (nomPlateforme)
 );
 
@@ -49,7 +48,7 @@ CREATE TABLE INCULRE_EQUIPEMENT (
     nomPlateforme VARCHAR(50),
     idEquipement INT,
     PRIMARY KEY (nomPlateforme, idEquipement)
-);
+);  
 
 ALTER TABLE INCULRE_EQUIPEMENT ADD FOREIGN KEY (nomPlateforme) REFERENCES PLATEFORME(nomPlateforme);
 ALTER TABLE INCULRE_EQUIPEMENT ADD FOREIGN KEY (idEquipement) REFERENCES EQUIPEMENT(idEquipement);
@@ -65,9 +64,8 @@ ALTER TABLE NECESSITER_HABILITATION ADD FOREIGN KEY (idHabilitation) REFERENCES 
 
 CREATE TABLE MAINTENANCE (
     nomPlateforme VARCHAR(50),
-    idPersonnel INT,
     dateMaintenance DATE,
-    dureeMaintenance INT,
+    maintenanceTermine BOOLEAN,
     PRIMARY KEY (nomPlateforme, dateMaintenance)
 );
 
