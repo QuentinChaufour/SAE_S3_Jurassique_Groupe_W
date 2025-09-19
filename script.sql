@@ -1,27 +1,27 @@
 
-CREATE TABLE BUDGET (
+CREATE OR REPLACE TABLE BUDGET (
     dateMoisAnnee DATE,
     budgetTotal DECIMAL(10, 2),
     PRIMARY KEY (dateMoisAnnee)
 );
 
-CREATE TABLE HABILITATION (
+CREATE OR REPLACE TABLE HABILITATION (
     idHabilitation INT AUTO_INCREMENT,
     nomHabilitation VARCHAR(50),
     PRIMARY KEY (idHabilitation)
 );
 
-CREATE TABLE PERSONNEL (
+CREATE OR REPLACE TABLE PERSONNEL (
     idPersonnel VARCHAR(10),
     nom VARCHAR(50),
     prenom VARCHAR(50),
     mdp VARCHAR(50) UNIQUE,
     role ENUM('administratif', 'chercheur', 'technicien','direction'),
-    PRIMARY KEY (idPersonnel),
+    PRIMARY KEY (idPersonnel)
 );
 
-CREATE TABLE POSSEDER_HABILITATION (
-    idPersonnel INT,
+CREATE OR REPLACE TABLE POSSEDER_HABILITATION (
+    idPersonnel VARCHAR(10),
     idHabilitation INT,
     PRIMARY KEY (idPersonnel, idHabilitation)
 );
@@ -30,21 +30,21 @@ ALTER TABLE POSSEDER_HABILITATION ADD FOREIGN KEY (idPersonnel) REFERENCES PERSO
 ALTER TABLE POSSEDER_HABILITATION ADD FOREIGN KEY (idHabilitation) REFERENCES HABILITATION(idHabilitation);
 
 
-CREATE TABLE EQUIPEMENT (
+CREATE OR REPLACE TABLE EQUIPEMENT (
     idEquipement INT AUTO_INCREMENT,
     nomEquipement VARCHAR(50),
     PRIMARY KEY (idEquipement)
 );
 
-CREATE TABLE PLATEFORME (
+CREATE OR REPLACE TABLE PLATEFORME (
     nomPlateforme VARCHAR(50),
     nbPersonnesRequises INT,
-    coutJournalier DECIMAL(5, 2),
+    coutJournalier DECIMAL(10, 2),
     intervalleMaintenance INT,
     PRIMARY KEY (nomPlateforme)
 );
 
-CREATE TABLE INCULRE_EQUIPEMENT (
+CREATE OR REPLACE TABLE INCULRE_EQUIPEMENT (
     nomPlateforme VARCHAR(50),
     idEquipement INT,
     PRIMARY KEY (nomPlateforme, idEquipement)
@@ -53,7 +53,7 @@ CREATE TABLE INCULRE_EQUIPEMENT (
 ALTER TABLE INCULRE_EQUIPEMENT ADD FOREIGN KEY (nomPlateforme) REFERENCES PLATEFORME(nomPlateforme);
 ALTER TABLE INCULRE_EQUIPEMENT ADD FOREIGN KEY (idEquipement) REFERENCES EQUIPEMENT(idEquipement);
 
-CREATE TABLE NECESSITER_HABILITATION (
+CREATE OR REPLACE TABLE NECESSITER_HABILITATION (
     idEquipement INT,
     idHabilitation INT,
     PRIMARY KEY (idEquipement, idHabilitation)
@@ -62,7 +62,7 @@ CREATE TABLE NECESSITER_HABILITATION (
 ALTER TABLE NECESSITER_HABILITATION ADD FOREIGN KEY (idEquipement) REFERENCES EQUIPEMENT(idEquipement);
 ALTER TABLE NECESSITER_HABILITATION ADD FOREIGN KEY (idHabilitation) REFERENCES HABILITATION(idHabilitation);
 
-CREATE TABLE MAINTENANCE (
+CREATE OR REPLACE TABLE MAINTENANCE (
     nomPlateforme VARCHAR(50),
     dateMaintenance DATE,
     maintenanceTermine BOOLEAN,
@@ -70,9 +70,8 @@ CREATE TABLE MAINTENANCE (
 );
 
 ALTER TABLE MAINTENANCE ADD FOREIGN KEY (nomPlateforme) REFERENCES PLATEFORME(nomPlateforme);
-ALTER TABLE MAINTENANCE ADD FOREIGN KEY (idPersonnel) REFERENCES PERSONNEL(idPersonnel);
 
-CREATE TABLE CAMPAGNE (
+CREATE OR REPLACE TABLE CAMPAGNE (
     idCampagne INT AUTO_INCREMENT,
     nomPlateforme VARCHAR(50),
     dateDebut DATE,
@@ -83,8 +82,8 @@ CREATE TABLE CAMPAGNE (
 
 ALTER TABLE CAMPAGNE ADD FOREIGN KEY (nomPlateforme) REFERENCES PLATEFORME(nomPlateforme);
 
-CREATE TABLE PARTICIPER_CAMPAGNE (
-    idPersonnel INT,
+CREATE OR REPLACE TABLE PARTICIPER_CAMPAGNE (
+    idPersonnel VARCHAR(10),
     idCampagne INT,
     PRIMARY KEY (idPersonnel, idCampagne)
 );
@@ -92,7 +91,7 @@ CREATE TABLE PARTICIPER_CAMPAGNE (
 ALTER TABLE PARTICIPER_CAMPAGNE ADD FOREIGN KEY (idPersonnel) REFERENCES PERSONNEL(idPersonnel);
 ALTER TABLE PARTICIPER_CAMPAGNE ADD FOREIGN KEY (idCampagne) REFERENCES CAMPAGNE(idCampagne);
 
-CREATE TABLE ESPECE (
+CREATE OR REPLACE TABLE ESPECE (
     idEspece INT AUTO_INCREMENT,
     nomEspece VARCHAR(50),
     nomScientifique VARCHAR(100),
@@ -100,7 +99,7 @@ CREATE TABLE ESPECE (
     PRIMARY KEY (idEspece)
 );
 
-CREATE TABLE ECHANTILLON (
+CREATE OR REPLACE TABLE ECHANTILLON (
     idEchantillon INT AUTO_INCREMENT,
     idCampagne INT,
     fichierSequenceADN TEXT,
@@ -125,7 +124,7 @@ begin
 
     declare coutCampagne DECIMAL(10,2);
     declare budgetUtilise DECIMAL(10,2);
-    declare fini default false;
+    declare fini boolean default false;
     declare lesCouts cursor for 
         SELECT coutJournalier * duree 
         FROM CAMPAGNE NATURAL JOIN PLATEFORME
@@ -140,7 +139,7 @@ begin
 
     -- somme des couts des campagne du mois courrant a la date souhaité
 
-    open lesCouts
+    open lesCouts;
     while not fini do 
         fetch lesCouts into coutCampagne;
         if not fini then
@@ -157,20 +156,19 @@ begin
     declare dureeCampagne INT;
     declare dateCampagne DATE;
 
-    declare fini default false;
+    declare fini boolean default false;
     declare lesCampagnes cursor for 
         SELECT dateDebut,duree
         FROM CAMPAGNE
         WHERE nomPlateforme = plateforme AND MONTH(moment) = MONTH(dateDebut) AND YEAR(moment) = YEAR(dateDebut); 
 
-    open lesCampagnes
+    open lesCampagnes;
     while not fini do
 
         fetch lesCampagnes into dateCampagne,dureeCampagne;
 
-
     end while;
-
+    return true;
 end |
 
 -- Triggers
@@ -178,7 +176,7 @@ end |
 create or replace TRIGGER checkCampagneValidity
 before INSERT ON CAMPAGNE FOR EACH ROW 
 begin
-    declare budgetRestant DECIMAL(10,2) default SELECT remainingBudget(new.dateDebut);
+    declare budgetRestant DECIMAL(10,2);
     declare coutPlatefrom DECIMAL(10,2);
 
     declare messageErreur VARCHAR(50); 
@@ -189,9 +187,11 @@ begin
     FROM PLATEFORME
     WHERE nomPlateforme = new.nomPlateforme;
 
+    SELECT remainingBudget(new.dateDebut) into budgetRestant;
+
     -- vérification de la validité des couts de la campagne 
-    if new.duree * coutJournalier > budgetRestant then
-        set messageErreur = CONCAT('Coût dépassant du budget restant :  ',new.duree * coutJournalier,' coût de la plateforme    |   ',budgetRestant,'  budget restant.');
+    if (new.duree * coutPlatefrom) > budgetRestant then
+        set messageErreur = CONCAT('Coût dépassant du budget restant :  ',new.duree * coutPlatefrom,' coût de la plateforme    |   ',budgetRestant,'  budget restant.');
         signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
     end if;
 
