@@ -119,23 +119,20 @@ create or replace function remainingBudget(moment Date) returns DECIMAL(10,2)
 begin
     declare initialBudget DECIMAL(10,2);
 
-    declare monthSearched INT default MONTH(moment);
-    declare yearSearched INT default YEAR(moment);
-
     declare coutCampagne DECIMAL(10,2);
-    declare budgetUtilise DECIMAL(10,2);
+    declare budgetUtilise DECIMAL(10,2) default 0;
     declare fini boolean default false;
     declare lesCouts cursor for 
         SELECT coutJournalier * duree 
         FROM CAMPAGNE NATURAL JOIN PLATEFORME
-        WHERE MONTH(dateDebut) = monthSearched AND YEAR(dateDebut) = yearSearched;
+        WHERE MONTH(dateDebut) = MONTH(moment) AND YEAR(dateDebut) = YEAR(moment);
 
     declare continue handler for not found set fini = true; 
 
     -- récupération du budget initiale du mois courrant a la date souhaité
-    SELECT budget into initialBudget
+    SELECT budgetTotal into initialBudget
     FROM BUDGET
-    WHERE YEAR(dateMoisAnnee) = yearSearched AND MONTH(dateMoisAnnee) = monthSearched;
+    WHERE YEAR(dateMoisAnnee) = YEAR(moment) AND MONTH(dateMoisAnnee) = MONTH(moment);
 
     -- somme des couts des campagne du mois courrant a la date souhaité
 
@@ -147,7 +144,7 @@ begin
         end if;
     end while;
 
-    return initialBudget - coutCampagne;
+    return IFNULL(initialBudget - budgetUtilise,0);
 end |
 
 create or replace function plateformeAvailable(moment date,plateforme VARCHAR(50)) returns boolean
@@ -162,11 +159,15 @@ begin
         FROM CAMPAGNE
         WHERE nomPlateforme = plateforme AND MONTH(moment) = MONTH(dateDebut) AND YEAR(moment) = YEAR(dateDebut); 
 
+    declare continue handler for not FOUND set fini = true;
+
     open lesCampagnes;
     while not fini do
 
         fetch lesCampagnes into dateCampagne,dureeCampagne;
+
         if not fini then
+
             if (DATEDIFF(dateCampagne,moment) < dureeCampagne) then
                 set isAvailable = false;
             end if;
@@ -181,7 +182,7 @@ end |
 create or replace TRIGGER checkBudget
 before INSERT ON BUDGET FOR EACH ROW
 begin
-    declare messageErreur VARCHAR(50); 
+    declare messageErreur VARCHAR(100); 
 
     -- vérifie que le budget n'est pas négatif
     if (new.budgetTotal < 0) then
@@ -196,13 +197,56 @@ begin
     end if;
 end |
 
+create or replace TRIGGER checkBudgetUpdate
+before UPDATE ON BUDGET FOR EACH ROW
+begin
+    declare messageErreur VARCHAR(200); 
+    declare fondsEngage DECIMAL(10,2);
+    declare totalFondsEngage DECIMAL(10,2) default 0;
+    declare currentDate Date default CURDATE();
+
+    declare fini boolean default false;
+    declare lesFondsEngage cursor for
+        SELECT coutJournalier * duree 
+        FROM CAMPAGNE NATURAL JOIN PLATEFORME
+        WHERE MONTH(dateDebut) = MONTH(new.dateMoisAnnee) AND YEAR(dateDebut) = YEAR(new.dateMoisAnnee);
+
+    declare continue handler for not found set fini = true;
+    -- vérifie que le budget n'est pas négatif
+    if (new.budgetTotal < 0) then
+        set messageErreur = 'Le budget ne peut pas être négatif';
+        signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
+    end if;
+
+    -- verifie que le budget voulant être modifié n'est pas pour un mois passé
+    if(MONTH(old.dateMoisAnnee) < MONTH(currentDate) OR YEAR(old.dateMoisAnnee) < YEAR(currentDate)) then
+        set messageErreur = 'La date budget indiqué dépassé, modification annulé';
+        signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
+    end if;
+
+    -- vérifie que les fonds engagé sont inférieur au nouveau budget
+    open lesFondsEngage;
+    while not fini do
+        fetch lesFondsEngage into fondsEngage;
+        if not fini then
+            set totalFondsEngage = totalFondsEngage + fondsEngage;
+        end if;
+    end while;
+
+    if (totalFondsEngage > new.budgetTotal) then
+        set messageErreur = 'Le budget indiqué est inférieur aux fonds actuellement engagé sur les différentes campagne, modification annulé';
+        signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
+    end if;
+
+end |
+
 create or replace TRIGGER checkCampagneValidity
 before INSERT ON CAMPAGNE FOR EACH ROW 
 begin
     declare budgetRestant DECIMAL(10,2);
     declare coutPlatefrom DECIMAL(10,2);
 
-    declare messageErreur VARCHAR(50); 
+    declare messageErreur VARCHAR(100); 
 
     -- récupération du cout journalier de la plateforme 
     -- utilisé pour la nouvelle campagne
@@ -226,8 +270,3 @@ begin
 end |
 
 delimiter ;
-
-
- 
-
-

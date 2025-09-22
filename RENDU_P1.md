@@ -20,3 +20,5 @@ Nous avons utilisé le site [Mocodo](https://www.mocodo.net/) pour produire ce m
 - Lors d'une campagne, les personnes et la plateforme ne doivent pas être occupé par une autre campagne simultanément.
 - Il ne peut y avoir qu'un seul budget par mois.
 - Un équipement ne peut être utilisé par plusieurs plateformes simultanément.
+- Un budget ne peut être modifié si le nouveau budget ne permet pas de couvrir les fonds investi dans les campagne courrante.
+- Un budget ne peut être modifié une fois le mois de celui-ci écoulé.

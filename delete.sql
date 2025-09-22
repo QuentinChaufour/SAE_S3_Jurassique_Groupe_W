@@ -1,6 +1,8 @@
 -- Functions and Triggers dropping
 
 DROP TRIGGER checkCampagneValidity;
+DROP TRIGGER checkBudget;
+DROP TRIGGER checkBudgetUpdate;
 
 DROP FUNCTION plateformeAvailable;
 DROP FUNCTION remainingBudget;
