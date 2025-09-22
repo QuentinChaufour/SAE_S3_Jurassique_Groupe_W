@@ -166,12 +166,35 @@ begin
     while not fini do
 
         fetch lesCampagnes into dateCampagne,dureeCampagne;
+        if not fini then
+            if (DATEDIFF(dateCampagne,moment) < dureeCampagne) then
+                set isAvailable = false;
+            end if;
+        end if;
 
     end while;
-    return true;
+    return isAvailable;
 end |
 
 -- Triggers
+
+create or replace TRIGGER checkBudget
+before INSERT ON BUDGET FOR EACH ROW
+begin
+    declare messageErreur VARCHAR(50); 
+
+    -- vérifie que le budget n'est pas négatif
+    if (new.budgetTotal < 0) then
+        set messageErreur = 'Le budget ne peut pas être négatif';
+        signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
+    end if;
+
+    -- vérifie qu'il n'y a pas déjà un budget pour le mois et l'année indiqués
+    if exists(SELECT * FROM BUDGET WHERE YEAR(dateMoisAnnee) = YEAR(new.dateMoisAnnee) AND MONTH(dateMoisAnnee) = MONTH(new.dateMoisAnnee)) then
+        set messageErreur = 'Un budget est déjà indiqué pour le mois et l''année spécifiés';
+        signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
+    end if;
+end |
 
 create or replace TRIGGER checkCampagneValidity
 before INSERT ON CAMPAGNE FOR EACH ROW 
@@ -196,8 +219,10 @@ begin
     end if;
 
     -- verification de validité d'utilisation de la plateforme 
-
-
+    if not plateformeAvailable(new.dateDebut,new.nomPlateforme) then
+        set messageErreur = 'La plateforme n''est pas disponible à cette date';
+        signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
+    end if;
 end |
 
 delimiter ;

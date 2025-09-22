@@ -1,0 +1,13 @@
+
+INSERT INTO BUDGET VALUES ('2025-01-01', 1000.00);
+INSERT INTO BUDGET VALUES ('2025-02-01', 1500.00);
+INSERT INTO BUDGET VALUES ('2025-03-01', 2000.00);
+INSERT INTO BUDGET VALUES ('2025-04-01', 2500.00);
+
+-- > erreur d'insertion : budget négatif
+INSERT INTO BUDGET VALUES ('2025-05-01', -500.00);
+
+-- > erreur d'insertion : budget déjà existant pour le mois et l'année
+INSERT INTO BUDGET VALUES ('2025-01-15', 1200.00);
+
+INSERT INTO PLATEFORME VALUES ('Black Betty',5,50.99,30);
