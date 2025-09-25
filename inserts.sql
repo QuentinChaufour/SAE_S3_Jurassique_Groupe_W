@@ -19,7 +19,7 @@ UPDATE BUDGET set budgetTotal = 4000 WHERE dateMoisAnnee = '2025-03-01';
 
 -- > erreur d'update car le nouveau budget ne couvre pas les fonds engagé
 INSERT INTO PLATEFORME VALUES ('Black Betty',5,200,30);
-INSERT INTO CAMPAGNE VALUES (5,'Black Betty',CURDATE(),5,'Lailly-en-Val');
+INSERT INTO CAMPAGNE VALUES (5,'Black Betty',CURDATE(),5,'Lailly-en-Val',true);
 
 UPDATE BUDGET set budgetTotal = 500 WHERE dateMoisAnnee = CURDATE();
 DELETE FROM CAMPAGNE;
