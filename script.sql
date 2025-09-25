@@ -44,14 +44,14 @@ CREATE OR REPLACE TABLE PLATEFORME (
     PRIMARY KEY (nomPlateforme)
 );
 
-CREATE OR REPLACE TABLE INCULRE_EQUIPEMENT (
+CREATE OR REPLACE TABLE INCLURE_EQUIPEMENT (
     nomPlateforme VARCHAR(50),
     idEquipement INT,
     PRIMARY KEY (nomPlateforme, idEquipement)
 );  
 
-ALTER TABLE INCULRE_EQUIPEMENT ADD FOREIGN KEY (nomPlateforme) REFERENCES PLATEFORME(nomPlateforme);
-ALTER TABLE INCULRE_EQUIPEMENT ADD FOREIGN KEY (idEquipement) REFERENCES EQUIPEMENT(idEquipement);
+ALTER TABLE INCLURE_EQUIPEMENT ADD FOREIGN KEY (nomPlateforme) REFERENCES PLATEFORME(nomPlateforme);
+ALTER TABLE INCLURE_EQUIPEMENT ADD FOREIGN KEY (idEquipement) REFERENCES EQUIPEMENT(idEquipement);
 
 CREATE OR REPLACE TABLE NECESSITER_HABILITATION (
     idEquipement INT,
@@ -269,4 +269,53 @@ begin
     end if;
 end |
 
+delimiter ;
+
+-- Un équipement ne peut être utilisé par plusieurs plateformes simultanément.
+
+delimiter |
+create or replace TRIGGER checkUnEquipementSurPlateforme
+before INSERT ON INCLURE_EQUIPEMENT for each ROW
+begin
+    declare idEquipementP INT;
+    declare nbEquipementP INT;
+    declare messageErreur VARCHAR(100);
+
+    -- récupère l'id de l'équipement et compte les occurrences existantes
+    SET idEquipementP = new.idEquipement;
+    
+    SELECT count(*) into nbEquipementP
+    FROM INCLURE_EQUIPEMENT
+    WHERE idEquipement = new.idEquipement;
+
+    -- vérifier que l'équipement ne fasse pas déjà partie d'une plateforme
+    if (nbEquipementP > 0) then
+        set messageErreur = concat("L'équipement numéro : ", idEquipementP, " ne peut pas être dans plusieurs plateformes simultanément");
+        signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
+    end if;
+end |
+delimiter ;
+
+delimiter |
+create or replace TRIGGER checkUpadateUnEquipementSurPlateforme
+before UPDATE ON INCLURE_EQUIPEMENT for each ROW
+begin
+    declare idEquipementP INT;
+    declare nbEquipementP INT;
+    declare messageErreur VARCHAR(100);
+
+    -- récupère l'id de l'équipement et compte les occurrences
+    SET idEquipementP = new.idEquipement;
+    
+    SELECT count(*) into nbEquipementP
+    FROM INCLURE_EQUIPEMENT
+    WHERE idEquipement = new.idEquipement
+    AND (nomPlateforme != new.nomPlateforme OR idEquipement != old.idEquipement);
+
+    -- vérifier que l'équipement ne soit pas déjà dans une autre plateforme
+    if (nbEquipementP > 0) then
+        set messageErreur = concat("L'équipement numéro : ", idEquipementP, " ne peut pas être dans plusieurs plateformes simultanément");
+        signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
+    end if;
+end |
 delimiter ;
