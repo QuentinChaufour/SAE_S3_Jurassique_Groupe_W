@@ -1,3 +1,4 @@
+
 delimiter |
 create or replace procedure clear_all()
 begin
@@ -100,3 +101,9 @@ INSERT INTO CAMPAGNE VALUES (2,'Black Bolt',DATE_ADD(CURDATE(), INTERVAL 2 DAY),
 INSERT INTO PARTICIPER_CAMPAGNE values (1,2);
 
 call clear_all;
+
+insert into BUDGET values('2025-09-01', 10000.00);
+insert into PLATEFORME values('Black Betty', 10, 300, 31);
+insert into MAINTENANCE values('Black Betty', '2025-09-10', false);
+
+insert into CAMPAGNE (nomPlateforme, dateDebut, duree, lieu, valide) values ('Black Betty', '2025-09-20', 5, 'Lailly-en-Val', true);
