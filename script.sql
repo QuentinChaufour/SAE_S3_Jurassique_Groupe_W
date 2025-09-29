@@ -6,22 +6,22 @@ CREATE OR REPLACE TABLE BUDGET (
 );
 
 CREATE OR REPLACE TABLE HABILITATION (
-    idHabilitation INT AUTO_INCREMENT,
+    idHabilitation INT ,
     nomHabilitation VARCHAR(50),
     PRIMARY KEY (idHabilitation)
 );
 
 CREATE OR REPLACE TABLE PERSONNEL (
-    idPersonnel VARCHAR(10),
+    idPersonnel INT ,
     nom VARCHAR(50),
     prenom VARCHAR(50),
-    mdp VARCHAR(50) UNIQUE,
+    mdp VARCHAR(10) UNIQUE,
     role ENUM('administratif', 'chercheur', 'technicien','direction'),
     PRIMARY KEY (idPersonnel)
 );
 
 CREATE OR REPLACE TABLE POSSEDER_HABILITATION (
-    idPersonnel VARCHAR(10),
+    idPersonnel INT,
     idHabilitation INT,
     PRIMARY KEY (idPersonnel, idHabilitation)
 );
@@ -31,7 +31,7 @@ ALTER TABLE POSSEDER_HABILITATION ADD FOREIGN KEY (idHabilitation) REFERENCES HA
 
 
 CREATE OR REPLACE TABLE EQUIPEMENT (
-    idEquipement INT AUTO_INCREMENT,
+    idEquipement INT ,
     nomEquipement VARCHAR(50),
     PRIMARY KEY (idEquipement)
 );
@@ -72,18 +72,19 @@ CREATE OR REPLACE TABLE MAINTENANCE (
 ALTER TABLE MAINTENANCE ADD FOREIGN KEY (nomPlateforme) REFERENCES PLATEFORME(nomPlateforme);
 
 CREATE OR REPLACE TABLE CAMPAGNE (
-    idCampagne INT AUTO_INCREMENT,
+    idCampagne INT ,
     nomPlateforme VARCHAR(50),
     dateDebut DATE,
     duree INT,
     lieu VARCHAR(100),
+    valide BOOLEAN default false,
     PRIMARY KEY (idCampagne)
 );
 
 ALTER TABLE CAMPAGNE ADD FOREIGN KEY (nomPlateforme) REFERENCES PLATEFORME(nomPlateforme);
 
 CREATE OR REPLACE TABLE PARTICIPER_CAMPAGNE (
-    idPersonnel VARCHAR(10),
+    idPersonnel INT,
     idCampagne INT,
     PRIMARY KEY (idPersonnel, idCampagne)
 );
@@ -92,7 +93,7 @@ ALTER TABLE PARTICIPER_CAMPAGNE ADD FOREIGN KEY (idPersonnel) REFERENCES PERSONN
 ALTER TABLE PARTICIPER_CAMPAGNE ADD FOREIGN KEY (idCampagne) REFERENCES CAMPAGNE(idCampagne);
 
 CREATE OR REPLACE TABLE ESPECE (
-    idEspece INT AUTO_INCREMENT,
+    idEspece INT ,
     nomEspece VARCHAR(50),
     nomScientifique VARCHAR(100),
     genome TEXT,
@@ -100,7 +101,7 @@ CREATE OR REPLACE TABLE ESPECE (
 );
 
 CREATE OR REPLACE TABLE ECHANTILLON (
-    idEchantillon INT AUTO_INCREMENT,
+    idEchantillon INT ,
     idCampagne INT,
     fichierSequenceADN TEXT,
     idEspece INT,               -- null si non identifié
@@ -111,7 +112,7 @@ CREATE OR REPLACE TABLE ECHANTILLON (
 ALTER TABLE ECHANTILLON ADD FOREIGN KEY (idCampagne) REFERENCES CAMPAGNE(idCampagne);
 ALTER TABLE ECHANTILLON ADD FOREIGN KEY (idEspece) REFERENCES ESPECE(idEspece);
 
-
+create or replace index campagneValides ON CAMPAGNE(valide);
 
 delimiter |
 
@@ -172,9 +173,32 @@ begin
                 set isAvailable = false;
             end if;
         end if;
-
     end while;
     return isAvailable;
+end |
+
+create or replace function verifyHabilitationValidity(idCampagneEnrolledIn INT,idHabilitationRequired INT) returns BOOLEAN
+begin
+    declare isRepresented BOOLEAN default false;
+    declare habilitation INT;
+    declare fini BOOLEAN default false;
+    declare getHabilitationsRepresented cursor for 
+        SELECT idHabilitation
+        FROM PARTICIPER_CAMPAGNE NATURAL JOIN POSSEDER_HABILITATION
+        WHERE idCampagne = new.idCampagne;
+
+    declare continue handler for not found set fini = true;
+
+    open getHabilitationsRepresented;
+    while not fini do
+        fetch getHabilitationsRepresented into habilitation;
+
+        if (not fini AND habilitation = idHabilitationRequired) then
+            set isRepresented = true;
+        end if;
+    end while;
+    close getHabilitationsRepresented;
+    return isRepresented;
 end |
 
 -- Triggers
@@ -237,14 +261,14 @@ begin
         set messageErreur = 'Le budget indiqué est inférieur aux fonds actuellement engagé sur les différentes campagne, modification annulé';
         signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
     end if;
-
 end |
 
-create or replace TRIGGER checkCampagneValidity
+create or replace TRIGGER checkCampagne
 before INSERT ON CAMPAGNE FOR EACH ROW 
 begin
     declare budgetRestant DECIMAL(10,2);
     declare coutPlatefrom DECIMAL(10,2);
+    declare nbPersonnesEnrollee INT;
 
     declare messageErreur VARCHAR(100); 
 
@@ -265,30 +289,6 @@ begin
     -- verification de validité d'utilisation de la plateforme 
     if not plateformeAvailable(new.dateDebut,new.nomPlateforme) then
         set messageErreur = 'La plateforme n''est pas disponible à cette date';
-        signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
-    end if;
-end |
-
-
--- Un équipement ne peut être utilisé par plusieurs plateformes simultanément.
-
-create or replace TRIGGER checkUnEquipementSurPlateforme
-before INSERT ON INCLURE_EQUIPEMENT for each ROW
-begin
-    declare idEquipementP INT;
-    declare nbEquipementP INT;
-    declare messageErreur VARCHAR(100);
-
-    -- récupère l'id de l'équipement et compte les occurrences existantes
-    SET idEquipementP = new.idEquipement;
-    
-    SELECT count(*) into nbEquipementP
-    FROM INCLURE_EQUIPEMENT
-    WHERE idEquipement = new.idEquipement;
-
-    -- vérifier que l'équipement ne fasse pas déjà partie d'une plateforme
-    if (nbEquipementP > 0) then
-        set messageErreur = concat("L'équipement numéro : ", idEquipementP, " ne peut pas être dans plusieurs plateformes simultanément");
         signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
     end if;
 end |
@@ -314,4 +314,92 @@ begin
         signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
     end if;
 end |
+
+create or replace trigger checkChercheurParticipation
+before INSERT on PARTICIPER_CAMPAGNE for each row
+begin
+    declare messageErreur VARCHAR(100);
+    declare campagneStartDay DATE; 
+    -- vérification de disponibilité de la personne 
+
+    SELECT dateDebut into campagneStartDay
+    FROM CAMPAGNE
+    WHERE idCampagne = new.idCampagne;
+
+    if exists (SELECT * FROM PARTICIPER_CAMPAGNE NATURAL JOIN CAMPAGNE WHERE idPersonnel = new.idPersonnel AND DATE_ADD(dateDebut,INTERVAL duree DAY) > campagneStartDay) then
+        set messageErreur = 'Le chercheur est déja occupé sur une campagne au commencement de celle-ci';
+        signal SQLSTATE '45000' SET MESSAGE_TEXT = messageErreur;
+    end if;
+end |
+
+create or replace trigger checkCampagneValidity
+after INSERT on PARTICIPER_CAMPAGNE for each ROW
+begin
+
+    declare nbPersonnesEnrollee INT;
+    declare nbPersonnesRequired INT;
+    declare habilitationSearched INT;
+    declare fini BOOLEAN default false;
+    -- on part du principe que les contitions sont vérifié
+    declare isValide BOOLEAN default true;
+    declare getHabilitationsRequired cursor for 
+        SELECT idHabilitation
+        FROM CAMPAGNE NATURAL JOIN INCLURE_EQUIPEMENT NATURAL JOIN NECESSITER_HABILITATION
+        WHERE idCampagne = new.idCampagne;
+
+    declare continue handler for not found set fini = true;
+
+    -- verification de validité de la campagne (représentation des habilitations nécessaires et nb de personnes enrollées)
+
+    open getHabilitationsRequired;
+    while not fini do
+        fetch getHabilitationsRequired into habilitationSearched;
+        if not fini then
+            SELECT verifyHabilitationValidity(new.idCampagne,habilitationSearched) into isValide;
+            if not isValide then
+            -- les conditions ne sont pas remplisent, on peut stopper la verification
+                set fini = false;
+            end if;
+        end if;
+    end while;
+    close getHabilitationsRequired;
+
+    SELECT nbPersonnesRequises into nbPersonnesRequired
+    FROM PARTICIPER_CAMPAGNE NATURAL JOIN CAMPAGNE NATURAL JOIN PLATEFORME
+    WHERE idCampagne = new.idCampagne;
+
+    SELECT COUNT(idPersonnel) INTO nbPersonnesEnrollee
+    FROM PARTICIPER_CAMPAGNE
+    WHERE idCampagne = new.idCampagne; 
+
+    if (isValide AND nbPersonnesEnrollee) then 
+        UPDATE CAMPAGNE 
+        SET valide = true 
+        WHERE idCampagne = new.idCampagne;
+    end if;
+end |
+
+-- Un équipement ne peut être utilisé par plusieurs plateformes simultanément.
+
+create or replace TRIGGER checkUnEquipementSurPlateforme
+before INSERT ON INCLURE_EQUIPEMENT for each ROW
+begin
+    declare idEquipementP INT;
+    declare nbEquipementP INT;
+    declare messageErreur VARCHAR(100);
+
+    -- récupère l'id de l'équipement et compte les occurrences existantes
+    SET idEquipementP = new.idEquipement;
+    
+    SELECT count(*) into nbEquipementP
+    FROM INCLURE_EQUIPEMENT
+    WHERE idEquipement = new.idEquipement;
+
+    -- vérifier que l'équipement ne fasse pas déjà partie d'une plateforme
+    if (nbEquipementP > 0) then
+        set messageErreur = concat("L'équipement numéro : ", idEquipementP, " ne peut pas être dans plusieurs plateformes simultanément");
+        signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
+    end if;
+end |
+
 delimiter ;

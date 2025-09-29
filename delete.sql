@@ -1,11 +1,13 @@
 -- Functions and Triggers dropping
-
+DROP TRIGGER checkCampagne;
 DROP TRIGGER checkCampagneValidity;
 DROP TRIGGER checkBudget;
 DROP TRIGGER checkBudgetUpdate;
+DROP TRIGGER checkChercheurParticipation;
 
 DROP FUNCTION plateformeAvailable;
 DROP FUNCTION remainingBudget;
+DROP FUNCTION verifyHabilitationValidity;
 
 -- Tables dropping
 
