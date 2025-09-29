@@ -45,6 +45,24 @@ INSERT INTO PLATEFORME VALUES ('Black Betty',5,200,30);
 INSERT INTO CAMPAGNE VALUES (1,'Black Betty',CURDATE(),5,'Lailly-en-Val',true);
 
 UPDATE BUDGET set budgetTotal = 500 WHERE dateMoisAnnee = CURDATE();
+call clear_all;
+
+  -----------------------------------------------------
+  -- verification des contraintes Inclure Equipement --
+  -----------------------------------------------------
+
+--> erreur d'insert et d'update car il y a un équipement 
+-- insert
+INSERT INTO EQUIPEMENT VALUES (012, "Pinceau");
+INSERT INTO PLATEFORME VALUES ('Black Betty',5,50.99,30);
+INSERT INTO PLATEFORME VALUES ('Black Pearl',5,50.99,30);
+INSERT INCLURE_EQUIPEMENT VALUES('Black Betty', 012);
+INSERT INCLURE_EQUIPEMENT VALUES('Black Pearl', 012);
+
+--update
+INSERT INTO EQUIPEMENT VALUES(013, "Pelle");
+INSERT INCLURE_EQUIPEMENT VALUES('Black Pearl', 013);
+UPDATE INCLURE_EQUIPEMENT set idEquipement = 012 WHERE nomPlateforme = 'Black Pearl';
 
 call clear_all;
 

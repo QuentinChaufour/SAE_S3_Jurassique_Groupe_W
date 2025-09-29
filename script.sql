@@ -293,6 +293,28 @@ begin
     end if;
 end |
 
+create or replace TRIGGER checkUpadateUnEquipementSurPlateforme
+before UPDATE ON INCLURE_EQUIPEMENT for each ROW
+begin
+    declare idEquipementP INT;
+    declare nbEquipementP INT;
+    declare messageErreur VARCHAR(100);
+
+    -- récupère l'id de l'équipement et compte les occurrences
+    SET idEquipementP = new.idEquipement;
+    
+    SELECT count(*) into nbEquipementP
+    FROM INCLURE_EQUIPEMENT
+    WHERE idEquipement = new.idEquipement
+    AND (nomPlateforme != new.nomPlateforme OR idEquipement != old.idEquipement);
+
+    -- vérifier que l'équipement ne soit pas déjà dans une autre plateforme
+    if (nbEquipementP > 0) then
+        set messageErreur = concat("L'équipement numéro : ", idEquipementP, " ne peut pas être dans plusieurs plateformes simultanément");
+        signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
+    end if;
+end |
+
 create or replace trigger checkChercheurParticipation
 before INSERT on PARTICIPER_CAMPAGNE for each row
 begin
@@ -354,6 +376,29 @@ begin
         UPDATE CAMPAGNE 
         SET valide = true 
         WHERE idCampagne = new.idCampagne;
+    end if;
+end |
+
+-- Un équipement ne peut être utilisé par plusieurs plateformes simultanément.
+
+create or replace TRIGGER checkUnEquipementSurPlateforme
+before INSERT ON INCLURE_EQUIPEMENT for each ROW
+begin
+    declare idEquipementP INT;
+    declare nbEquipementP INT;
+    declare messageErreur VARCHAR(100);
+
+    -- récupère l'id de l'équipement et compte les occurrences existantes
+    SET idEquipementP = new.idEquipement;
+    
+    SELECT count(*) into nbEquipementP
+    FROM INCLURE_EQUIPEMENT
+    WHERE idEquipement = new.idEquipement;
+
+    -- vérifier que l'équipement ne fasse pas déjà partie d'une plateforme
+    if (nbEquipementP > 0) then
+        set messageErreur = concat("L'équipement numéro : ", idEquipementP, " ne peut pas être dans plusieurs plateformes simultanément");
+        signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
     end if;
 end |
 
