@@ -269,11 +269,9 @@ begin
     end if;
 end |
 
-delimiter ;
 
 -- Un équipement ne peut être utilisé par plusieurs plateformes simultanément.
 
-delimiter |
 create or replace TRIGGER checkUnEquipementSurPlateforme
 before INSERT ON INCLURE_EQUIPEMENT for each ROW
 begin
@@ -294,9 +292,7 @@ begin
         signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
     end if;
 end |
-delimiter ;
 
-delimiter |
 create or replace TRIGGER checkUpadateUnEquipementSurPlateforme
 before UPDATE ON INCLURE_EQUIPEMENT for each ROW
 begin
