@@ -46,6 +46,10 @@ INSERT INTO PLATEFORME VALUES ('Black Betty',5,200,30);
 INSERT INTO CAMPAGNE VALUES (1,'Black Betty',CURDATE(),5,'Lailly-en-Val',true);
 
 UPDATE BUDGET set budgetTotal = 500 WHERE dateMoisAnnee = CURDATE();
+
+-- > erreur de delete car budget utilisé
+DELETE FROM BUDGET where dateMoisAnnee = CURDATE();
+
 call clear_all;
 
   -----------------------------------------------------
@@ -101,9 +105,3 @@ INSERT INTO CAMPAGNE VALUES (2,'Black Bolt',DATE_ADD(CURDATE(), INTERVAL 2 DAY),
 INSERT INTO PARTICIPER_CAMPAGNE values (1,2);
 
 call clear_all;
-
-insert into BUDGET values('2025-09-01', 10000.00);
-insert into PLATEFORME values('Black Betty', 10, 300, 31);
-insert into MAINTENANCE values('Black Betty', '2025-09-10', false);
-
-insert into CAMPAGNE (nomPlateforme, dateDebut, duree, lieu, valide) values ('Black Betty', '2025-09-20', 5, 'Lailly-en-Val', true);

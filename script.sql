@@ -6,13 +6,13 @@ CREATE OR REPLACE TABLE BUDGET (
 );
 
 CREATE OR REPLACE TABLE HABILITATION (
-    idHabilitation INT ,
+    idHabilitation INT AUTO_INCREMENT,
     nomHabilitation VARCHAR(50),
     PRIMARY KEY (idHabilitation)
 );
 
 CREATE OR REPLACE TABLE PERSONNEL (
-    idPersonnel INT ,
+    idPersonnel INT AUTO_INCREMENT,
     nom VARCHAR(50),
     prenom VARCHAR(50),
     mdp VARCHAR(10) UNIQUE,
@@ -31,7 +31,7 @@ ALTER TABLE POSSEDER_HABILITATION ADD FOREIGN KEY (idHabilitation) REFERENCES HA
 
 
 CREATE OR REPLACE TABLE EQUIPEMENT (
-    idEquipement INT ,
+    idEquipement INT AUTO_INCREMENT,
     nomEquipement VARCHAR(50),
     PRIMARY KEY (idEquipement)
 );
@@ -65,14 +65,14 @@ ALTER TABLE NECESSITER_HABILITATION ADD FOREIGN KEY (idHabilitation) REFERENCES 
 CREATE OR REPLACE TABLE MAINTENANCE (
     nomPlateforme VARCHAR(50),
     dateMaintenance DATE,
-    maintenanceTermine BOOLEAN,
+    dureeMaintenance INT,
     PRIMARY KEY (nomPlateforme, dateMaintenance)
 );
 
 ALTER TABLE MAINTENANCE ADD FOREIGN KEY (nomPlateforme) REFERENCES PLATEFORME(nomPlateforme);
 
 CREATE OR REPLACE TABLE CAMPAGNE (
-    idCampagne INT ,
+    idCampagne INT AUTO_INCREMENT,
     nomPlateforme VARCHAR(50),
     dateDebut DATE,
     duree INT,
@@ -93,7 +93,7 @@ ALTER TABLE PARTICIPER_CAMPAGNE ADD FOREIGN KEY (idPersonnel) REFERENCES PERSONN
 ALTER TABLE PARTICIPER_CAMPAGNE ADD FOREIGN KEY (idCampagne) REFERENCES CAMPAGNE(idCampagne);
 
 CREATE OR REPLACE TABLE ESPECE (
-    idEspece INT ,
+    idEspece INT AUTO_INCREMENT,
     nomEspece VARCHAR(50),
     nomScientifique VARCHAR(100),
     genome TEXT,
@@ -101,7 +101,7 @@ CREATE OR REPLACE TABLE ESPECE (
 );
 
 CREATE OR REPLACE TABLE ECHANTILLON (
-    idEchantillon INT ,
+    idEchantillon INT AUTO_INCREMENT,
     idCampagne INT,
     fichierSequenceADN TEXT,
     idEspece INT,               -- null si non identifié
@@ -259,6 +259,17 @@ begin
 
     if (totalFondsEngage > new.budgetTotal) then
         set messageErreur = 'Le budget indiqué est inférieur aux fonds actuellement engagé sur les différentes campagne, modification annulé';
+        signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
+    end if;
+end |
+
+create or replace trigger checkDelBudget
+before DELETE on BUDGET for each row
+begin
+    declare messageErreur VARCHAR(500);
+    
+    if exists(SELECT * FROM CAMPAGNE WHERE MONTH(dateDebut) = MONTH(old.dateMoisAnnee) and YEAR(dateDebut) = YEAR(old.dateMoisAnnee)) then
+        set messageErreur = "Impossible de supprimer le budget car il y a une campagne en cours";
         signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
     end if;
 end |
