@@ -185,7 +185,7 @@ begin
     declare getHabilitationsRepresented cursor for 
         SELECT idHabilitation
         FROM PARTICIPER_CAMPAGNE NATURAL JOIN POSSEDER_HABILITATION
-        WHERE idCampagne = new.idCampagne;
+        WHERE idCampagne = idCampagneEnrolledIn;
 
     declare continue handler for not found set fini = true;
 
@@ -364,7 +364,7 @@ begin
     end while;
     close getHabilitationsRequired;
 
-    SELECT nbPersonnesRequises into nbPersonnesRequired
+    SELECT distinct nbPersonnesRequises into nbPersonnesRequired
     FROM PARTICIPER_CAMPAGNE NATURAL JOIN CAMPAGNE NATURAL JOIN PLATEFORME
     WHERE idCampagne = new.idCampagne;
 
