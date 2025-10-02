@@ -169,7 +169,7 @@ begin
 
         if not fini then
 
-            if (DATEDIFF(dateCampagne,moment) < dureeCampagne) then
+            if (DATEDIFF(dateCampagne,moment) < dureeCampagne) AND dateCampagne > moment then
                 set isAvailable = false;
             end if;
         end if;
@@ -185,7 +185,7 @@ begin
     declare getHabilitationsRepresented cursor for 
         SELECT idHabilitation
         FROM PARTICIPER_CAMPAGNE NATURAL JOIN POSSEDER_HABILITATION
-        WHERE idCampagne = new.idCampagne;
+        WHERE idCampagne = idCampagneEnrolledIn;
 
     declare continue handler for not found set fini = true;
 
@@ -375,7 +375,7 @@ begin
     end while;
     close getHabilitationsRequired;
 
-    SELECT nbPersonnesRequises into nbPersonnesRequired
+    SELECT distinct nbPersonnesRequises into nbPersonnesRequired
     FROM PARTICIPER_CAMPAGNE NATURAL JOIN CAMPAGNE NATURAL JOIN PLATEFORME
     WHERE idCampagne = new.idCampagne;
 
@@ -383,10 +383,57 @@ begin
     FROM PARTICIPER_CAMPAGNE
     WHERE idCampagne = new.idCampagne; 
 
-    if (isValide AND nbPersonnesEnrollee) then 
+    if (isValide AND nbPersonnesEnrollee >= nbPersonnesRequired) then 
         UPDATE CAMPAGNE 
         SET valide = true 
         WHERE idCampagne = new.idCampagne;
+    end if;
+end |
+
+create or replace trigger checkCampagneValidityAfterDelete
+after DELETE on PARTICIPER_CAMPAGNE for each ROW
+begin
+
+    declare nbPersonnesEnrollee INT;
+    declare nbPersonnesRequired INT;
+    declare habilitationSearched INT;
+    declare fini BOOLEAN default false;
+    -- on part du principe que les contitions sont vérifié
+    declare isValide BOOLEAN default true;
+    declare getHabilitationsRequired cursor for 
+        SELECT idHabilitation
+        FROM CAMPAGNE NATURAL JOIN INCLURE_EQUIPEMENT NATURAL JOIN NECESSITER_HABILITATION
+        WHERE idCampagne = old.idCampagne;
+
+    declare continue handler for not found set fini = true;
+
+    -- verification de validité de la campagne (représentation des habilitations nécessaires et nb de personnes enrollées)
+
+    open getHabilitationsRequired;
+    while not fini do
+        fetch getHabilitationsRequired into habilitationSearched;
+        if not fini then
+            SELECT verifyHabilitationValidity(old.idCampagne,habilitationSearched) into isValide;
+            if not isValide then
+            -- les conditions ne sont pas remplisent, on peut stopper la verification
+                set fini = false;
+            end if;
+        end if;
+    end while;
+    close getHabilitationsRequired;
+
+    SELECT distinct nbPersonnesRequises into nbPersonnesRequired
+    FROM PARTICIPER_CAMPAGNE NATURAL JOIN CAMPAGNE NATURAL JOIN PLATEFORME
+    WHERE idCampagne = old.idCampagne;
+
+    SELECT COUNT(idPersonnel) INTO nbPersonnesEnrollee
+    FROM PARTICIPER_CAMPAGNE
+    WHERE idCampagne = old.idCampagne; 
+
+    if NOT(isValide AND nbPersonnesEnrollee >= nbPersonnesRequired) then 
+        UPDATE CAMPAGNE 
+        SET valide = false 
+        WHERE idCampagne = old.idCampagne;
     end if;
 end |
 
@@ -414,3 +461,4 @@ begin
 end |
 
 delimiter ;
+-- Si une personne se dé-engage d'une campagne, ont doit revérifier la validité de la Campagne associée.

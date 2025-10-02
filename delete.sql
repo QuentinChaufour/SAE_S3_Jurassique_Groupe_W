@@ -4,6 +4,7 @@ DROP TRIGGER checkCampagneValidity;
 DROP TRIGGER checkBudget;
 DROP TRIGGER checkBudgetUpdate;
 DROP TRIGGER checkChercheurParticipation;
+DROP TRIGGER checkCampagneValidityAfterDelete;
 
 DROP FUNCTION plateformeAvailable;
 DROP FUNCTION remainingBudget;
