@@ -44,7 +44,7 @@
 		<line x1="575" y1="51" x2="689" y2="51" stroke="#4393c3" stroke-width="1"/>
 		<text x="583" y="43.75" fill="#000000" font-family="Verdana" font-size="12">en_Maintenance</text>
 	</g>
-	<text x="718" y="68" fill="#b2182b" font-family="Verdana" font-size="12">0,N</text>
+	<text x="719" y="68" fill="#b2182b" font-family="Verdana" font-size="12">1,1</text>
 	<text x="637" y="93" fill="#b2182b" font-family="Verdana" font-size="12">0,N</text>
 </g>
 
@@ -165,7 +165,6 @@
 	<text x="920" y="59.8" fill="#000000" font-family="Verdana" font-size="12">dateMoisAnnee</text>
 	<line x1="920" y1="62" x2="1012" y2="62" stroke="#000000" stroke-width="1"/>
 	<text x="920" y="76.8" fill="#000000" font-family="Verdana" font-size="12">budget</text>
-	<line x1="920" y1="79" x2="963" y2="79" stroke="#000000" stroke-width="1"/>
 </g>
 
 <!-- Entity ESPECE -->
