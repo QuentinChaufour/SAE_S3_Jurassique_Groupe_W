@@ -147,7 +147,7 @@ INSERT INTO NECESSITER_HABILITATION (idEquipement, idHabilitation) VALUES
 (24, 1),
 (25, 1);
 
-INSERT INTO MAINTENANCE (nomPlateforme, dateMaintenance, maintenanceTermine) VALUES
+INSERT INTO MAINTENANCE (nomPlateforme, dateMaintenance, dureeMaintenance) VALUES
 ('BioTech', '2025-01-15', true),
 ('BioTech', '2025-02-14', true),
 ('BioTech', '2025-03-16', false),

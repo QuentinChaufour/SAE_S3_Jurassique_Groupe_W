@@ -69,7 +69,7 @@ begin
     declare utilisation int;
     declare maxUtilisation int;
 
-    SELECT dateMaintenance,duree into dateLastMaintenance,dureeLastMaintenance
+    SELECT dateMaintenance,dureeMaintenance into dateLastMaintenance,dureeLastMaintenance
     FROM MAINTENANCE
     WHERE nomPlateforme = nomPlateformeUtilise AND dateMaintenance >= ALL(
         SELECT dateLastMaintenance
@@ -262,7 +262,7 @@ begin
     FROM CAMPAGNE
     WHERE idCampagne = new.idCampagne;
 
-    if exists (SELECT * FROM PARTICIPER_CAMPAGNE NATURAL JOIN CAMPAGNE WHERE idPersonnel = new.idPersonnel AND DATE_ADD(dateDebut,INTERVAL duree DAY) > campagneStartDay) then
+    if exists (SELECT * FROM PARTICIPER_CAMPAGNE NATURAL JOIN CAMPAGNE WHERE idPersonnel = new.idPersonnel AND (DATE_ADD(dateDebut,INTERVAL duree DAY) > campagneStartDay AND valide)) then
         set messageErreur = 'Le chercheur est déja occupé sur une campagne au commencement de celle-ci';
         signal SQLSTATE '45000' SET MESSAGE_TEXT = messageErreur;
     end if;

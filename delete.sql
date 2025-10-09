@@ -5,8 +5,11 @@ DROP TRIGGER checkBudget;
 DROP TRIGGER checkBudgetUpdate;
 DROP TRIGGER checkChercheurParticipation;
 DROP TRIGGER checkCampagneValidityAfterDelete;
+DROP TRIGGER checkUpadateUnEquipementSurPlateforme;
+DROP TRIGGER checkUnEquipementSurPlateforme;
 
 DROP FUNCTION plateformeAvailable;
+DROP FUNCTION plateformeInMaintenace;
 DROP FUNCTION remainingBudget;
 DROP FUNCTION verifyHabilitationValidity;
 
