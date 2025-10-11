@@ -103,7 +103,7 @@ CREATE OR REPLACE TABLE ESPECE (
 CREATE OR REPLACE TABLE ECHANTILLON (
     idEchantillon INT AUTO_INCREMENT,
     idCampagne INT,
-    fichierSequenceADN TEXT,
+    fichierSequenceADN MEDIUMTEXT,
     idEspece INT,               -- null si non identifié
     commentaire TEXT,
     PRIMARY KEY (idEchantillon)
@@ -113,3 +113,4 @@ ALTER TABLE ECHANTILLON ADD FOREIGN KEY (idCampagne) REFERENCES CAMPAGNE(idCampa
 ALTER TABLE ECHANTILLON ADD FOREIGN KEY (idEspece) REFERENCES ESPECE(idEspece);
 
 create or replace index campagneValides ON CAMPAGNE(valide);
+
