@@ -1,0 +1,1 @@
+# check singleton as this class is used to connect to the database so only one instance should exist
