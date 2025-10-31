@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labo Din'O</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='image/logo.png') }}">
+</head>
+<body>
+    <header>
+        <div id="navbar">
+            <h1>Labo Din'O</h1>
+
+            <nav id="navbar-items">
+                <ul>
+                    <li>Langues</li>
+                    <li>Menu</li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    {% block content %}
+
+    <!-- Contenu spécifique à chaque page sera inséré ici -->
+
+    {% endblock %}
+
+</body>
+</html>
