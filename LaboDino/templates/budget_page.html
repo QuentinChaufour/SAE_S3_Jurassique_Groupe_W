@@ -1,0 +1,23 @@
+{% extends "base_template.html" %}
+
+{% block content %}
+<section id="logo">
+    <img src="{{ url_for('static', filename='image/logo.png') }}" alt="logo">
+</section>
+
+<div id="box_container">
+    <section id="box_block">
+        <h2>Fixer le budget mensuel</h2>
+        <!-- Formulaire de definition du budget -->
+        <form method="POST" role="form" action="{{ url_for('set_budget') }}">
+            <div class="form_field">
+                {{ form.montant.label (class_ = "form-label") }}
+                {{ form.montant (class_ ="form-input") }}
+            </div>
+            <div id="budget-form-submit">
+                <input type="submit" value="Valider le budget">
+            </div>
+        </form>
+    </section>
+</div>
+{% endblock %}

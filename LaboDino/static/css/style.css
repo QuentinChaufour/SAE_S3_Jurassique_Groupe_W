@@ -40,14 +40,14 @@
     border-radius: 100%;
 }
 
-#connexion_block{
+#box_block{
     text-align: center;
     border-radius: 2vh;
     border-radius: 15px;
     border: 2px solid #4F4F4F;
 }
 
-#connexion_block > h2{
+#box_block > h2{
     color: #000;
     font-family: Metropolis;
     font-size: 48px;
@@ -56,7 +56,7 @@
     line-height: normal;
 }
 
-.login-form-label {
+.form-label {
     text-align: left;
     color: #4F4F4F;
     font-family: Metropolis;
@@ -76,4 +76,18 @@
 #login-form-submit input{
     border-radius: 60px;
     background: #C0BCBC;
+}
+
+#login-form-submit input :hover{
+    border-radius: 60px;
+    background: #494747;
+}
+
+#budget-form-submit input{
+    border-radius: 60px;
+    background: rgba(20, 174, 92, 0.80);
+    transition: ease-in-out 0.3s;
+}
+#budget-form-submit input:hover{
+    background: rgb(123, 255, 185);
 }

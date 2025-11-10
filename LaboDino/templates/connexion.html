@@ -5,18 +5,18 @@
     <img src="{{ url_for('static', filename='image/logo.png') }}" alt="logo">
 </section>
 
-<div id="connexion_container">
-    <section id="connexion_block">
+<div id="box_container">
+    <section id="box_block">
         <h2>Login</h2>
         <!-- Formulaire de connexion -->
         <form method="POST" role="form" action="{{ url_for('login') }}">
-            <div class="login-form">
-                {{ form.id.label (class_ = "login-form-label") }}
-                {{ form.id (class_ ="login-input") }}
+            <div class="form_field">
+                {{ form.id.label (class_ = "form-label") }}
+                {{ form.id (class_ ="form-input") }}
             </div>
-            <div class="login-form">
-                {{ form.password.label (class_ = "login-form-label") }}
-                {{ form.password (class_ ="login-input") }}
+            <div class="form_field">
+                {{ form.password.label (class_ = "form-label") }}
+                {{ form.password (class_ ="form-input") }}
             </div>
             <div id="login-form-submit">
                 <input type="submit" value="Se connecter">
