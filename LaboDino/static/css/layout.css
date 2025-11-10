@@ -95,3 +95,36 @@ body{
     align-items: center;
     margin: 5%;
 }
+
+#main_tech_dashboard{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20vh;
+}
+
+#main_tech_choice{
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    gap: 10vh;
+}
+
+#platform_management{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 10vh;
+}
+
+#platform_table {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1vh;
+}
+
+#platform_table th, #platform_table td{
+    text-align: left;
+    padding: 2vh;
+}

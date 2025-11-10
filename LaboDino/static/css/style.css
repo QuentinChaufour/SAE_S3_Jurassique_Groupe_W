@@ -77,3 +77,25 @@
     border-radius: 60px;
     background: #C0BCBC;
 }
+
+#main_tech_dashboard h1{
+    font-size: 64px;
+}
+
+#main_tech_choice a{
+    text-decoration: none;
+    font-size: 42px;
+    padding: 10px;
+    border-radius: 10px;
+    color: black;
+    background-color: #EAC5BE;
+}
+
+#main_tech_choice a:hover{
+    background-color: #ac8b85;
+}
+
+
+#platform_table th, #platform_table td{
+    border:solid;
+}
