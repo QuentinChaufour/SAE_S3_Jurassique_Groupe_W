@@ -55,6 +55,14 @@
     font-weight: 500;
     line-height: normal;
 }
+#box_block > p{
+    color: #7A7A7A;
+    font-family: Metropolis;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
 
 .form-label {
     text-align: left;
@@ -90,4 +98,21 @@
 }
 #budget-form-submit input:hover{
     background: rgb(123, 255, 185);
+}
+
+#filter-button{
+    background-color: salmon;
+    border-radius: 1rem;
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+#ajout-personne{
+    border-radius: 3px;
+    border: 1px solid #999;
+}
+
+#ajout-personne button{
+    border-radius: 15px;
+    background: #26BD5B;
 }

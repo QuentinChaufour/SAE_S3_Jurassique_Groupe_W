@@ -1,0 +1,56 @@
+{% extends "base_template.html" %}
+            <nav id="navbar-items">
+                <ul>
+                    <li>Langues</li>
+                    <li>Menu</li>
+                    <li>Retour</li>
+                </ul>
+            </nav>
+{% block content %}
+<div id="main-div">
+    <section id="box_container">
+        <h1>Gestion du personnel</h1>
+    </section>
+    <div id="admin-div">
+        <article id="box_container">
+            <button id="filter-button">Filtres</button>
+            <table id="table-admin">
+                <thead>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Rôle</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Dupont</td>
+                        <td>Jean</td>
+                        <td>Chercheur</td>
+                    </tr>
+                </tbody>
+            </table>
+        </article>
+        <article id="ajout-personne">
+            <h2>Ajouter une personne</h2>
+            <section>
+                <p>Nom :</p>
+                <input type="text">
+            </section>
+            <section>
+                <p>Prénom :</p>
+                <input type="text">
+            </section>
+            <section>
+                <p>Rôle :</p>
+                <select name="role" value="">
+                    <option value="">--Sélectionner un rôle--</option>
+                    <option value="Directeur du laboratoire">Directeur de laboratoire</option>
+                    <option value="Personnel administratif">Personnel administratif</option>
+                    <option value="Chercheur/se">Chercheur/se</option>
+                    <option value="Personnel technique">Personnel technique</option>
+                </select>
+            </section>
+            <button>Ajouter une personne</button>
+        </article>
+    </div>
+</div>
+{% endblock %}

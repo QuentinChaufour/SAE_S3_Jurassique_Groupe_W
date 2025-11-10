@@ -1,2 +1,4 @@
 venv/
 LaboDino/static/data/
+LaboDino/__pycache__
+__pycache__

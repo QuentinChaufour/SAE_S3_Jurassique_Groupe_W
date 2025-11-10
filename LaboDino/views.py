@@ -50,3 +50,7 @@ def get_campaigns():
 def campaign_detail(campaign_id):
     """Affiche les détails d'une campagne spécifique."""
     print(f"Campaign ID: {campaign_id}")
+
+@app.route('/gestion_personnel/')
+def gestion_personnel():
+    return render_template('personnel_administratif.html')
