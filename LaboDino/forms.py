@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import HiddenField, StringField, PasswordField, SubmitField
+from wtforms.fields.numeric import FloatField, IntegerField
 from wtforms.validators import DataRequired
 from hashlib import sha256
 
@@ -26,3 +27,10 @@ class LoginForm(FlaskForm):
 
         # Return the user if password matches, else return None
         return user if user.mot_de_passe == password_hashed else None
+    
+class PlatformCreationForm(FlaskForm):
+    nom_plateforme = StringField('Nom Plateforme', validators=[DataRequired()])
+    nb_personnes_requises = IntegerField('Nombre Personnes Requises', validators=[DataRequired()])
+    cout_journalier = FloatField('Cout Journalier', validators=[DataRequired()])
+    intervalle_maintenance = IntegerField('Intervalle Maintenance', validators=[DataRequired()])
+    submit = SubmitField('Créer la plateforme')

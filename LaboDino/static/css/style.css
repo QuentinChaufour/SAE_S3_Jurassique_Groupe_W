@@ -1,4 +1,6 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
 #navbar {
     background: #BEEAC5;
 }
@@ -77,6 +79,10 @@
     border-radius: 60px;
     background: #C0BCBC;
 }
+#login-form-submit input:active{
+    border-radius: 60px;
+    background: #8f8c8c;
+}
 
 #main_tech_dashboard h1{
     font-size: 64px;
@@ -95,7 +101,33 @@
     background-color: #ac8b85;
 }
 
+#platform_management{
+    font-family: Inter;
+}
+
+#platform_management h1{
+    font-size: 64px;
+    
+}
 
 #platform_table th, #platform_table td{
     border:solid;
+    font-size: 32px;
 }
+
+#platform_table button{
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 10px;
+    background-color: #E2B362;
+
+}
+
+#platform_table button:hover{
+    background-color: #ce9c45;
+}
+
+#platform_table button:active{
+    background-color: #aa8443;
+}
+

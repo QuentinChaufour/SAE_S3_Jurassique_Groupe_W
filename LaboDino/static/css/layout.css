@@ -114,7 +114,14 @@ body{
     display: flex;
     justify-content: center;
     flex-direction: column;
-    gap: 10vh;
+    align-items: center;
+    gap: 5vh;
+}
+
+#platform_content {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
 }
 
 #platform_table {
@@ -122,9 +129,34 @@ body{
     justify-content: center;
     flex-direction: column;
     gap: 1vh;
+    flex: 1;
+}
+
+#platform_table table{
+    margin: 2vh
 }
 
 #platform_table th, #platform_table td{
     text-align: left;
     padding: 2vh;
+
 }
+
+#platform_table button {
+    width: auto;
+    align-self: flex-start;
+    padding: 1.5vh 3vh 1.5vh 3vh;  
+    margin-left: 4vh;
+}
+
+#create_platform{
+    display: flex;
+    flex-basis: 35%;
+    flex-direction: column;
+    align-items: center;
+}
+
+#create_platform form{
+    width: 100%;
+}
+

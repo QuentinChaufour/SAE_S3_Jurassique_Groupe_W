@@ -1,9 +1,9 @@
 {% extends "base_template.html" %}
 
 {% block content %}
-<div>
-    <h1>Gestion des actions</h1>
-    <div id="platform_management">
+<div id="platform_management">
+    <h1>Gestion des plateformes</h1>
+    <div id="platform_content">
         <div id="platform_table">
             <button>Filtres</button>
             <table>
@@ -15,16 +15,40 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for platform in platforms %}
                     <tr>
-                        <td>test</td>
-                        <td>test</td>
-                        <td>test</td>
+                        <td>{{ platform.nom_plateforme}}</td>
+                        <td>{{ platform.nb_personnes_requises}}</td>
+                        <td>{{ platform.cout_journalier}}</td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
         <div id="create_platform">
-
+            <h2>Créer une plateforme</h2>
+            <form id="plateform_creation_form" method="POST" role="form" action="{{ url_for('platform_management') }}">
+                {{ form.hidden_tag() }}
+                <div class="login-form">
+                    {{ form.nom_plateforme.label (class_ = "login-form-label") }}
+                    {{ form.nom_plateforme (class_ ="login-input") }}
+                </div>
+                <div class="login-form">
+                    {{ form.nb_personnes_requises.label (class_ = "login-form-label") }}
+                    {{ form.nb_personnes_requises (class_ ="login-input") }}
+                </div>
+                <div class="login-form">
+                    {{ form.cout_journalier.label (class_ = "login-form-label") }}
+                    {{ form.cout_journalier (class_ ="login-input") }}
+                </div>
+                <div class="login-form">
+                    {{ form.intervalle_maintenance.label (class_ = "login-form-label") }}
+                    {{ form.intervalle_maintenance (class_ ="login-input") }}
+                </div>
+                <div id="login-form-submit">
+                    <input type="submit" value="Créer">
+                </div>
+            </form>
         </div>
     </div>
 </div>
