@@ -1,2 +1,4 @@
 __pycache__
 exploitation_echantillons/__pycache__
+.coverage
+htmlcov
