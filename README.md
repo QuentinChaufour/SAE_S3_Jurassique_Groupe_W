@@ -4,6 +4,10 @@
 * Nicolas Camera Groupe 3A
 * Quentin Chaufour Groupe 3A
 
+### Lancement de l'application Terminal
+
+executez la commande `python -m exploitation_echantillons.app`
+
 ## Le parc du Jurassique
 
 Dans une équipe de trois personnes, nous avons pour but de créer une application web pour le laboratoire de paléontologie, l'application a pour but principal de préparer des campagnes de fouilles dans les différentes plateformes dont ils disposent et d'en traiter les résultats. \
