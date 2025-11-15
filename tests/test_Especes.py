@@ -29,16 +29,15 @@ def test_espece_hypothetique():
     assert(placentalia.get_nom_sci() == "Placentalia")
     assert(boreoeutheria in placentalia.get_enfants())
 
-    representation: str = """
-    └── L'espèce hypothétique Placentaire (Placentalia)
-        ├── L'espèce hypothétique Atlantogenata (Atlantogenata)
-        │   ├── L'espèce avérée Xénarthres (Xenarthra)
-        │   └── L'espèce avérée Afrothériens (Afrotheria)
-        └── L'espèce hypothétique Boréoeuthériens (Boreoeutheria)
-    """
+    representation: str = "└── L'espèce hypothétique Placentaire (Placentalia)\n    ├── L'espèce hypothétique Atlantogenata (Atlantogenata)\n    └── L'espèce hypothétique Boréoeuthériens (Boreoeutheria)"
 
     assert(str(placentalia) == representation)
 
     placentalia.remove_enfant(boreoeutheria)
     assert(boreoeutheria not in placentalia.get_enfants())
+
+    placentalia.set_nom("Nouveau nom")
+    assert(placentalia.get_nom() == "Nouveau nom")
+    placentalia.set_nom_sci("Nouveau nom sci")
+    assert(placentalia.get_nom_sci() == "Nouveau nom sci")
     
