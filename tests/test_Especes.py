@@ -29,7 +29,7 @@ def test_espece_hypothetique():
     assert(placentalia.get_nom_sci() == "Placentalia")
     assert(boreoeutheria in placentalia.get_enfants())
 
-    representation: str = "└── L'espèce hypothétique Placentaire (Placentalia)\n    ├── L'espèce hypothétique Atlantogenata (Atlantogenata)\n    └── L'espèce hypothétique Boréoeuthériens (Boreoeutheria)"
+    representation: str = "└── L'espèce hypothétique Placentaire\n    ├── L'espèce hypothétique Atlantogenata\n    └── L'espèce hypothétique Boréoeuthériens"
 
     assert(str(placentalia) == representation)
 
