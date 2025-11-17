@@ -1,6 +1,8 @@
 from .app import db
+
+
 from sqlalchemy.dialects.mysql import MEDIUMTEXT
-class Role(db.Enum):
+class ROLE(db.Enum):
     administratif = 'administratif'
     chercheur = 'chercheur'
     technicien = 'technicien'
@@ -13,6 +15,14 @@ class ESPECE(db.Model):
     nomScientifique = db.Column(db.String(100))
     genome = db.Column(db.Text)
 
+    def __init__(self, nomEspece, nomScientifique=nomEspece, genome=""):
+        self.nomEspece = nomEspece
+        self.nomScientifique = nomScientifique
+        self.genome = genome
+
+    def __repr__(self):
+        return f"<Espèce : {self.nomEspece}, {self.nomScientifique}>"
+
 class ECHANTILLON(db.Model):
     __tablename__ = 'ECHANTILLON'
     idEchantillon = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -20,6 +30,15 @@ class ECHANTILLON(db.Model):
     fichierSequenceADN = db.Column(MEDIUMTEXT)
     idEspece = db.Column(db.Integer, db.ForeignKey("ESPECE.idEspece"), nullable=True)
     commentaire = db.Column(db.Text)
+
+    def __init__(self, idCampagne, fichierSequenceADN, idEspece="", commentaire=""):
+        self.idCampagne = idCampagne
+        self.fichierSequenceADN = fichierSequenceADN
+        self.idEspece = idEspece
+        self.commentaire = commentaire
+
+    def __repr__(self):
+        return f"<Échantillon de la campagne n°{self.idCampagne} la séquence adn: {self.fichierSequenceADN}>"
 
 class CAMPAGNE(db.Model):
     __tablename__ = 'CAMPAGNE'
@@ -31,15 +50,34 @@ class CAMPAGNE(db.Model):
     valide = db.Column(db.Boolean)
     participerCampagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="campagne")
 
+    def __init__(self, nomPlateforme, dateDebut, duree, lieu, valide=False ):
+        self.nomPlateforme = nomPlateforme
+        self.dateDebut = dateDebut
+        self.duree = duree
+        self.lieu = lieu
+        self.valide = valide
+
+    def __repr__(self):
+        return f"<Campagne n°{self.idCampagne} sur la plateforme {self.nomPlateforme} a commencé le {self.dateDebut} pour une durée de {self.duree}>"
+
 class PERSONNEL(db.Model):
     __tablename__ = "PERSONNEL"
     idPersonnel = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nom = db.Column(db.String(50))
     prenom = db.Column(db.String(50))
     mdp = db.Column(db.String(10), unique=True)
-    role = db.Column(db.Enum(Role))
+    role = db.Column(db.Enum(ROLE))
     participerCampagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="personnel")
     posseder = db.relationship("POSSEDER", back_populates="personnel")
+
+    def __init__(self, nom, prenom, mdp, role):
+        self.nom = nom
+        self.prenom = prenom
+        self.mdp = mdp
+        self.role = role
+
+    def __repr__(self):
+        return f"<{self.nom} {self.prenom} : {self.role}>"
 
 class PARTICIPER_CAMPAGNE(db.Model):
     __tablename__ = "PARTICIPER_CAMPAGNE"
@@ -48,12 +86,31 @@ class PARTICIPER_CAMPAGNE(db.Model):
     campagne = db.relationship("CAMPAGNE", back_populates="participerCampagne")
     personnel = db.relationship("PERSONNEL", back_populates="participerCampagne")
 
+    def __init__(self, idCampagne, idPersonnel):
+        self.idCampagne = idCampagne
+        self.idPersonnel = idPersonnel
+
+    def __repr__(self):
+        nom = getattr(self.personnel, 'nom', None)
+        prenom = getattr(self.personnel, 'prenom', None)
+        return f"<POSSEDER campagne= n°{self.idCampagne} personnel={nom!r} {prenom!r}>"
+
 class POSSEDER(db.Model):
     __tablename__ = "POSSEDER"
     idPersonnel = db.Column(db.Integer, db.ForeingKey("PERSONNEL.idPersonnel"),primary_key=True)
     idHabilitation = db.Column(db.Integer, db.ForeignKey("HABILITATION.idHabilitation"), primary_key=True)
     personnel = db.relationship("PERSONNEL", back_populate="posseder")
     habilitation = db.relationship("HABILITATION", back_populates="posseder")
+
+    def __init__(self, idHabilitation, idPersonnel):
+        self.idHabilitation = idHabilitation
+        self.idPersonnel = idPersonnel
+
+    def __repr__(self):
+        hab = getattr(self.habilitation, 'nom_habilitation', None)
+        nom = getattr(self.personnel, 'nom', None)
+        prenom = getattr(self.personnel, 'prenom', None)
+        return f"<POSSEDER habilitation={hab!r} personnel={nom!r} {prenom!r}>"
 
 class BUDGET(db.Model):
     __tablename__ = 'BUDGET'
@@ -143,13 +200,3 @@ class MAINTENANCE(db.Model):
 
     def __repr__(self):
         return 'Maintenance : ' + self.nom_plateforme
-
-class Personnel:
-
-    def __init__(self, id_personnel = 0, nom = "", prenom = "", role = "", mot_de_passe = ""):
-        self.id_personnel = id_personnel
-        self.nom = nom
-        self.prenom = prenom
-        self.role = role
-        self.mot_de_passe = mot_de_passe
-
