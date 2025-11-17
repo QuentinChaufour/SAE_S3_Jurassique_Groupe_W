@@ -1,5 +1,4 @@
 
-__pycache__
 exploitation_echantillons/__pycache__
 .coverage
 htmlcov
@@ -11,4 +10,3 @@ exploitation_echantillons/__pycache__/
 venv/
 LaboDino/static/data/
 LaboDino/__pycache__
-__pycache__
