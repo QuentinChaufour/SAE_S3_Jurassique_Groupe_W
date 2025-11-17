@@ -1,12 +1,12 @@
-from LaboDino.forms import LoginForm, BudgetForm
+from .forms import LoginForm, BudgetForm
 from .app import app
 from flask import render_template
 
-@app.route('/')
+@app.route("/")
 def home():
-    return render_template('campaign_dashboard.html', campaigns= [2], participants= {1:["a","b","c"],2:["d","e"]})
+    return render_template("campaign_details.html",campaign_id= 2 ,participants= {1:["a","b","c"],2:["d","e"]})
 
-@app.route('/login/', methods=['GET', 'POST'])
+@app.route("/login/", methods=["GET", "POST"])
 def login():
     """Affiche le formulaire de connexion et gère la soumission du formulaire."""
 
@@ -23,9 +23,9 @@ def login():
     print("test")
     print(form.id.data)
     print(form.password.data)
-    return render_template('connexion.html', form=form)
+    return render_template("connexion.html", form=form)
 
-@app.route('/budget/', methods=['GET', 'POST'])
+@app.route("/budget/", methods=["GET", "POST"])
 def set_budget():
     """Affiche le formulaire de définition du budget et gère la soumission du formulaire."""
 
@@ -38,15 +38,16 @@ def set_budget():
     print("Budget Form Data:", form.date.data, form.montant.data)
     
 
-    return render_template('budget_page.html', form=form)
+    return render_template("budget_page.html", form=form)
 
-@app.route('/campaigns/', methods=['GET', 'POST'])
+@app.route("/campaigns/", methods=["GET", "POST"])
 def get_campaigns():
-    """Affiche la page de présentation de l'ensembles des campagnes."""
+    """Affiche la page de présentation de l"ensembles des campagnes."""
 
-    return render_template('show_campaigns.html', campaigns= [2,46,67])
+    return render_template("campaign_dashboard.html", campaigns= [2,46,67])
 
-@app.route('/campaigns/<int:campaign_id>')
+@app.route("/campaigns/<int:campaign_id>")
 def campaign_detail(campaign_id):
-    """Affiche les détails d'une campagne spécifique."""
+    """Affiche les détails d"une campagne spécifique."""
     print(f"Campaign ID: {campaign_id}")
+    return render_template("campaign_details.html", campaign_id=campaign_id, participants= {1:["a","b","c"],2:["d","e"]})

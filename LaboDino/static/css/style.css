@@ -2,7 +2,16 @@
     background: #BEEAC5;
 }
 
-.title{
+.typographie {
+    color: #000;
+    font-family: Inter;
+    font-size: 2rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 130%;
+}
+
+.title {
     color: #000;
     font-family: Inter;
     font-size: 64px;
@@ -99,4 +108,49 @@
 
 #budget-form-submit input:hover {
     background: rgb(123, 255, 185);
+}
+
+table {
+    border-collapse: collapse;
+}
+
+.table-borders tr {
+    border: 2px solid #4F4F4F;
+}
+
+.table-borders tr:not(.header-row):hover {
+    background-color: #494747;
+    transition: ease-in-out 0.3s;
+}
+
+.btn-filter {
+    border-radius: 9.075px;
+    background: #E2B362;
+}
+
+#btn-add-campaign {
+    border-radius: 20px;
+    background: rgba(20, 174, 92, 0.80);
+}
+
+.table-borders-bottom tr {
+    border-bottom: 2px solid #4F4F4F;
+}
+
+.table-borders-bottom td {
+    color: #000;
+    font-family: Inter;
+    font-size: 1.5rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 130%;
+}
+
+#participant-table td {
+    color: #000;
+    font-family: Inter;
+    font-size: 1.5rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 130%;
 }
