@@ -4,7 +4,7 @@ from flask import render_template
 
 @app.route('/')
 def home():
-    return render_template('show_campaigns.html', campaigns= [2,46,67])
+    return render_template('campaign_dashboard.html', campaigns= [2], participants= {1:["a","b","c"],2:["d","e"]})
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():

@@ -3,6 +3,10 @@ body{
     margin: 0;   
 }
 
+.title{
+    text-align: center;
+}
+
 #navbar {
     display: flex;
     align-items: center;
@@ -110,3 +114,4 @@ body{
     align-items: center;
     margin: 5%;
 }
+

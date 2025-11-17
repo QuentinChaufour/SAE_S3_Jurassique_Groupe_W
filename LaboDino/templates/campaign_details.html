@@ -1,0 +1,42 @@
+{% extends "base_template.html" %}
+
+{% block content %}
+
+<div class="box_container">
+    <h1 class="title">{{ campaign_id }}</h1>
+
+    <table>
+        <tbody>
+            <tr>
+                <td>{{ campaign_id}}</td>
+            </tr>
+            <tr>
+                <td>{{ campaign_id}}</td>
+                <td>{{ campaign_id}}</td>
+                <td>{{ campaign_id}}</td>
+            </tr>
+            <tr>
+                <td>{{ campaign_id}}</td>
+                <td>{{ campaign_id}}</td>
+                <td>{{ campaign_id}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table>
+        <tbody>
+            <!-- dictionnaire des participants pour simplifier la répartition en ligne de 3 (max) -->
+            {% for row,participant_row in participants.items() %}
+            <tr>
+                {% for participant in participant_row %}
+                <td>{{ participant }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}
