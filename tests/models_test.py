@@ -1,6 +1,6 @@
-from LaboDino.models import PLATEFORME
+from LaboDino.models import PLATEFORME, PERSONNEL
 from LaboDino.app import db
-class Models_Test():
+def plateforme_test():
     plateforme = PLATEFORME("Plateforme 1", 5, 50, 10)
     db.session.add(plateforme)
     db.session.commit()

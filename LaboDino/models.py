@@ -1,7 +1,6 @@
 from .app import db
-
-
 from sqlalchemy.dialects.mysql import MEDIUMTEXT
+
 class ROLE(db.Enum):
     administratif = 'administratif'
     chercheur = 'chercheur'
@@ -66,7 +65,7 @@ class PERSONNEL(db.Model):
     nom = db.Column(db.String(50))
     prenom = db.Column(db.String(50))
     mdp = db.Column(db.String(10), unique=True)
-    role = db.Column(db.Enum(ROLE))
+    role = db.Column(ROLE)
     participerCampagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="personnel")
     posseder = db.relationship("POSSEDER", back_populates="personnel")
 
@@ -97,9 +96,9 @@ class PARTICIPER_CAMPAGNE(db.Model):
 
 class POSSEDER(db.Model):
     __tablename__ = "POSSEDER"
-    idPersonnel = db.Column(db.Integer, db.ForeingKey("PERSONNEL.idPersonnel"),primary_key=True)
+    idPersonnel = db.Column(db.Integer, db.ForeignKey("PERSONNEL.idPersonnel"),primary_key=True)
     idHabilitation = db.Column(db.Integer, db.ForeignKey("HABILITATION.idHabilitation"), primary_key=True)
-    personnel = db.relationship("PERSONNEL", back_populate="posseder")
+    personnel = db.relationship("PERSONNEL", back_populates="posseder")
     habilitation = db.relationship("HABILITATION", back_populates="posseder")
 
     def __init__(self, idHabilitation, idPersonnel):
@@ -152,7 +151,7 @@ class PLATEFORME(db.Model):
     
 necessiter_habilitation = db.Table("necessiter_habilitation", 
                                    db.Column("id_equipement_necessiter", db.Integer, db.ForeignKey("EQUIPEMENT.id_equipement")),
-                                   db.Column("id_habilitation_necessiter"), db.Integer, db.ForeignKey("HABILITATION.id_habilitation"))
+                                   db.Column("id_habilitation_necessiter", db.Integer, db.ForeignKey("HABILITATION.id_habilitation")))
 
 class HABILITATION(db.Model):
     __tablename__ = 'HABILITATION'
