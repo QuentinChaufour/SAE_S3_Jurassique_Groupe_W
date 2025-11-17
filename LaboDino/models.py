@@ -8,64 +8,65 @@ class ROLE(db.Enum):
 
 class ESPECE(db.Model):
     __tablename__ = 'ESPECE'
-    idEspece = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    nomEspece = db.Column(db.String(50))
-    nomScientifique = db.Column(db.String(100))
+    id_espece = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nom_espece = db.Column(db.String(50))
+    nom_scientifique = db.Column(db.String(100))
     genome = db.Column(db.Text)
 
-    def __init__(self, nomEspece, nomScientifique=nomEspece, genome=""):
-        self.nomEspece = nomEspece
-        self.nomScientifique = nomScientifique
+    def __init__(self, nom_espece, nom_scientifique=nom_espece, genome=""):
+        self.nom_espece = nom_espece
+        self.nom_scientifique = nom_scientifique
         self.genome = genome
 
     def __repr__(self):
-        return f"<Espèce : {self.nomEspece}, {self.nomScientifique}>"
+        return f"<Espèce : {self.nom_espece}, {self.nom_scientifique}>"
 
 class ECHANTILLON(db.Model):
     __tablename__ = 'ECHANTILLON'
-    idEchantillon = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    idCampagne = db.Column(db.Integer,db.ForeignKey("CAMPAGNE.idCampagne"))
-    fichierSequenceADN = db.Column(MEDIUMTEXT)
-    idEspece = db.Column(db.Integer, db.ForeignKey("ESPECE.idEspece"), nullable=True)
+    id_echantillon = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id_campagne = db.Column(db.Integer,db.ForeignKey("CAMPAGNE.id_campagne"))
+    fichier_sequence_adn = db.Column(MEDIUMTEXT)
+    id_espece = db.Column(db.Integer, db.ForeignKey("ESPECE.id_espece"), nullable=True)
     commentaire = db.Column(db.Text)
 
-    def __init__(self, idCampagne, fichierSequenceADN, idEspece="", commentaire=""):
-        self.idCampagne = idCampagne
-        self.fichierSequenceADN = fichierSequenceADN
-        self.idEspece = idEspece
+    def __init__(self, id_campagne, fichier_sequence_adn, id_espece=None, commentaire=""):
+        self.id_campagne = id_campagne
+        self.fichier_sequence_adn = fichier_sequence_adn
+        self.id_espece = id_espece
         self.commentaire = commentaire
 
     def __repr__(self):
-        return f"<Échantillon de la campagne n°{self.idCampagne} la séquence adn: {self.fichierSequenceADN}>"
+        return f"<Échantillon de la campagne n°{self.id_campagne} la séquence adn: {self.fichier_sequence_adn}>"
 
 class CAMPAGNE(db.Model):
     __tablename__ = 'CAMPAGNE'
-    idCampagne = db.Column(db.Integer, primary_key=True)
-    nomPlateforme = db.Column(db.String(50), db.ForeignKey("PLATEFORME.nomPlateforme"))
-    dateDebut = db.Column(db.DATE)
+    id_campagne = db.Column(db.Integer, primary_key=True)
+    nom_plateforme = db.Column(db.String(50), db.ForeignKey("PLATEFORME.nom_plateforme"))
+    date_debut = db.Column(db.DATE)
     duree = db.Column(db.Integer)
     lieu = db.Column(db.String(100))
     valide = db.Column(db.Boolean)
-    participerCampagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="campagne")
+    participer_campagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="campagne")
+    plateforme = db.relationship("PLATEFORME", back_populates="campagnes")
 
-    def __init__(self, nomPlateforme, dateDebut, duree, lieu, valide=False ):
-        self.nomPlateforme = nomPlateforme
-        self.dateDebut = dateDebut
+    def __init__(self, nom_plateforme, date_debut, duree, lieu, valide=False ):
+        self.nom_plateforme = nom_plateforme
+        self.date_debut = date_debut
         self.duree = duree
         self.lieu = lieu
         self.valide = valide
 
     def __repr__(self):
-        return f"<Campagne n°{self.idCampagne} sur la plateforme {self.nomPlateforme} a commencé le {self.dateDebut} pour une durée de {self.duree}>"
+        return f"<Campagne n°{self.id_campagne} sur la plateforme {self.nom_plateforme} a commencé le {self.date_debut} pour une durée de {self.duree}>"
 
 class PERSONNEL(db.Model):
     __tablename__ = "PERSONNEL"
-    idPersonnel = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id_personnel = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nom = db.Column(db.String(50))
     prenom = db.Column(db.String(50))
     mdp = db.Column(db.String(10), unique=True)
     role = db.Column(db.Enum(ROLE))
-    participerCampagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="personnel")
+    participer_campagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="personnel")
     posseder = db.relationship("POSSEDER", back_populates="personnel")
 
     def __init__(self, nom, prenom, mdp, role):
@@ -79,30 +80,30 @@ class PERSONNEL(db.Model):
 
 class PARTICIPER_CAMPAGNE(db.Model):
     __tablename__ = "PARTICIPER_CAMPAGNE"
-    idCampagne = db.Column( db.Integer, db.ForeignKey("CAMPAGNE.idCampagne"),primary_key=True)
-    idPersonnel = db.Column(db.Integer, db.ForeignKey("PERSONNEL.idPersonnel"),primary_key=True)
-    campagne = db.relationship("CAMPAGNE", back_populates="participerCampagne")
-    personnel = db.relationship("PERSONNEL", back_populates="participerCampagne")
+    id_campagne = db.Column( db.Integer, db.ForeignKey("CAMPAGNE.id_campagne"),primary_key=True)
+    id_personnel = db.Column(db.Integer, db.ForeignKey("PERSONNEL.id_personnel"),primary_key=True)
+    campagne = db.relationship("CAMPAGNE", back_populates="participer_campagne")
+    personnel = db.relationship("PERSONNEL", back_populates="participer_campagne")
 
-    def __init__(self, idCampagne, idPersonnel):
-        self.idCampagne = idCampagne
-        self.idPersonnel = idPersonnel
+    def __init__(self, id_campagne, id_personnel):
+        self.id_campagne = id_campagne
+        self.id_personnel = id_personnel
 
     def __repr__(self):
         nom = getattr(self.personnel, 'nom', None)
         prenom = getattr(self.personnel, 'prenom', None)
-        return f"<POSSEDER campagne= n°{self.idCampagne} personnel={nom!r} {prenom!r}>"
+        return f"<POSSEDER campagne= n°{self.id_campagne} personnel={nom!r} {prenom!r}>"
 
 class POSSEDER(db.Model):
     __tablename__ = "POSSEDER"
-    idPersonnel = db.Column(db.Integer, db.ForeingKey("PERSONNEL.idPersonnel"),primary_key=True)
+    id_personnel = db.Column(db.Integer, db.ForeingKey("PERSONNEL.id_personnel"),primary_key=True)
     idHabilitation = db.Column(db.Integer, db.ForeignKey("HABILITATION.idHabilitation"), primary_key=True)
     personnel = db.relationship("PERSONNEL", back_populate="posseder")
     habilitation = db.relationship("HABILITATION", back_populates="posseder")
 
-    def __init__(self, idHabilitation, idPersonnel):
+    def __init__(self, idHabilitation, id_personnel):
         self.idHabilitation = idHabilitation
-        self.idPersonnel = idPersonnel
+        self.id_personnel = id_personnel
 
     def __repr__(self):
         hab = getattr(self.habilitation, 'nom_habilitation', None)
@@ -123,7 +124,7 @@ class Budget(db.Model):
     def __repr__(self):
         return 'Budget : ' + str(self.date_mois_annee)
     
-class Plateforme(db.Model):
+class PLATEFORME(db.Model):
     __tablename__ = 'plateforme'
     
     nom_plateforme = db.Column(db.String(50), primary_key=True)
@@ -133,7 +134,7 @@ class Plateforme(db.Model):
     
     #equipements = db.relationship('Equipement', back_populates='plateformes')
     #maintenances = db.relationship('Maintenance', back_populates='plateforme')
-    #campagnes = db.relationship('Campagne', back_populates='plateformes')
+    campagnes = db.relationship('CAMPAGNE', back_populates='plateforme')
 
     def __init__(self, nom_plateforme="", nb_personnes_requises=0, cout_journalier=0, intervalle_maintenance=0):
         self.nom_plateforme = nom_plateforme
