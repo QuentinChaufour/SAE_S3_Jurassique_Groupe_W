@@ -1,5 +1,7 @@
 from .app import db
 
+
+from sqlalchemy.dialects.mysql import MEDIUMTEXT
 class ROLE(db.Enum):
     administratif = 'administratif'
     chercheur = 'chercheur'
@@ -111,8 +113,8 @@ class POSSEDER(db.Model):
         prenom = getattr(self.personnel, 'prenom', None)
         return f"<POSSEDER habilitation={hab!r} personnel={nom!r} {prenom!r}>"
 
-class Budget(db.Model):
-    __tablename__ = 'budget'
+class BUDGET(db.Model):
+    __tablename__ = 'BUDGET'
     
     date_mois_annee = db.Column(db.Date, primary_key=True)
     budget_total = db.Column(db.Numeric(10, 2))
@@ -123,18 +125,22 @@ class Budget(db.Model):
 
     def __repr__(self):
         return 'Budget : ' + str(self.date_mois_annee)
-    
+
+inclure_equipement = db.Table("inclure_equipement", 
+                              db.Column("nom_plateforme_inclure", db.String(50), db.ForeignKey("PLATEFORME.nom_plateforme")), 
+                              db.Column("id_equipement_inclure", db.Integer, db.ForeignKey("EQUIPEMENT.id_equipement")))
+
 class PLATEFORME(db.Model):
-    __tablename__ = 'plateforme'
+    __tablename__ = 'PLATEFORME'
     
     nom_plateforme = db.Column(db.String(50), primary_key=True)
     nb_personnes_requises = db.Column(db.Integer)
     cout_journalier = db.Column(db.Numeric(10, 2))
     intervalle_maintenance = db.Column(db.Integer)
     
-    #equipements = db.relationship('Equipement', back_populates='plateformes')
-    #maintenances = db.relationship('Maintenance', back_populates='plateforme')
-    campagnes = db.relationship('CAMPAGNE', back_populates='plateforme')
+    equipements = db.relationship('EQUIPEMENT', secondary=inclure_equipement, back_populates='plateformes')
+    maintenances = db.relationship('Maintenance', back_populates='plateforme')
+    campagnes = db.relationship('Campagne', back_populates='plateformes')
 
     def __init__(self, nom_plateforme="", nb_personnes_requises=0, cout_journalier=0, intervalle_maintenance=0):
         self.nom_plateforme = nom_plateforme
@@ -144,15 +150,19 @@ class PLATEFORME(db.Model):
 
     def __repr__(self):
         return 'Plateforme : ' + self.nom_plateforme
+    
+necessiter_habilitation = db.Table("necessiter_habilitation", 
+                                   db.Column("id_equipement_necessiter", db.Integer, db.ForeignKey("EQUIPEMENT.id_equipement")),
+                                   db.Column("id_habilitation_necessiter"), db.Integer, db.ForeignKey("HABILITATION.id_habilitation"))
 
-class Habilitation(db.Model):
-    __tablename__ = 'habilitation'
+class HABILITATION(db.Model):
+    __tablename__ = 'HABILITATION'
     
     id_habilitation = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nom_habilitation = db.Column(db.String(50))
     
-    #personnels = db.relationship('Personnel', back_populates='habilitations')
-    equipements = db.relationship('Equipement', back_populates='habilitations')
+    personnels = db.relationship('Personnel', back_populates='habilitations')
+    equipements = db.relationship('Equipement', secondary=necessiter_habilitation, back_populates='habilitations')
 
     def __init__(self, nom_habilitation=""):
         self.nom_habilitation = nom_habilitation
@@ -160,14 +170,14 @@ class Habilitation(db.Model):
     def __repr__(self):
         return 'Habilitation : ' + self.nom_habilitation
 
-class Equipement(db.Model):
-    __tablename__ = 'equipement'
+class EQUIPEMENT(db.Model):
+    __tablename__ = 'EQUIPEMENT'
     
     id_equipement = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nom_equipement = db.Column(db.String(50))
     
-    plateformes = db.relationship('Plateforme', back_populates='equipements')
-    habilitations = db.relationship('Habilitation', back_populates='equipements')
+    plateformes = db.relationship('PLATEFORME', secondary=inclure_equipement, back_populates='equipements')
+    habilitations = db.relationship('HABILITATION', secondary=necessiter_habilitation, back_populates='equipements')
 
     def __init__(self, nom_equipement=""):
         self.nom_equipement = nom_equipement
@@ -175,14 +185,14 @@ class Equipement(db.Model):
     def __repr__(self):
         return 'Equipement : ' + self.nom_equipement
 
-class Maintenance(db.Model):
-    __tablename__ = 'maintenance'
+class MAINTENANCE(db.Model):
+    __tablename__ = 'MAINTENANCE'
     
-    nom_plateforme = db.Column(db.String(50), db.ForeignKey('plateforme.nom_plateforme'), primary_key=True)
+    nom_plateforme = db.Column(db.String(50), db.ForeignKey('PLATEFORME.nom_plateforme'), primary_key=True)
     date_maintenance = db.Column(db.Date, primary_key=True)
     duree_maintenance = db.Column(db.Integer)
     
-    plateforme = db.relationship('Plateforme', back_populates='maintenances')
+    plateforme = db.relationship('PLATEFORME', back_populates='maintenances')
 
     def __init__(self, nom_plateforme="", date_maintenance=None, duree_maintenance=0):
         self.nom_plateforme = nom_plateforme
