@@ -1,6 +1,7 @@
 from .forms import LoginForm, BudgetForm
 from .app import app, users_storage
 from .decorators import role_access_rights
+from .enums import UserRole
 from flask import render_template,redirect, url_for,request
 from flask_login import login_user, logout_user, login_required
 
@@ -67,7 +68,7 @@ def get_campaigns():
 
 @app.route("/campaigns/<int:campaign_id>")
 @login_required
-@role_access_rights("technician")
+@role_access_rights(UserRole.TECHNICIAN,UserRole.ADMIN)
 def campaign_detail(campaign_id):
     """Affiche les détails d"une campagne spécifique."""
     # Logic to retrieve and display campaign details

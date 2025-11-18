@@ -1,10 +1,11 @@
+from .enums import UserRole
 from flask_wtf import FlaskForm
 from wtforms import HiddenField, StringField, PasswordField, SubmitField, FloatField
 from wtforms.validators import DataRequired
 from hashlib import sha256
 import datetime
 
-from LaboDino.models import Personnel
+from .models import Personnel
 
 
 class LoginForm(FlaskForm):
@@ -21,7 +22,7 @@ class LoginForm(FlaskForm):
         firstname: str = self.id.data.split(" ")[1]
         password_hashed: str = sha256(self.password.data.encode('utf-8')).hexdigest()
 
-        user: Personnel = Personnel(1, name, firstname, "technician",password_hashed)
+        user: Personnel = Personnel(1, name, firstname, UserRole.ADMIN,password_hashed)
         #user = Personnel.query.filter_by(nom=name, prenom=firstname)
 
         # If no user found return None
