@@ -42,12 +42,15 @@ class ECHANTILLON(db.Model):
 class CAMPAGNE(db.Model):
     __tablename__ = 'CAMPAGNE'
     idCampagne = db.Column(db.Integer, primary_key=True)
-    nomPlateforme = db.Column(db.String(50), db.ForeignKey("PLATEFORME.nomPlateforme"))
+    nomPlateforme = db.Column(db.String(50), db.ForeignKey("PLATEFORME.nom_plateforme"))
     dateDebut = db.Column(db.DATE)
     duree = db.Column(db.Integer)
     lieu = db.Column(db.String(100))
     valide = db.Column(db.Boolean)
     participerCampagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="campagne")
+    utiliser_plateforme = db.relationship("UTILISER_PLATEFORME", back_populates="campagne")
+
+
 
     def __init__(self, nomPlateforme, dateDebut, duree, lieu, valide=False ):
         self.nomPlateforme = nomPlateforme
@@ -66,8 +69,9 @@ class PERSONNEL(db.Model):
     prenom = db.Column(db.String(50))
     mdp = db.Column(db.String(10), unique=True)
     role = db.Column(ROLE)
+
     participerCampagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="personnel")
-    posseder = db.relationship("POSSEDER", back_populates="personnel")
+    posseder = db.relationship("POSSEDER", back_populates="personnels")
 
     def __init__(self, nom, prenom, mdp, role):
         self.nom = nom
@@ -97,9 +101,9 @@ class PARTICIPER_CAMPAGNE(db.Model):
 class POSSEDER(db.Model):
     __tablename__ = "POSSEDER"
     idPersonnel = db.Column(db.Integer, db.ForeignKey("PERSONNEL.idPersonnel"),primary_key=True)
-    idHabilitation = db.Column(db.Integer, db.ForeignKey("HABILITATION.idHabilitation"), primary_key=True)
-    personnel = db.relationship("PERSONNEL", back_populates="posseder")
-    habilitation = db.relationship("HABILITATION", back_populates="posseder")
+    idHabilitation = db.Column(db.Integer, db.ForeignKey("HABILITATION.id_habilitation"), primary_key=True)
+    personnels = db.relationship("PERSONNEL", back_populates="posseder")
+    habilitations = db.relationship("HABILITATION", back_populates="posseder")
 
     def __init__(self, idHabilitation, idPersonnel):
         self.idHabilitation = idHabilitation
@@ -137,8 +141,8 @@ class PLATEFORME(db.Model):
     intervalle_maintenance = db.Column(db.Integer)
     
     equipements = db.relationship('EQUIPEMENT', secondary=inclure_equipement, back_populates='plateformes')
-    maintenances = db.relationship('Maintenance', back_populates='plateforme')
-    campagnes = db.relationship('Campagne', back_populates='plateformes')
+    maintenances = db.relationship('MAINTENANCE', back_populates='plateforme')
+    campagnes = db.relationship('CAMPAGNE', back_populates='plateformes')
 
     def __init__(self, nom_plateforme="", nb_personnes_requises=0, cout_journalier=0, intervalle_maintenance=0):
         self.nom_plateforme = nom_plateforme
@@ -158,9 +162,9 @@ class HABILITATION(db.Model):
     
     id_habilitation = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nom_habilitation = db.Column(db.String(50))
-    
-    personnels = db.relationship('Personnel', back_populates='habilitations')
-    equipements = db.relationship('Equipement', secondary=necessiter_habilitation, back_populates='habilitations')
+
+    equipements = db.relationship('EQUIPEMENT', secondary=necessiter_habilitation, back_populates='habilitations')
+    posseder = db.relationship('POSSEDER', back_populates='habilitations')
 
     def __init__(self, nom_habilitation=""):
         self.nom_habilitation = nom_habilitation

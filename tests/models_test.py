@@ -5,4 +5,6 @@ def plateforme_test():
     db.session.add(plateforme)
     db.session.commit()
     
-    PLATEFORME.query.all()
+    print(PLATEFORME.query.all())
+
+plateforme_test()

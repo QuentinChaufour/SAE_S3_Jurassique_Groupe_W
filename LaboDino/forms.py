@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired
 from hashlib import sha256
 import datetime
 
-from LaboDino.models import Personnel
+from LaboDino.models import PERSONNEL
 
 
 class LoginForm(FlaskForm):
