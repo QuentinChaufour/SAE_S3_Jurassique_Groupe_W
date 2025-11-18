@@ -12,7 +12,7 @@ class LoginForm(FlaskForm):
 
     id = StringField('Name and Forename', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
-
+    next = HiddenField()
     submit = SubmitField('Login')
 
     def authenticate(self):
@@ -21,7 +21,8 @@ class LoginForm(FlaskForm):
         firstname: str = self.id.data.split(" ")[1]
         password_hashed: str = sha256(self.password.data.encode('utf-8')).hexdigest()
 
-        user = Personnel.query.filter_by(nom=name, prenom=firstname)
+        user: Personnel = Personnel(1, name, firstname, "technician",password_hashed)
+        #user = Personnel.query.filter_by(nom=name, prenom=firstname)
 
         # If no user found return None
         if user is None:
