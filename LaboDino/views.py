@@ -4,13 +4,12 @@ from .decorators import role_access_rights
 from flask import render_template,redirect, url_for,request
 from flask_login import login_user, logout_user, login_required
 
-#@app.route("/")
-#def home():
-#
-#    return redirect(url_for("login"))
-#    #return render_template("campaign_details.html",campaign_id= 2 ,participants= {1:["a","b","c"],2:["d","e"]})
-
 @app.route("/")
+def home():
+
+    return redirect(url_for("login"))
+    #return render_template("campaign_details.html",campaign_id= 2 ,participants= {1:["a","b","c"],2:["d","e"]})
+
 @app.route("/login/", methods=["GET", "POST"])
 def login():
     """Affiche le formulaire de connexion et gère la soumission du formulaire."""
