@@ -38,22 +38,25 @@ class ECHANTILLON(db.Model):
 
     def __repr__(self):
         return f"<Échantillon de la campagne n°{self.idCampagne} la séquence adn: {self.fichierSequenceADN}>"
+    
+utiliser_plateforme = db.Table("utiliser_plateforme", 
+                               db.Column("id_campagne_utiliser", db.Integer, db.ForeignKey("CAMPAGNE.idCampagne")), 
+                               db.Column("nom_plateforme_utiliser", db.String(50), db.ForeignKey("PLATEFORME.nom_plateforme")))
 
 class CAMPAGNE(db.Model):
     __tablename__ = 'CAMPAGNE'
-    idCampagne = db.Column(db.Integer, primary_key=True)
-    nomPlateforme = db.Column(db.String(50), db.ForeignKey("PLATEFORME.nom_plateforme"))
+    idCampagne = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nom_plateforme = db.Column(db.String(50), db.ForeignKey("PLATEFORME.nom_plateforme"))
     dateDebut = db.Column(db.DATE)
     duree = db.Column(db.Integer)
     lieu = db.Column(db.String(100))
     valide = db.Column(db.Boolean)
     participerCampagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="campagne")
-    utiliser_plateforme = db.relationship("UTILISER_PLATEFORME", back_populates="campagne")
-
+    plateformes = db.relationship("PLATEFORME", secondary=utiliser_plateforme, back_populates="campagnes")
 
 
     def __init__(self, nomPlateforme, dateDebut, duree, lieu, valide=False ):
-        self.nomPlateforme = nomPlateforme
+        self.nom_plateforme = nomPlateforme
         self.dateDebut = dateDebut
         self.duree = duree
         self.lieu = lieu
@@ -61,6 +64,8 @@ class CAMPAGNE(db.Model):
 
     def __repr__(self):
         return f"<Campagne n°{self.idCampagne} sur la plateforme {self.nomPlateforme} a commencé le {self.dateDebut} pour une durée de {self.duree}>"
+
+
 
 class PERSONNEL(db.Model):
     __tablename__ = "PERSONNEL"
@@ -143,6 +148,7 @@ class PLATEFORME(db.Model):
     equipements = db.relationship('EQUIPEMENT', secondary=inclure_equipement, back_populates='plateformes')
     maintenances = db.relationship('MAINTENANCE', back_populates='plateforme')
     campagnes = db.relationship('CAMPAGNE', back_populates='plateformes')
+    
 
     def __init__(self, nom_plateforme="", nb_personnes_requises=0, cout_journalier=0, intervalle_maintenance=0):
         self.nom_plateforme = nom_plateforme
