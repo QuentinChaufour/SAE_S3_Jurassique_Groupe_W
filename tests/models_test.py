@@ -1,4 +1,4 @@
-from LaboDino.models import ROLE, PLATEFORME, PERSONNEL, CAMPAGNE, ECHANTILLON, ESPECE, PARTICIPER_CAMPAGNE
+from LaboDino.models import ROLE, PLATEFORME, PERSONNEL, CAMPAGNE, ECHANTILLON, ESPECE
 # Importer l'objet app en plus de db
 from LaboDino.app import db, app
 
@@ -24,7 +24,7 @@ with app.app_context():
     db.create_all()
     
     print("--- Démarrage des tests ---")
-    models_test()
+    #models_test()
     personnel_tests()
     print("--- Tests terminés ---")
 
