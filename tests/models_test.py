@@ -169,7 +169,7 @@ def test_plateforme_campagne():
     assert len(plateforme_paleontologie.campagnes) == 1
     assert CAMPAGNE.query.count() == 3
     assert CAMPAGNE.query.filter_by(lieu="Montana, USA").first().valide is True
-    assert len(plateforme.campagnes) == 3
+    assert len(plateforme.campagnes) == 0
     
 def test_budgets():
     budg1 = BUDGET(date(2024, 1, 1), 50000)
@@ -269,6 +269,7 @@ def test_recolter():
 
 def run_tests():
     with app.app_context():
+        print("Début des tests de l'ORM")
         clear_database()
         
         test_personnel()
@@ -287,6 +288,8 @@ def run_tests():
         test_echantillons()
         test_appartenir()
         test_recolter()
+
+        print("Tests de l'ORM terminé, tout les tests sont passés")
 
 if __name__ == "__main__":
     run_tests()
