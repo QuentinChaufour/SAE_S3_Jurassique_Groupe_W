@@ -22,6 +22,7 @@ class ESPECE(db.Model):
     nom_espece = db.Column(db.String(50))
     nom_scientifique = db.Column(db.String(100))
     genome = db.Column(db.Text)
+    echantillons = db.relationship("ECHANTILLON", back_populates="espece")
 
     def __init__(self, nom_espece, nom_scientifique=nom_espece, genome=""):
         self.nom_espece = nom_espece
@@ -38,8 +39,10 @@ class ECHANTILLON(db.Model):
     fichier_sequence_adn = db.Column(db.Text)
     id_espece = db.Column(db.Integer, db.ForeignKey("ESPECE.id_espece"), nullable=True)
     commentaire = db.Column(db.Text)
+    espece = db.relationship("ESPECE", back_populates="echantillons")
+    campagne = db.relationship("CAMPAGNE", back_populates="echantillons")
 
-    def __init__(self, id_campagne, fichier_sequence_adn, id_espece, commentaire=""):
+    def __init__(self, id_campagne, fichier_sequence_adn, commentaire=None, id_espece=None):
         self.id_campagne = id_campagne
         self.fichier_sequence_adn = fichier_sequence_adn
         self.id_espece = id_espece
@@ -58,6 +61,7 @@ class CAMPAGNE(db.Model):
     valide = db.Column(db.Boolean)
     participerCampagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="campagne")
     plateforme = db.relationship("PLATEFORME", back_populates="campagnes")
+    echantillons = db.relationship("ECHANTILLON", back_populates="campagne")
 
 
     def __init__(self, nom_plateforme, dateDebut, duree, lieu, valide=False ):

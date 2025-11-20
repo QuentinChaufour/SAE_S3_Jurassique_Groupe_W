@@ -1,5 +1,6 @@
 from LaboDino.models import *
 from LaboDino.app import app, db
+from sqlalchemy import text
 from datetime import date
 
 def clear_database():
@@ -71,13 +72,16 @@ def test_plateformes():
     plat1 = PLATEFORME("Plateforme Sequence", 5, 1500, 90)
     plat2 = PLATEFORME("Plateforme Paléontologie", 3, 800, 60)
     plat3 = PLATEFORME("Plateforme Analyse", 4, 1200, 45)
+    plat4 = PLATEFORME("Plateforme A", 5, 1500, 90)
+    plat5 = PLATEFORME("Plateforme B", 3, 800, 60)
         
-    db.session.add_all([plat1, plat2, plat3])
+    db.session.add_all([plat1, plat2, plat3, plat4, plat5])
     db.session.commit()
 
-    assert PLATEFORME.query.count() == 3
+    assert PLATEFORME.query.count() == 5
     assert PLATEFORME.query.filter_by(nom_plateforme="Plateforme Sequence").first().nb_personnes_requises == 5
     assert PLATEFORME.query.filter_by(nom_plateforme="Plateforme Sequence").first().cout_journalier == 1500
+    assert PLATEFORME.query.filter_by(nom_plateforme="Plateforme A").first().nb_personnes_requises == 5
 
 def test_inclure_equipement():
 
@@ -157,13 +161,16 @@ def test_campagnes():
 def test_plateforme_campagne():
     plateforme_sequence = PLATEFORME.query.filter_by(nom_plateforme="Plateforme Sequence").first()
     plateforme_paleontologie = PLATEFORME.query.filter_by(nom_plateforme="Plateforme Paléontologie").first()
-    
     campagne_montana = CAMPAGNE.query.filter_by(lieu="Montana, USA").first()
+    plateforme = PLATEFORME.query.filter_by(nom_plateforme="Plateforme A").first()
     
     assert campagne_montana.plateforme.nom_plateforme == "Plateforme Sequence"
     assert len(plateforme_sequence.campagnes) == 1
     assert len(plateforme_paleontologie.campagnes) == 1
-
+    assert CAMPAGNE.query.count() == 3
+    assert CAMPAGNE.query.filter_by(lieu="Montana, USA").first().valide is True
+    assert len(plateforme.campagnes) == 3
+    
 def test_budgets():
     budg1 = BUDGET(date(2024, 1, 1), 50000)
     budg2 = BUDGET(date(2024, 2, 1), 40000)
@@ -198,6 +205,67 @@ def test_maintenances():
     assert maint_sequence_janvier.duree_maintenance == 7
     assert maint_sequence_janvier.plateforme.nom_plateforme == "Plateforme Sequence"
     assert len(plateforme_sequence.maintenances) == 2
+    
+def test_participer_campagne():
+    """Teste l'association PARTICIPER_CAMPAGNE entre CAMPAGNE et PERSONNEL."""
+    personnel = PERSONNEL.query.all()
+    campagnes = CAMPAGNE.query.all()
+    
+    part_camp1 = PARTICIPER_CAMPAGNE(campagnes[0].id_campagne, personnel[0].id_personnel)
+    part_camp2 = PARTICIPER_CAMPAGNE(campagnes[1].id_campagne, personnel[1].id_personnel)
+    part_camp3 = PARTICIPER_CAMPAGNE(campagnes[0].id_campagne, personnel[2].id_personnel)
+    part_camp4 = PARTICIPER_CAMPAGNE(campagnes[2].id_campagne, personnel[2].id_personnel)
+    
+    db.session.add_all([part_camp1, part_camp2, part_camp3, part_camp4])
+    db.session.commit()
+    
+    assert PARTICIPER_CAMPAGNE.query.count() == 4
+    assert PARTICIPER_CAMPAGNE.query.filter_by(id_personnel=personnel[2].id_personnel).count() == 2
+    assert len(personnel[2].posseder) == 2
+    
+def test_especes():
+    """Teste la création d'entités ESPECE."""
+    espece1 = ESPECE("T-Rex", "Tyrannosaurus Rex", "AGCT...")
+    espece2 = ESPECE("Triceratops", "Triceratops horridus", "GTCA...")
+    db.session.add_all([espece1, espece2])
+    db.session.commit()
+
+    assert ESPECE.query.count() == 2
+    assert ESPECE.query.filter_by(nom_espece="T-Rex").first().genome == "AGCT..."
+    
+def test_echantillons():
+    """Teste la création d'entités ECHANTILLON."""
+    echantillon1 = ECHANTILLON(1, "TRex_dent.adn", "Dent de T-Rex")
+    echantillon2 = ECHANTILLON(2, "Tric_corne.adn", "Corne de Triceratops")
+    db.session.add_all([echantillon1, echantillon2])
+    db.session.commit()
+
+    assert ECHANTILLON.query.count() == 2
+    assert ECHANTILLON.query.filter_by(commentaire="Dent de T-Rex").first() is not None
+    
+def test_appartenir():
+    """Teste l'association APPARTENIR entre ECHANTILLON et ESPECE."""
+    echantillon = ECHANTILLON.query.filter_by(commentaire="Dent de T-Rex").first()
+    espece = ESPECE.query.filter_by(nom_espece="T-Rex").first()
+    
+    echantillon.espece = espece
+    db.session.commit()
+    
+    assert echantillon.espece.nom_espece == "T-Rex"
+    assert len(espece.echantillons) == 1
+    assert espece.echantillons[0].commentaire == "Dent de T-Rex"
+
+def test_recolter():
+    """Teste l'association RECOLTER entre ECHANTILLON et CAMPAGNE."""
+    echantillon = ECHANTILLON.query.filter_by(commentaire="Corne de Triceratops").first()
+    campagne = CAMPAGNE.query.filter_by(lieu="Patagonie, Argentine").first()
+    
+    echantillon.campagne = campagne
+    db.session.commit()
+    
+    assert echantillon.campagne.lieu == "Patagonie, Argentine"
+    assert len(campagne.echantillons) == 1
+    assert campagne.echantillons[0].commentaire == "Corne de Triceratops"
 
 def run_tests():
     with app.app_context():
@@ -214,6 +282,11 @@ def run_tests():
         test_plateforme_campagne()
         test_budgets()
         test_maintenances()
+        test_participer_campagne()
+        test_especes()
+        test_echantillons()
+        test_appartenir()
+        test_recolter()
 
 if __name__ == "__main__":
     run_tests()
