@@ -32,7 +32,7 @@ class LoginForm(FlaskForm):
 class BudgetForm(FlaskForm):
     """Form for defining a budget."""
 
-    date : DateField = DateField('Budget month', format="%Y-%m",validators=[DataRequired()])
+    date : DateField = DateField('Budget month', validators=[DataRequired()])
     montant : FloatField = FloatField('Montant', validators=[DataRequired()],description="Enter the budget amount in numeric format.")
 
     submit : SubmitField = SubmitField('Define Budget')

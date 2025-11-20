@@ -5,7 +5,6 @@ coverage==7.11.3
 dominate==2.9.1
 Flask==3.1.2
 Flask-Bootstrap==3.3.7.1
-Flask-Datepicker==0.16
 Flask-WTF==1.2.2
 iniconfig==2.3.0
 itsdangerous==2.2.0
