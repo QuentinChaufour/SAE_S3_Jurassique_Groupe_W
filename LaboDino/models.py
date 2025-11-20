@@ -8,8 +8,8 @@ class ROLE(enum.Enum):
     direction = 'direction'
 
 inclure_equipement = db.Table("INCLURE_EQUIPEMENT", 
-                              db.Column("nom_plateforme_inclure", db.String(50), db.ForeignKey("PLATEFORME.nom_plateforme")), 
-                              db.Column("id_equipement_inclure", db.Integer, db.ForeignKey("EQUIPEMENT.id_equipement")))
+                              db.Column("nom_plateforme_inclure", db.String(50), db.ForeignKey("PLATEFORME.nom_plateforme"), primary_key=True), 
+                              db.Column("id_equipement_inclure", db.Integer, db.ForeignKey("EQUIPEMENT.id_equipement"), primary_key=True))
 
 necessiter_habilitation = db.Table("NECESSITER_HABILITATION", 
                                    db.Column("id_equipement_necessiter", db.Integer, db.ForeignKey("EQUIPEMENT.id_equipement"), primary_key=True),
