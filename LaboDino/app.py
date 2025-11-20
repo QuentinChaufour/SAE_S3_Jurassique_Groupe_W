@@ -1,5 +1,6 @@
 
 from flask import Flask,render_template
+from flask_login import LoginManager
 
 app = Flask ( __name__ )
 
@@ -7,3 +8,11 @@ app.config.from_object('config')
 # To get one variable, tape app.config['MY_VARIABLE']
 
 # création du lien avec la base de données
+
+# login manager
+
+login_manager = LoginManager(app)
+login_manager.login_view = "login"
+
+# en attente d'une vraie base de données
+users_storage = {}  # This should be replaced with your actual user storage mechanism
