@@ -1,0 +1,40 @@
+{% extends "base_template.html" %}
+
+{% block content %}
+
+<a href="{{ url_for('sample_detail', sample_id=sample) }}">Edit Sample</a>
+
+<h2 class="title">Sample Details</h2>
+
+<div>
+    <section>
+        <p><strong>Sample ID:</strong> {{ sample }}</p>
+        <p><strong>Espece:</strong> {{ sample }}</p>
+        <p><strong>Description:</strong> {{ sample}}</p>
+    </section>
+
+    <section>
+        <h2>Select a sample to compare</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Sample ID</th>
+                    <th>Espece</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for other_sample in samples %}
+                {% if other_sample != sample %}
+                <tr>
+                    <td>{{ other_sample }}</td>
+                    <td>{{ other_sample }}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</div>
+
+
+{% endblock %}

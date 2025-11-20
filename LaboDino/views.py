@@ -81,4 +81,4 @@ def sample_detail(sample_id: int):
     """Affiche les détails d"un échantillon spécifique."""
     # Logic to retrieve and display sample details
     print(f"Sample ID: {sample_id}")
-    return render_template("sample_details.html", sample_id=sample_id)
+    return render_template("sample_details.html", sample=sample_id, samples= [1,2,3,4])
