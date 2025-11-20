@@ -8,7 +8,7 @@ from flask_login import login_user, logout_user, login_required
 @app.route("/")
 def home():
 
-    return redirect(url_for("login"))
+    return redirect(url_for("campaign_detail", campaign_id=2))
     #return render_template("campaign_details.html",campaign_id= 2 ,participants= {1:["a","b","c"],2:["d","e"]})
 
 @app.route("/login/", methods=["GET", "POST"])
@@ -41,8 +41,9 @@ def logout():
     logout_user()
     return redirect(url_for("login"))
 
-@login_required
 @app.route("/budget/", methods=["GET", "POST"])
+@login_required
+@role_access_rights(UserRole.DIRECTION)
 def set_budget():
     """Affiche le formulaire de définition du budget et gère la soumission du formulaire."""
 
@@ -68,11 +69,16 @@ def get_campaigns():
 
 @app.route("/campaigns/<int:campaign_id>")
 @login_required
-@role_access_rights(UserRole.TECHNICIAN,UserRole.ADMIN)
 def campaign_detail(campaign_id):
     """Affiche les détails d"une campagne spécifique."""
     # Logic to retrieve and display campaign details
     print(f"Campaign ID: {campaign_id}")
-    return render_template("campaign_details.html", campaign_id=campaign_id, participants= {1:["a","b","c"],2:["d","e"]})
+    return render_template("campaign_details.html", campaign_id=campaign_id, samples= [1,2],participants= {1:["a","b","c"],2:["d","e"]})
 
-       
+@app.route("/campaigns/samples/<int:sample_id>")
+@login_required
+def sample_detail(sample_id: int):
+    """Affiche les détails d"un échantillon spécifique."""
+    # Logic to retrieve and display sample details
+    print(f"Sample ID: {sample_id}")
+    return render_template("sample_details.html", sample_id=sample_id)
