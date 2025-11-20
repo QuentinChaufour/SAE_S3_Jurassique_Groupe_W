@@ -1,6 +1,7 @@
 import enum
 from .app import db
 
+from sqlalchemy.dialects.mysql import MEDIUMTEXT
 class ROLE(enum.Enum):
     administratif = 'administratif'
     chercheur = 'chercheur'
@@ -36,7 +37,7 @@ class ECHANTILLON(db.Model):
     __tablename__ = 'ECHANTILLON'
     id_echantillon = db.Column(db.Integer, primary_key=True, autoincrement=True)
     id_campagne = db.Column(db.Integer,db.ForeignKey("CAMPAGNE.id_campagne"))
-    fichier_sequence_adn = db.Column(db.Text)
+    fichier_sequence_adn = db.Column(MEDIUMTEXT)
     id_espece = db.Column(db.Integer, db.ForeignKey("ESPECE.id_espece"), nullable=True)
     commentaire = db.Column(db.Text)
     espece = db.relationship("ESPECE", back_populates="echantillons")
