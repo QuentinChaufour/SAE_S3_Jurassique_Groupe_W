@@ -1,10 +1,10 @@
 from LaboDino.forms import LoginForm, BudgetForm
 from .app import app
-from flask import render_template
+from flask import render_template,redirect,url_for
 
 @app.route('/')
 def home():
-    return render_template('campaign_dashboard.html', campaigns= [2], participants= {1:["a","b","c"],2:["d","e"]})
+    return redirect(url_for("set_budget"))
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
@@ -34,9 +34,7 @@ def set_budget():
     if form.validate_on_submit():
         date, montant = form.add_budget()
         # Logic to handle the budget submission
-        pass
-    print("Budget Form Data:", form.date.data, form.montant.data)
-    
+        print("Budget Form Data:", date,montant)
 
     return render_template('budget_page.html', form=form)
 

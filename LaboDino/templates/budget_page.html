@@ -10,7 +10,11 @@
         <h2>Fixer le budget mensuel</h2>
         <!-- Formulaire de definition du budget -->
         <form method="POST" role="form" action="{{ url_for('set_budget') }}">
+            {{ form.csrf_token }}
             <div class="form_field">
+                {{ form.date.label }}
+                {{ form.date(class='datepicker') }}
+                <br>
                 {{ form.montant.label (class_ = "form-label") }}
                 {{ form.montant (class_ ="form-input") }}
             </div>

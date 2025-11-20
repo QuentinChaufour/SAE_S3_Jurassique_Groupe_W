@@ -1,9 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import HiddenField, StringField, PasswordField, SubmitField, FloatField
+from wtforms import HiddenField, StringField, PasswordField, SubmitField,DateField, FloatField
 from wtforms.validators import DataRequired
 from hashlib import sha256
-import datetime
-
 from LaboDino.models import Personnel
 
 
@@ -34,15 +32,14 @@ class LoginForm(FlaskForm):
 class BudgetForm(FlaskForm):
     """Form for defining a budget."""
 
-    date : HiddenField = HiddenField('Date', validators=[DataRequired()])
+    date : DateField = DateField('Budget month', format="%Y-%m",validators=[DataRequired()])
     montant : FloatField = FloatField('Montant', validators=[DataRequired()],description="Enter the budget amount in numeric format.")
 
     submit : SubmitField = SubmitField('Define Budget')
 
     def add_budget(self) -> tuple[str, float]:
-        date_value: str = datetime.datetime.strptime(self.date.data, "%Y-%m").date().strftime("%Y-%m")
         montant_value: float = self.montant.data
-
+        date_value = self.date.data
         # Gestion des erreurs
         
         return date_value, montant_value
