@@ -3,8 +3,18 @@ from LaboDino.app import app, db
 from datetime import date
 
 def clear_database():
+    db.session.execute(db.text("SET FOREIGN_KEY_CHECKS=0;"))
+    db.session.commit()
+    
+    # Supprimer toutes les tables
     db.drop_all()
+    
+    # Recréer toutes les tables
     db.create_all()
+    
+    # Réactiver les vérifications de clés étrangères
+    db.session.execute(db.text("SET FOREIGN_KEY_CHECKS=1;"))
+    db.session.commit()
 
 def test_personnel():
     personnel1 = PERSONNEL("Dupont", "Jean", "mdp123", ROLE.administratif)
@@ -65,18 +75,21 @@ def test_plateformes():
     plat1 = PLATEFORME("Plateforme Sequence", 5, 1500, 90)
     plat2 = PLATEFORME("Plateforme Paléontologie", 3, 800, 60)
     plat3 = PLATEFORME("Plateforme Analyse", 4, 1200, 45)
-    
+        
     db.session.add_all([plat1, plat2, plat3])
     db.session.commit()
-    
     assert PLATEFORME.query.count() == 3
     assert PLATEFORME.query.filter_by(nom_plateforme="Plateforme Sequence").first().nb_personnes_requises == 5
-    assert PLATEFORME.query.first().cout_journalier == 1500
+    assert PLATEFORME.query.filter_by(nom_plateforme="Plateforme Sequence").first().cout_journalier == 1500
 
 def test_inclure_equipement():
     plateformes = PLATEFORME.query.all()
     equipements = EQUIPEMENT.query.all()
+    print("EQUIPEMENTS 0 ", equipements[0])
     
+    EQUIPEMENT.query.filter_by(nom_equipement="Séquenceur ADN").first()
+    EQUIPEMENT.query.filter_by(nom_equipement="Centrifugeuse").first()
+
     plateformes[0].equipements.append(equipements[0])
     plateformes[0].equipements.append(equipements[3])
     plateformes[1].equipements.append(equipements[1])
@@ -91,7 +104,9 @@ def test_inclure_equipement():
     plateforme_sequence = PLATEFORME.query.filter_by(nom_plateforme="Plateforme Sequence").first()
     sequenceur_present = False
     pinceau_present = False
+    print(PLATEFORME.query.filter_by(nom_plateforme="Plateforme Sequence").first().equipements)
     for equip in plateforme_sequence.equipements:
+        print("EQUIPEMENT", plateforme_sequence.equipements)
         if equip.nom_equipement == "Séquenceur ADN":
             sequenceur_present = True
         if equip.nom_equipement == "Pinceau":
