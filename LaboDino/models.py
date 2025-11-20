@@ -15,7 +15,7 @@ class ESPECE(db.Model):
     nom_espece = db.Column(db.String(50))
     nom_scientifique = db.Column(db.String(100))
     genome = db.Column(db.Text)
-    echantillons = db.relationship('ECHANTILLON',  secondary='APPARTENIR', back_populates='espece')
+    echantillons = db.relationship('ECHANTILLON', back_populates='espece')
 
     def __init__(self, nom_espece, nom_scientifique=None, genome=''):
         self.nom_espece = nom_espece
@@ -33,7 +33,7 @@ class ECHANTILLON(db.Model):
     fichier_sequence_adn = db.Column(db.Text, nullable=False)
     id_espece = db.Column(db.Integer, db.ForeignKey('ESPECE.id_espece'), nullable=True)
     commentaire = db.Column(db.Text)
-    espece = db.relationship('ESPECE', secondary='APPARTENIR', back_populates='echantillons')
+    espece = db.relationship('ESPECE', back_populates='echantillons')
     campagne = db.relationship('CAMPAGNE', back_populates='echantillons')
 
     def __init__(self, id_campagne, fichier_sequence_adn, id_espece=None, commentaire=''):
@@ -164,10 +164,6 @@ class MAINTENANCE(db.Model):
 
     def __repr__(self):
         return 'Maintenance : ' + self.nom_plateforme
-
-appartenir = db.Table('APPARTENIR',
-                      db.Column('id_espece', db.Integer, db.ForeignKey('ESPECE.id_espece'),primary_key=True),
-                      db.Column('id_echantillon', db.Integer, db.ForeignKey('ECHANTILLON.id_echantillon'),primary_key=True, unique = True))
 
 posseder = db.Table('POSSEDER',
                     db.Column('id_personnel', db.Integer, db.ForeignKey('PERSONNEL.id_personnel'),primary_key=True),
