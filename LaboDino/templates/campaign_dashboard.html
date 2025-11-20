@@ -34,9 +34,9 @@
     </table>
 
     <section class="pagination">
-        <input type="button" value="<" class="pagination-btn typographie">
+        <a href="{{ url_for('get_campaigns',page=page-1) }}" class="pagination-btn typographie"><</a>
         <p>{{ page }}</p>
-        <input type="button" value=">" class="pagination-btn typographie">
+        <a href="{{ url_for('get_campaigns',page=page+1) }}" class="pagination-btn typographie"> > </a>
     </section>
 </div>
 
