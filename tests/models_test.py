@@ -3,17 +3,8 @@ from LaboDino.app import app, db
 from datetime import date
 
 def clear_database():
-    db.session.execute(db.text("SET FOREIGN_KEY_CHECKS=0;"))
-    db.session.commit()
-    
-    # Supprimer toutes les tables
     db.drop_all()
-    
-    # Recréer toutes les tables
     db.create_all()
-    
-    # Réactiver les vérifications de clés étrangères
-    db.session.execute(db.text("SET FOREIGN_KEY_CHECKS=1;"))
     db.session.commit()
 
 def test_personnel():
@@ -43,20 +34,25 @@ def test_habilitations():
     assert hab1.id_habilitation is not None
 
 def test_posseder():
-    personnel = PERSONNEL.query.all()
-    habilitations = HABILITATION.query.all()
+    personnel_dupont = PERSONNEL.query.filter_by(nom="Dupont").first()
+    personnel_martin = PERSONNEL.query.filter_by(nom="Martin").first()
+    personnel_bernard = PERSONNEL.query.filter_by(nom="Bernard").first()
     
-    poss1 = POSSEDER(habilitations[0].id_habilitation, personnel[0].id_personnel)
-    poss2 = POSSEDER(habilitations[1].id_habilitation, personnel[1].id_personnel)
-    poss3 = POSSEDER(habilitations[0].id_habilitation, personnel[2].id_personnel)
-    poss4 = POSSEDER(habilitations[2].id_habilitation, personnel[2].id_personnel)
+    hab_manipulation = HABILITATION.query.filter_by(nom_habilitation="Manipulation ADN").first()
+    hab_sequencage = HABILITATION.query.filter_by(nom_habilitation="Séquençage").first()
+    hab_analyse = HABILITATION.query.filter_by(nom_habilitation="Analyse génomique").first()
+    
+    poss1 = POSSEDER(hab_manipulation.id_habilitation, personnel_dupont.id_personnel)
+    poss2 = POSSEDER(hab_sequencage.id_habilitation, personnel_martin.id_personnel)
+    poss3 = POSSEDER(hab_manipulation.id_habilitation, personnel_bernard.id_personnel)
+    poss4 = POSSEDER(hab_analyse.id_habilitation, personnel_bernard.id_personnel)
     
     db.session.add_all([poss1, poss2, poss3, poss4])
     db.session.commit()
     
     assert POSSEDER.query.count() == 4
-    assert POSSEDER.query.filter_by(id_personnel=personnel[2].id_personnel).count() == 2
-    assert len(personnel[2].posseder) == 2
+    assert POSSEDER.query.filter_by(id_personnel=personnel_bernard.id_personnel).count() == 2
+    assert len(personnel_bernard.posseder) == 2
 
 def test_equipements():
     equip1 = EQUIPEMENT(nom_equipement="Séquenceur ADN")
@@ -78,35 +74,35 @@ def test_plateformes():
         
     db.session.add_all([plat1, plat2, plat3])
     db.session.commit()
+
     assert PLATEFORME.query.count() == 3
     assert PLATEFORME.query.filter_by(nom_plateforme="Plateforme Sequence").first().nb_personnes_requises == 5
     assert PLATEFORME.query.filter_by(nom_plateforme="Plateforme Sequence").first().cout_journalier == 1500
 
 def test_inclure_equipement():
-    plateformes = PLATEFORME.query.all()
-    equipements = EQUIPEMENT.query.all()
-    print("EQUIPEMENTS 0 ", equipements[0])
-    
-    EQUIPEMENT.query.filter_by(nom_equipement="Séquenceur ADN").first()
-    EQUIPEMENT.query.filter_by(nom_equipement="Centrifugeuse").first()
 
-    plateformes[0].equipements.append(equipements[0])
-    plateformes[0].equipements.append(equipements[3])
-    plateformes[1].equipements.append(equipements[1])
-    plateformes[2].equipements.append(equipements[2])
+    sequenceur = EQUIPEMENT.query.filter_by(nom_equipement="Séquenceur ADN").first()
+    microscope = EQUIPEMENT.query.filter_by(nom_equipement="Microscope").first()
+    centrifugeuse = EQUIPEMENT.query.filter_by(nom_equipement="Centrifugeuse").first()
+    pinceau = EQUIPEMENT.query.filter_by(nom_equipement="Pinceau").first()
+    
+    plateforme_sequence = PLATEFORME.query.filter_by(nom_plateforme="Plateforme Sequence").first()
+    plateforme_paleontologie = PLATEFORME.query.filter_by(nom_plateforme="Plateforme Paléontologie").first()
+    plateforme_analyse = PLATEFORME.query.filter_by(nom_plateforme="Plateforme Analyse").first()
+
+    plateforme_sequence.equipements.append(sequenceur)
+    plateforme_sequence.equipements.append(pinceau)
+    plateforme_paleontologie.equipements.append(microscope)
+    plateforme_analyse.equipements.append(centrifugeuse)
 
     db.session.commit()
-    
-    assert len(plateformes[0].equipements) == 2
-    assert len(plateformes[1].equipements) == 1
-    assert len(plateformes[2].equipements) == 1
 
-    plateforme_sequence = PLATEFORME.query.filter_by(nom_plateforme="Plateforme Sequence").first()
+    assert len(plateforme_sequence.equipements) == 2
+    
     sequenceur_present = False
     pinceau_present = False
-    print(PLATEFORME.query.filter_by(nom_plateforme="Plateforme Sequence").first().equipements)
+    
     for equip in plateforme_sequence.equipements:
-        print("EQUIPEMENT", plateforme_sequence.equipements)
         if equip.nom_equipement == "Séquenceur ADN":
             sequenceur_present = True
         if equip.nom_equipement == "Pinceau":
@@ -117,32 +113,37 @@ def test_inclure_equipement():
 
 
 def test_necessiter_habilitation():
-    equipements = EQUIPEMENT.query.all()
-    habilitations = HABILITATION.query.all()
+    sequenceur = EQUIPEMENT.query.filter_by(nom_equipement="Séquenceur ADN").first()
+    microscope = EQUIPEMENT.query.filter_by(nom_equipement="Microscope").first()
+    pinceau = EQUIPEMENT.query.filter_by(nom_equipement="Pinceau").first()
     
-    equipements[0].habilitations.append(habilitations[0])
-    equipements[0].habilitations.append(habilitations[1])
-    equipements[1].habilitations.append(habilitations[2])
-    equipements[3].habilitations.append(habilitations[0])
+    hab_manipulation = HABILITATION.query.filter_by(nom_habilitation="Manipulation ADN").first()
+    hab_sequencage = HABILITATION.query.filter_by(nom_habilitation="Séquençage").first()
+    hab_analyse = HABILITATION.query.filter_by(nom_habilitation="Analyse génomique").first()
+    
+    sequenceur.habilitations.append(hab_manipulation)
+    sequenceur.habilitations.append(hab_sequencage)
+    microscope.habilitations.append(hab_analyse)
+    pinceau.habilitations.append(hab_manipulation)
     
     db.session.commit()
     
-    assert len(equipements[0].habilitations) == 2
-    assert len(equipements[1].habilitations) == 1
-    assert len(equipements[3].habilitations) == 1
+    sequenceur = EQUIPEMENT.query.filter_by(nom_equipement="Séquenceur ADN").first()
+    microscope = EQUIPEMENT.query.filter_by(nom_equipement="Microscope").first()
+    pinceau = EQUIPEMENT.query.filter_by(nom_equipement="Pinceau").first()
+    
+    assert len(sequenceur.habilitations) == 2
+    assert len(microscope.habilitations) == 1
+    assert len(pinceau.habilitations) == 1
 
 def test_campagnes():
-    plateformes = PLATEFORME.query.all()
+    plateforme_sequence = PLATEFORME.query.filter_by(nom_plateforme="Plateforme Sequence").first()
+    plateforme_paleontologie = PLATEFORME.query.filter_by(nom_plateforme="Plateforme Paléontologie").first()
+    plateforme_analyse = PLATEFORME.query.filter_by(nom_plateforme="Plateforme Analyse").first()
     
-    camp1 = CAMPAGNE(
-        plateformes[0].nom_plateforme,
-        date(2024, 1, 15),
-        30,
-        "Montana, USA",
-        True
-    )
-    camp2 = CAMPAGNE(plateformes[1].nom_plateforme, date(2024, 3, 10), 45, "Patagonie, Argentine", True)
-    camp3 = CAMPAGNE(plateformes[2].nom_plateforme, date(2024, 6, 1), 20, "Gobi, Mongolie", False)
+    camp1 = CAMPAGNE(plateforme_sequence.nom_plateforme, date(2024, 1, 15), 30, "Montana, USA", True)
+    camp2 = CAMPAGNE(plateforme_paleontologie.nom_plateforme, date(2024, 3, 10), 45, "Patagonie, Argentine", True)
+    camp3 = CAMPAGNE(plateforme_analyse.nom_plateforme, date(2024, 6, 1), 20, "Gobi, Mongolie", False)
     
     db.session.add_all([camp1, camp2, camp3])
     db.session.commit()
@@ -154,12 +155,14 @@ def test_campagnes():
     assert camp1.plateforme.nom_plateforme == "Plateforme Sequence"
 
 def test_plateforme_campagne():
-    plateformes = PLATEFORME.query.all()
-    campagnes = CAMPAGNE.query.all()
+    plateforme_sequence = PLATEFORME.query.filter_by(nom_plateforme="Plateforme Sequence").first()
+    plateforme_paleontologie = PLATEFORME.query.filter_by(nom_plateforme="Plateforme Paléontologie").first()
     
-    assert campagnes[0].plateforme.nom_plateforme == "Plateforme Sequence"
-    assert len(plateformes[0].campagnes) == 1
-    assert len(plateformes[1].campagnes) == 1
+    campagne_montana = CAMPAGNE.query.filter_by(lieu="Montana, USA").first()
+    
+    assert campagne_montana.plateforme.nom_plateforme == "Plateforme Sequence"
+    assert len(plateforme_sequence.campagnes) == 1
+    assert len(plateforme_paleontologie.campagnes) == 1
 
 def test_budgets():
     budg1 = BUDGET(date(2024, 1, 1), 50000)
@@ -171,26 +174,30 @@ def test_budgets():
     db.session.commit()
     
     assert BUDGET.query.count() == 4
-    assert BUDGET.query.filter_by(date_mois_annee=date(2024, 1, 1)).first().budget_total ==50000
+    assert BUDGET.query.filter_by(date_mois_annee=date(2024, 1, 1)).first().budget_total == 50000
     
     budg1.budget_total = 50000
     db.session.commit()
+    
     assert BUDGET.query.filter_by(date_mois_annee=date(2024, 1, 1)).first().budget_total == 50000
 
 def test_maintenances():
-    plateformes = PLATEFORME.query.all()
+    plateforme_sequence = PLATEFORME.query.filter_by(nom_plateforme="Plateforme Sequence").first()
+    plateforme_paleontologie = PLATEFORME.query.filter_by(nom_plateforme="Plateforme Paléontologie").first()
     
-    maint1 = MAINTENANCE( plateformes[0].nom_plateforme, date(2024, 1, 15), 7)
-    maint2 = MAINTENANCE( plateformes[0].nom_plateforme, date(2024, 4, 15), 5)
-    maint3 = MAINTENANCE( plateformes[1].nom_plateforme, date(2024, 2, 20), 10)
+    maint1 = MAINTENANCE(plateforme_sequence.nom_plateforme, date(2024, 1, 15), 7)
+    maint2 = MAINTENANCE(plateforme_sequence.nom_plateforme, date(2024, 4, 15), 5)
+    maint3 = MAINTENANCE(plateforme_paleontologie.nom_plateforme, date(2024, 2, 20), 10)
     
     db.session.add_all([maint1, maint2, maint3])
     db.session.commit()
     
+    maint_sequence_janvier = MAINTENANCE.query.filter_by(nom_plateforme="Plateforme Sequence", date_maintenance=date(2024, 1, 15)).first()
+
     assert MAINTENANCE.query.count() == 3
-    assert MAINTENANCE.query.first().duree_maintenance == 7
-    assert maint1.plateforme.nom_plateforme == "Plateforme Sequence"
-    assert len(plateformes[0].maintenances) == 2
+    assert maint_sequence_janvier.duree_maintenance == 7
+    assert maint_sequence_janvier.plateforme.nom_plateforme == "Plateforme Sequence"
+    assert len(plateforme_sequence.maintenances) == 2
 
 def run_tests():
     with app.app_context():
