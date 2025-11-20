@@ -1,6 +1,7 @@
 from LaboDino.models import ROLE, PLATEFORME, PERSONNEL, CAMPAGNE, ECHANTILLON, ESPECE
 # Importer l'objet app en plus de db
 from LaboDino.app import db, app
+from sqlalchemy import text
 import datetime
 
 def models_test():
@@ -16,7 +17,7 @@ def personnel_tests():
     db.session.add(alice)
     db.session.commit()
 
-    print("Personnel:", PERSONNEL.query.all())
+    print("Personnels:", PERSONNEL.query.all())
 
 def campagne_tests():
     campagne = CAMPAGNE("Plateforme 1", datetime.date(2024,1,1), 30, "Jurassic Park", True)
@@ -57,7 +58,7 @@ def echantillon_tests():
     echantillon = ECHANTILLON(3, "mystere.adn", "echantillon d'une espèce inconnu")
     db.session.add(echantillon)
     db.session.commit()
-    print("ECHANTILLON:", ECHANTILLON.query.all())
+    print("ECHANTILLONS:", ECHANTILLON.query.all())
 
 def appartenir_tests():
     echantillon1 = ECHANTILLON(1, "loligo.adn", "une espèce marine avec des tentacules...")
@@ -82,10 +83,22 @@ def recolter_tests():
 
 # Mettre en place le contexte d'application avant d'appeler les fonctions
 with app.app_context():
-    # Crée les tables si elles n'existent pas (important pour les tests)
+    print("--- Nettoyage de la base de données ---")
+    
+    # 1. ON DÉSACTIVE LA SÉCURITÉ
+    db.session.execute(text("SET FOREIGN_KEY_CHECKS = 0;"))
+    db.session.commit()
+    
+    db.drop_all()
+    
+    # 3. ON RÉACTIVE LA SÉCURITÉ
+    db.session.execute(text("SET FOREIGN_KEY_CHECKS = 1;"))
+    db.session.commit()
+    
     db.create_all()
     
     print("--- Démarrage des tests ---")
+    
     models_test()
     personnel_tests()
     campagne_tests()
@@ -95,5 +108,6 @@ with app.app_context():
     echantillon_tests()
     appartenir_tests()
     recolter_tests()
-    print("--- Tests terminés ---")
+    
+    print("--- Tests terminés ---") 
 
