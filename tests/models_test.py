@@ -2,6 +2,16 @@ from LaboDino.models import *
 from LaboDino.app import app, db
 from sqlalchemy import text
 from datetime import date
+import pytest
+
+@pytest.fixture(autouse=True)
+def app_context():
+    """Push application context for each test"""
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        yield
+        db.session.remove()
 
 def clear_database():
     db.drop_all()
@@ -267,6 +277,7 @@ def test_recolter():
     assert len(campagne.echantillons) == 1
     assert campagne.echantillons[0].commentaire == "Corne de Triceratops"
 
+@pytest.fixture(autouse=True)
 def run_tests():
     with app.app_context():
         print("Début des tests de l'ORM")

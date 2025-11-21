@@ -68,7 +68,7 @@ class CAMPAGNE(db.Model):
     def __init__(self, nom_plateforme, dateDebut, duree, lieu, valide=False ):
         self.nom_plateforme = nom_plateforme
         self.dateDebut = dateDebut
-        self.duree = dureez
+        self.duree = duree
         self.lieu = lieu
         self.valide = valide
 
@@ -213,22 +213,4 @@ class MAINTENANCE(db.Model):
 
     def __repr__(self):
         return 'Maintenance : ' + self.nom_plateforme
-
-  class Personnel(UserMixin):
-
-    def __init__(self, id_personnel: str = "0", nom: str = "", prenom: str = "", role: UserRole = UserRole.RESEARCHER, mot_de_passe: str = ""):
-        self.id = id_personnel
-        self.nom = nom
-        self.prenom = prenom
-        self.mdp = mdp
-        self.role = role
-        self.mot_de_passe = mot_de_passe
-
-    def getRole(self) -> UserRole:
-        return self.role
-    
-@login_manager.user_loader
-def load_user(user_id):
-    """Load user selon son ID"""
-    return users_storage.get(int(user_id))
 

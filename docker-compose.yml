@@ -6,13 +6,14 @@ services:
       MYSQL_ROOT_PASSWORD: root_password
       MYSQL_USER: user
       MYSQL_PASSWORD: password
+      MYSQL_DATABASE: labodino
     ports:
       - "3306:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
-      - ./database/script.sql:/docker-entrypoint-initdb.d/script.sql
-      - ./database/triggers.sql:/docker-entrypoint-initdb.d/triggers.sql
-      - ./database/populate.sql:/docker-entrypoint-initdb.d/populate.sql
+      - ./database/1_script.sql:/docker-entrypoint-initdb.d/1_script.sql
+      - ./database/2_triggers.sql:/docker-entrypoint-initdb.d/2_triggers.sql
+      - ./database/3_populate.sql:/docker-entrypoint-initdb.d/3_populate.sql
     networks:
       - mariadb_network
 
