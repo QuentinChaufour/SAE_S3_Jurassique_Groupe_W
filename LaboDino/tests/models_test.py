@@ -1,8 +1,8 @@
+import pytest
 from LaboDino.models import *
 from LaboDino.app import app, db
 from sqlalchemy import text
 from datetime import date
-import pytest
 
 @pytest.fixture(autouse=True)
 def app_context():
@@ -15,6 +15,7 @@ def app_context():
 
 def clear_database():
     db.drop_all()
+    db.session.commit()
     db.create_all()
     db.session.commit()
 
@@ -277,8 +278,9 @@ def test_recolter():
     assert len(campagne.echantillons) == 1
     assert campagne.echantillons[0].commentaire == "Corne de Triceratops"
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def run_tests():
+    app.config.update({"TESTING":True,"WTF_CSRF_ENABLED": False})
     with app.app_context():
         print("Début des tests de l'ORM")
         clear_database()
@@ -299,8 +301,11 @@ def run_tests():
         test_echantillons()
         test_appartenir()
         test_recolter()
+    yield app
+    with app.app_context():
+        clear_database()
 
-        print("Tests de l'ORM terminé, tout les tests sont passés")
+    print("Tests de l'ORM terminé, tout les tests sont passés")
 
 if __name__ == "__main__":
     run_tests()
