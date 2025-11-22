@@ -9,7 +9,7 @@ from .models import PERSONNEL,ROLE
 class LoginForm(FlaskForm):
     """Form for user login."""
 
-    id = StringField('Name and Forename', validators=[DataRequired()])
+    id = StringField('Identifier', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     next = HiddenField()
     submit = SubmitField('Login')
