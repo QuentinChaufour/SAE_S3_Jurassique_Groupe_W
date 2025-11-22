@@ -65,9 +65,7 @@ def set_budget():
     if form.validate_on_submit():
         date, montant = form.add_budget()
         # Logic to handle the budget submission
-        pass
-    print("Budget Form Data:", form.date.data, form.montant.data)
-    
+        print("Budget Form Data:", date,montant)
 
     return render_template("budget_page.html", form=form)
 
