@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired
 from hashlib import sha256
 import datetime
 
-from LaboDino.models import Personnel
+from LaboDino.models import PERSONNEL
 
 
 class LoginForm(FlaskForm):
@@ -21,7 +21,7 @@ class LoginForm(FlaskForm):
         firstname: str = self.id.data.split(" ")[1]
         password_hashed: str = sha256(self.password.data.encode('utf-8')).hexdigest()
 
-        user = Personnel.query.filter_by(nom=name, prenom=firstname)
+        user = PERSONNEL.query.filter_by(nom=name, prenom=firstname)
 
         # If no user found return None
         if user is None:

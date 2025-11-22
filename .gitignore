@@ -9,4 +9,6 @@ exploitation_echantillons/__pycache__/
 
 venv/
 LaboDino/static/data/
-LaboDino/__pycache__
+DEV
+WEB
+__pycache__
