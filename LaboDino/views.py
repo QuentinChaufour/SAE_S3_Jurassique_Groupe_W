@@ -1,7 +1,7 @@
 from .forms import LoginForm, BudgetForm
-from .app import app, users_storage
+from .app import app
 from .decorators import role_access_rights
-from .enums import UserRole
+from .models import PERSONNEL, ROLE
 from flask import render_template,redirect, url_for,request
 from flask_login import login_user, logout_user, login_required
 
@@ -28,9 +28,8 @@ def login():
         unUser = form.authenticate()
         if unUser:
             # Successful login logic here
-            users_storage[unUser.id] = unUser
             login_user(unUser)
-            next = form.next.data or url_for("campaign_detail", campaign_id=2)
+            next = form.next.data or url_for("get_campaigns")
             return redirect(next)
         else:
             # Failed login logic here
@@ -53,7 +52,7 @@ def logout():
 
 @app.route("/budget/", methods=["GET", "POST"])
 @login_required
-@role_access_rights(UserRole.DIRECTION)
+@role_access_rights(ROLE.direction)
 def set_budget():
     """
     Affiche le formulaire de définition du budget et gère la soumission du formulaire.
@@ -74,7 +73,7 @@ def set_budget():
 
 @login_required
 @app.route("/campaigns/", methods=["GET", "POST"])
-@role_access_rights(UserRole.RESEARCHER)
+@role_access_rights(ROLE.chercheur)
 def get_campaigns():
     """
     Affiche la page de présentation de l"ensembles des campagnes.
@@ -92,7 +91,7 @@ def get_campaigns():
 
 @app.route("/campaigns/create/", methods=["GET", "POST"])
 @login_required
-@role_access_rights(UserRole.RESEARCHER)
+@role_access_rights(ROLE.chercheur)
 def create_campaign():
     """
     Affiche le formulaire de création d"une nouvelle campagne et gère la soumission du formulaire.
@@ -105,7 +104,7 @@ def create_campaign():
 
 @app.route("/campaigns/<int:campaign_id>/", methods=["GET", "POST"])
 @login_required
-@role_access_rights(UserRole.RESEARCHER)
+@role_access_rights(ROLE.chercheur)
 def campaign_detail(campaign_id):
     """
     Affiche les détails d"une campagne spécifique.

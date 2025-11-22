@@ -17,6 +17,3 @@ db.init_app(app)
 
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
-
-# en attente d'une vraie base de données
-users_storage = {}  # This should be replaced with your actual user storage mechanism
