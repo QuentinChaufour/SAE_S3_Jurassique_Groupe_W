@@ -10,9 +10,9 @@
         <input type="button" value="Ajouter une campagne" id="btn-add-campaign" class="typographie">
     </section>
 
-    <table>
+    <table class="table-borders">
         <thead>
-            <tr>
+            <tr class="header-row">
                 <th>Nom</th>
                 <th>Lieu</th>
                 <th>Date de début</th>
@@ -33,10 +33,10 @@
         </tbody>
     </table>
 
-    <section class="table-btn">
-        <input type="button" value="<" class="pagination-btn typographie">
+    <section class="pagination">
+        <a href="{{ url_for('get_campaigns',page=page-1) }}" class="pagination-btn typographie"><</a>
         <p>{{ page }}</p>
-        <input type="button" value=">" class="pagination-btn typographie">
+        <a href="{{ url_for('get_campaigns',page=page+1) }}" class="pagination-btn typographie"> > </a>
     </section>
 </div>
 

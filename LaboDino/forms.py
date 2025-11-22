@@ -1,32 +1,31 @@
 from flask_wtf import FlaskForm
 from wtforms import HiddenField, StringField, PasswordField, SubmitField,DateField, FloatField
 from wtforms.validators import DataRequired
-from hashlib import sha256
-from LaboDino.models import Personnel
+from .models import PERSONNEL,ROLE
 
 
 class LoginForm(FlaskForm):
     """Form for user login."""
 
-    id = StringField('Name and Forename', validators=[DataRequired()])
+    id = StringField('Identifier', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
-
+    next = HiddenField()
     submit = SubmitField('Login')
 
     def authenticate(self):
         
-        name: str = self.id.data.split(" ")[0]
-        firstname: str = self.id.data.split(" ")[1]
-        password_hashed: str = sha256(self.password.data.encode('utf-8')).hexdigest()
+        id: int = int(self.id.data)
+        password: str = self.password.data
 
-        user = Personnel.query.filter_by(nom=name, prenom=firstname)
+        user = PERSONNEL.query.filter_by(id_personnel=id).first()
+        #user = Personnel.query.filter_by(nom=name, prenom=firstname)
 
         # If no user found return None
         if user is None:
             return None
 
         # Return the user if password matches, else return None
-        return user if user.mot_de_passe == password_hashed else None
+        return user if user.mdp == password else None
     
 
 class BudgetForm(FlaskForm):

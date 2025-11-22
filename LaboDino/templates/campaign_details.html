@@ -5,25 +5,26 @@
 <div class="box_container">
     <h1 class="title">{{ campaign_id }}</h1>
 
-    <table>
+    <table class="table-borders-bottom">
         <tbody>
             <tr>
-                <td>{{ campaign_id}}</td>
+                <td>Lieu de campagne: {{ campaign_id}}</td>
             </tr>
             <tr>
-                <td>{{ campaign_id}}</td>
-                <td>{{ campaign_id}}</td>
-                <td>{{ campaign_id}}</td>
+                <td>Date de début: {{ campaign_id}}</td>
+                <td>Date de fin: {{ campaign_id}}</td>
+                <td>Durée: {{ campaign_id}}</td>
             </tr>
             <tr>
-                <td>{{ campaign_id}}</td>
-                <td>{{ campaign_id}}</td>
-                <td>{{ campaign_id}}</td>
+                <td>Plateforme: {{ campaign_id}}</td>
+                <td>Coût total: {{ campaign_id}}</td>
             </tr>
         </tbody>
     </table>
 
-    <table>
+    <p>Participants : </p>
+
+    <table id="participant-table">
         <tbody>
             <!-- dictionnaire des participants pour simplifier la répartition en ligne de 3 (max) -->
             {% for row,participant_row in participants.items() %}
