@@ -115,8 +115,15 @@ def campaign_detail(campaign_id):
 
     # Logic to retrieve and display campaign details
     print(f"Campaign ID: {campaign_id}")
+    return render_template("campaign_details.html", campaign_id=campaign_id, samples= [1,2],participants= {1:["a","b","c"],2:["d","e"]})
 
-    return render_template("campaign_details.html", campaign_id=campaign_id, participants= {1:["a","b","c"],2:["d","e"]})
+@app.route("/campaigns/samples/<int:sample_id>")
+@login_required
+def sample_detail(sample_id: int):
+    """Affiche les détails d"un échantillon spécifique."""
+    # Logic to retrieve and display sample details
+    print(f"Sample ID: {sample_id}")
+    return render_template("sample_details.html", sample=sample_id, samples= [1,2,3,4])
 
 def _pagination(data: list, page: int, items_per_page: int = 5) -> list:
     """Pagine les données en fonction de la page et du nombre d"éléments par page.
@@ -140,3 +147,4 @@ def _pagination(data: list, page: int, items_per_page: int = 5) -> list:
     end: int = begin + items_per_page
 
     return data[begin:end]
+  
