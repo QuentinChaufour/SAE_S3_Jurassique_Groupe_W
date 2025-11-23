@@ -13,43 +13,67 @@
     </section>
     <div id="admin-div">
         <article id="personnel">
-            <button id="filter-button">Filtres</button>
+            <form action="{{ url_for('gestion_personnel') }}" method="post" id="filter-form">
+                <select id="filter-button" name="filtre" onchange="this.form.submit()">
+                    <option value="">Filtrer par...</option>
+                    <!-- On utilise filtre_actif pour garder la sélection -->
+                    <option value="nom" {% if filtre_actif == 'nom' %}selected{% endif %}>Nom</option>
+                    <option value="prenom" {% if filtre_actif == 'prenom' %}selected{% endif %}>Prénom</option>
+                    <option value="role" {% if filtre_actif == 'role' %}selected{% endif %}>Rôle</option>
+                </select>
+            </form>
             <table id="table-admin">
                 <thead>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Rôle</th>
+                    <th name="nom">Nom</th>
+                    <th name="prenom">Prénom</th>
+                    <th name="role">Rôle</th>
+                    <th>Action</th>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Dupont</td>
-                        <td>Jean</td>
-                        <td>Chercheur</td>
-                    </tr>
+                    {% for personnel in personnels %}
+                        <tr>
+                            <td>{{ personnel.nom }}</td>
+                            <td>{{ personnel.prenom }}</td>
+                            <td>{{ personnel.role.value }}</td>
+                            <td>
+                                <form action="{{ url_for('erase_personnel') }}" method="post" style="display: inline;">
+                                    <input type="hidden" name="idPersonnel" value="{{ personnel.idPersonnel }}">
+                                    <button type="submit" class="action-btn" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette personne ?');">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                                <a href="{{ url_for('show_edit_form', idPersonnel=personnel.idPersonnel) }}" class="action-btn">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </article>
-        <article id="ajout-personne">
+        <article id="ajout-personne"> 
             <h2>Ajouter une personne</h2>
-            <section>
-                <p>Nom :</p>
-                <input type="text">
-            </section>
-            <section>
-                <p>Prénom :</p>
-                <input type="text">
-            </section>
-            <section>
-                <p>Rôle :</p>
-                <select name="role" value="">
-                    <option value="">--Sélectionner un rôle--</option>
-                    <option value="Directeur du laboratoire">Directeur de laboratoire</option>
-                    <option value="Personnel administratif">Personnel administratif</option>
-                    <option value="Chercheur/se">Chercheur/se</option>
-                    <option value="Personnel technique">Personnel technique</option>
-                </select>
-            </section>
-            <button>Ajouter une personne</button>
+            <form action="{{ url_for('add_personnel') }}" method="post">
+                <section>
+                    <p>Nom :</p>
+                    <input type="text" name="nom">
+                </section>
+                <section>
+                    <p>Prénom :</p>
+                    <input type="text" name="prenom">
+                </section>
+                <section>
+                    <p>Rôle :</p>
+                    <select name="role">
+                        <option value="">--Sélectionner un rôle--</option>
+                        <option value="direction">Directeur de laboratoire</option>
+                        <option value="administratif">Personnel administratif</option>
+                        <option value="chercheur">Chercheur/se</option>
+                        <option value="technicien">Personnel technique</option>
+                    </select>
+                </section>
+                <button type="submit">Ajouter une personne</button>
+            </form>
         </article>
     </div>
 </div>

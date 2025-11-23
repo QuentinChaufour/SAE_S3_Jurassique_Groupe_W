@@ -53,6 +53,10 @@ body{
     align-items: center;
 }
 
+#box_container h1{
+    font-size: 52px;
+}
+
 #box_block{
     margin-top: 2vh;
     padding: 2vh;
@@ -112,27 +116,32 @@ body{
 }
 
 #ajout-personne button{
-    display: inline-flex;
     padding: 10px;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
+    width: 100%;
+    font-size: xx-large;
 }
 #ajout-personne{
-    margin-right: 5rem;
+    margin-right: 15rem;
     margin-left: 5rem;
+    padding: 2rem;
+    height: 0%;
 }
 
 #ajout-personne section{
-    margin: 5rem;
+    margin: 1rem;
 }
 
+#ajout-personne h2{
+    margin-block-start: 0;
+    margin-block-end: 0;
+}
 #ajout-personne input, #ajout-personne select{
     border-radius: 10px;
     border: 1px solid #000;
     background: #FFF;
     box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
     height:2rem;
+    width: 100%;
 }
 
 #main-div{
@@ -154,6 +163,7 @@ body{
     border-collapse: separate;
     border-spacing: 0;
     margin-left: 1rem;
+    margin-bottom: 1rem;
     width: 100%
 }
 
@@ -171,9 +181,41 @@ body{
     flex-direction: column;
     margin-left: 5rem;
     margin-right: 5rem;
-    width: 50vw;
+    width: 40vw;
+}
+#personnel tr{
+    display: flex;
+    justify-content: space-between;
+}
+#personnel td, #personnel th, #personnel i{
+    font-size: xx-large;
+    padding: 0.5rem;
 }
 
 #filter-button{
     width: 10vw;
+}
+
+#edit-personne{
+    padding: 2rem;
+    height: 0%;
+}
+
+#edit-personne button, #edit-personne a{
+    margin-bottom: 1rem;
+    padding: 10px;
+    font-size: xx-large;
+}
+
+#edit-personne section{
+    margin: 1rem;
+}
+
+#edit-personne input, #edit-personne select{
+    border-radius: 10px;
+    border: 1px solid #000;
+    background: #FFF;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+    height:2rem;
+    width: 100%;
 }

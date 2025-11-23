@@ -139,3 +139,38 @@
     background: #26BD5B;
 }
 
+#in-the-background{
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+#edit-personne p{
+    color: #7A7A7A;
+    font-family: Inter;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+#edit-personne button{
+    border-radius: 15px;
+    background: #26BD5B;
+}
+
+#edit-personne a{
+    border-color: #7A7A7A;
+    border-radius: 15px;
+    background: orangered;
+    color: black;
+    font-family: Inter;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    text-decoration: none;
+}
+
+#edit-personne{
+    border-radius: 3px;
+    border: 1px solid #999;
+}
