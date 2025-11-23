@@ -1,10 +1,14 @@
 
 from flask import Flask,render_template
+from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 
 app = Flask ( __name__ )
 
 app.config.from_object('config')
+
+db = SQLAlchemy()
+db.init_app(app)
 # To get one variable, tape app.config['MY_VARIABLE']
 
 # création du lien avec la base de données
@@ -13,6 +17,3 @@ app.config.from_object('config')
 
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
-
-# en attente d'une vraie base de données
-users_storage = {}  # This should be replaced with your actual user storage mechanism
