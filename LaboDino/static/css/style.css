@@ -1,8 +1,24 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
 #navbar {
     background: #BEEAC5;
+}
+
+.typographie {
+    color: #000;
+    font-family: Inter;
+    font-size: 2rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 130%;
+}
+
+.title {
+    color: #000;
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
 }
 
 #navbar h1 {
@@ -18,38 +34,38 @@
     font-size: 2.5rem;
 }
 
-#navbar-items li{
+#navbar-items li {
     background-color: salmon;
     border-radius: 1rem;
     cursor: pointer;
 }
 
-#navbar-items li:hover{
+#navbar-items li:hover {
     background-color: bisque;
     transition: ease-in-out 0.3s;
 }
 
-#navbar-items ul{
+#navbar-items ul {
     list-style: none;
 }
 
-#logo{
+#logo {
     text-align: center;
 }
 
-#logo img{
+#logo img {
     background-color: lightblue;
     border-radius: 100%;
 }
 
-#connexion_block{
+#box_block {
     text-align: center;
     border-radius: 2vh;
     border-radius: 15px;
     border: 2px solid #4F4F4F;
 }
 
-#connexion_block > h2{
+#box_block>h2 {
     color: #000;
     font-family: Metropolis;
     font-size: 48px;
@@ -58,7 +74,7 @@
     line-height: normal;
 }
 
-.login-form-label {
+.form-label {
     text-align: left;
     color: #4F4F4F;
     font-family: Metropolis;
@@ -68,20 +84,81 @@
     line-height: normal;
 }
 
-.login-input{
+.login-input {
     border-radius: 10px;
     border: 1px solid #4F4F4F;
     background: #FFF;
     box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
 }
 
-#login-form-submit input{
+#login-form-submit input {
     border-radius: 60px;
     background: #C0BCBC;
 }
+
+#login-form-submit input :hover {
+    border-radius: 60px;
+    background: #494747;
+}
+
+#budget-form-submit input {
+    border-radius: 60px;
+    background: rgba(20, 174, 92, 0.80);
+    transition: ease-in-out 0.3s;
+}
+
+#budget-form-submit input:hover {
+    background: rgb(123, 255, 185);
+}
+
 #login-form-submit input:active{
     border-radius: 60px;
     background: #8f8c8c;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+.table-borders tr {
+    border: 2px solid #4F4F4F;
+}
+
+.table-borders tr:not(.header-row):hover {
+    background-color: #494747;
+    transition: ease-in-out 0.3s;
+}
+
+.btn-filter {
+    border-radius: 9.075px;
+    background: #E2B362;
+}
+
+#btn-add-campaign {
+    border-radius: 20px;
+    background: rgba(20, 174, 92, 0.80);
+}
+
+.table-borders-bottom tr {
+    border-bottom: 2px solid #4F4F4F;
+}
+
+.table-borders-bottom td {
+    color: #000;
+    font-family: Inter;
+    font-size: 1.5rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 130%;
+}
+
+#participant-table td {
+    color: #000;
+    font-family: Inter;
+    font-size: 1.5rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 130%;
 }
 
 #main_tech_dashboard h1{
@@ -130,4 +207,3 @@
 #platform_table button:active{
     background-color: #aa8443;
 }
-

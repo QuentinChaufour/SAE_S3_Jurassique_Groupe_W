@@ -3,6 +3,14 @@ body{
     margin: 0;   
 }
 
+.title{
+    text-align: center;
+}
+
+h2{
+    text-align: left;
+}
+
 #navbar {
     display: flex;
     align-items: center;
@@ -47,26 +55,26 @@ body{
     margin: 2vh;
 }
 
-#connexion_container{
+.box_container{
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-#connexion_block{
+.box_block{
     margin-top: 2vh;
     padding: 2vh;
     width: 50vw;
 }
 
-.login-form {
+.form_field {
     display: flex;
     flex-direction: column;
     gap: 0.5vh;
     margin: 0 15% 0 15%;
 }
 
-.login-form-label {
+.form-label {
     display: block;
     width: 100%;
     margin: 0;
@@ -74,7 +82,7 @@ body{
     margin: 2% 0 2% 0;
 }
 
-.login-input{
+.form-input{
     width: 100%;
     height: 4.5vh;
     padding: 0;
@@ -94,6 +102,76 @@ body{
     justify-content: center;
     align-items: center;
     margin: 5%;
+}
+
+#budget-form-submit{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#budget-form-submit input{
+    display: flex;
+    width: 50%;
+    padding: 2%;
+    justify-content: center;
+    align-items: center;
+    margin: 5%;
+}
+
+.table-btn{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
+    margin-bottom: 2%;
+    gap: 5%;
+}
+
+table {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.btn-filter{
+    margin-right: 25%;
+    padding: 1%;
+}
+
+#btn-add-campaign{
+    flex-grow: 1;
+    margin-right: 35%;
+    padding: 1%;
+}
+
+.pagination{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 2vh;
+}
+
+th {
+    padding: 1%;
+    text-align: center;
+}
+
+.table-borders {
+    width: 90%;
+}
+
+.table-borders-bottom td{
+    padding: 2%;
+}
+
+.table-borders-bottom {
+    width: 80%;
+    margin-bottom: 2%;
+}
+
+#participant-table td {
+    padding: 2%;
 }
 
 #main_tech_dashboard{

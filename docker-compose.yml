@@ -1,0 +1,46 @@
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb_LaboDino
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: labodino
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./database/1_script.sql:/docker-entrypoint-initdb.d/1_script.sql
+      - ./database/2_triggers.sql:/docker-entrypoint-initdb.d/2_triggers.sql
+      - ./database/3_populate.sql:/docker-entrypoint-initdb.d/3_populate.sql
+    networks:
+      - mariadb_network
+
+  mariadb_test:
+    image: mariadb:latest
+    container_name: mariadb_test_LaboDino
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: labodino_test
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_test_data:/var/lib/mysql
+      - ./database/1_script.sql:/docker-entrypoint-initdb.d/1_script.sql
+      - ./database/2_triggers.sql:/docker-entrypoint-initdb.d/2_triggers.sql
+    networks:
+      - mariadb_network
+
+volumes:
+  mariadb_data:
+  mariadb_test_data:
+
+networks:
+  mariadb_network:
+    name: LaboDino
+
+# Pour lancer : `docker compose up -d` dans le dossier
+# docker run -it --network LaboDino --rm mysql:latest mysql -h mariadb_LaboDino -u root -p
