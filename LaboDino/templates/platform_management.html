@@ -6,9 +6,9 @@
     <div id="platform_content">
         <div id="platform_table">
             <button>Filtres</button>
-            <table>
+            <table class="table-borders">
                 <thead>
-                    <tr>
+                    <tr class="header-row">
                         <th>Nom</th>
                         <th>Nombre Personnes</th>
                         <th>Cout Journalier</th>
@@ -51,5 +51,10 @@
             </form>
         </div>
     </div>
+    <section class="pagination">
+        <a href="{{ url_for('platform_management',page=page-1) }}" class="pagination-btn typographie"><</a>
+        <p>{{ page }}</p>
+        <a href="{{ url_for('platform_management',page=page+1) }}" class="pagination-btn typographie"> > </a>
+    </section>
 </div>
 {% endblock %}

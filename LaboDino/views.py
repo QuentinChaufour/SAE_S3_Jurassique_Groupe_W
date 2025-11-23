@@ -27,10 +27,25 @@ def login():
     elif form.validate_on_submit():
         unUser = form.authenticate()
         if unUser:
-            # Successful login logic here
             login_user(unUser)
-            next = form.next.data or url_for("get_campaigns")
-            return redirect(next)
+            
+            if form.next.data:
+                next_page = form.next.data
+            else:
+                user_role = unUser.get_role()
+                if user_role == ROLE.chercheur:
+                    next_page = url_for("get_campaigns")
+                elif user_role == ROLE.technicien:
+                    next_page = url_for("tech_choice_action")
+                elif user_role == ROLE.direction:
+                    next_page = url_for("set_budget")
+                elif user_role == ROLE.administratif:
+                    #TODO need to have the admin page in order to put the redirection
+                    next_page = url_for("login") 
+                else:
+                    next_page = url_for("login")
+            
+            return redirect(next_page)
         else:
             # Failed login logic here
             print("Authentication failed")
@@ -39,11 +54,15 @@ def login():
     print(form.password.data)
     return render_template("login.html", form=form)
 
+@login_required
 @app.route('/choice_action_tech/')
+@role_access_rights(ROLE.technicien)
 def tech_choice_action():
     return render_template('technical_choice.html')
 
+@login_required
 @app.route('/choice_action_tech/platform_management/', methods=['GET', 'POST'])
+@role_access_rights(ROLE.technicien)
 def platform_management():
     form = PlatformCreationForm()
 
@@ -58,9 +77,9 @@ def platform_management():
         print(platform)
         db.session.commit()
         return redirect(url_for('platform_management'))
-    platforms = PLATEFORME.query.all()
-
-    return render_template('platform_management.html', form=form, platforms=platforms)
+    data = PLATEFORME.query.all()
+    page = request.args.get('page', 1, type=int)
+    return render_template('platform_management.html', form=form, platforms= _pagination(data, page), page= page)
 
 @app.route("/logout/")
 def logout():
