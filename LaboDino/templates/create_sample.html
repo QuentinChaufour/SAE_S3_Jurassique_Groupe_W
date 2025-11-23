@@ -1,0 +1,29 @@
+{% extends "base_template.html" %}
+
+{% block content %}
+
+<div class="box_container">
+    <section class="box_block">
+        <h2 class="centered-title title">Create a Sample</h2>
+        <form method="POST" role="form" action="{{ url_for('create_sample', campaign_id=campaign_id) }}">
+            {{ form.hidden_tag() }}
+            <div class="form_field">
+                {{ form.dna_file.label (class_ = "form-label") }}
+                {{ form.dna_file (class_ ="form-input") }}
+            </div>
+            <div class="form_field">
+                {{ form.comment.label (class_ = "form-label") }}
+                {{ form.comment (class_ ="form-input") }}
+            </div>
+            <div class="form_field">
+                {{ form.specie.label (class_ = "form-label") }}
+                {{ form.specie (class_ ="form-input") }}
+            </div>
+            <div id="login-form-submit">
+                {{ form.submit }}
+            </div>
+        </form>
+    </section>
+</div>
+
+{% endblock %}

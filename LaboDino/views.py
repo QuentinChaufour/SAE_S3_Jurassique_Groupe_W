@@ -1,9 +1,9 @@
-from .forms import LoginForm, BudgetForm, CampaignForm
+from .forms import LoginForm, BudgetForm, CampaignForm, SampleForm
 from .app import app,db
 from .decorators import role_access_rights
-from .models import PERSONNEL, CAMPAGNE, ECHANTILLON, ROLE
+from .models import PERSONNEL, CAMPAGNE, ECHANTILLON, ROLE, ECHANTILLON
 from flask import render_template,redirect, url_for,request
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from datetime import timedelta
 
 @app.route("/")
@@ -36,8 +36,6 @@ def login():
             # Failed login logic here
             print("Authentication failed")
 
-    print(form.id.data)
-    print(form.password.data)
     return render_template("login.html", form=form)
 
 @app.route("/logout/")
@@ -70,8 +68,8 @@ def set_budget():
 
     return render_template("budget_page.html", form=form)
 
-@login_required
 @app.route("/campaigns/", methods=["GET", "POST"])
+@login_required
 @role_access_rights(ROLE.chercheur)
 def get_campaigns(completed: bool = None):
     """
@@ -85,6 +83,10 @@ def get_campaigns(completed: bool = None):
                                      Si False, affiche uniquement les campagnes invalides.
                                      Si None, affiche toutes les campagnes.
                                      Par défaut à None.
+    
+    Returns:
+        str: Le rendu du template de la liste des campagnes.
+
     """
 
     # getting all campaigns
@@ -111,6 +113,10 @@ def create_campaign():
     Affiche le formulaire de création d"une nouvelle campagne et gère la soumission du formulaire.
     A la route : /campaigns/create
     N'est accessible qu'aux utilisateurs avec les rôles RESEARCHER.
+
+    Returns:
+        str: Le rendu du template de création de campagne ou une redirection vers la liste des campagnes.
+        redirect: Redirige vers la liste des campagnes après la création réussie de la campagne.
     """
 
     form: CampaignForm = CampaignForm()
@@ -132,6 +138,9 @@ def edit_campaign(campaign_id: int):
 
     Args:
         campaign_id (int): L"identifiant de la campagne à éditer.
+    
+    Returns:
+        str: Le rendu du template d'édition de campagne ou une redirection vers la liste des campagnes.
     """
 
     form: CampaignForm = CampaignForm()
@@ -165,6 +174,9 @@ def delete_campaign(campaign_id: int):
 
     Args:
         campaign_id (int): L"identifiant de la campagne à supprimer.
+
+    Returns:
+        redirect: Redirige vers la liste des campagnes après la suppression.
     """
 
     db.session.delete(CAMPAGNE.query.filter_by(id_campagne=campaign_id).first())
@@ -184,6 +196,9 @@ def campaign_detail(campaign_id: int):
 
     Args:
         campaign_id (int): L"identifiant de la campagne à afficher.
+
+    Returns:
+        str: Le rendu du template des détails de la campagne.
     """
     campaign: CAMPAGNE = CAMPAGNE.query.filter_by(id_campagne=campaign_id).first()
 
@@ -191,17 +206,105 @@ def campaign_detail(campaign_id: int):
     print(f"Campaign ID: {campaign.id_campagne}")
     return render_template("campaign_details.html", campaign=campaign, timedelta=timedelta)
 
-@app.route("/campaigns/samples/<int:sample_id>")
+@app.route("/campaigns/<int:campaign_id>/samples/<int:sample_id>")
 @login_required
 @role_access_rights(ROLE.chercheur)
-def sample_detail(sample_id: int):
-    """Affiche les détails d"un échantillon spécifique."""
-    # Logic to retrieve and display sample details
+def sample_detail(sample_id: int, campaign_id: int):
+    """
+        Affiche les détails d"un échantillon spécifique.
+
+        Args:
+            sample_id (int): L'identifiant de l'échantillon à afficher.
+        Returns:
+            str: Le rendu du template des détails de l'échantillon.
+    """
+
     sample: ECHANTILLON = ECHANTILLON.query.filter_by(id_echantillon=sample_id).first()
     print(f"Sample ID: {sample.id_echantillon}")
     samples : list[ECHANTILLON] = ECHANTILLON.query.all()
 
     return render_template("sample_details.html", sample=sample, samples=samples)
+
+@app.route("/campaigns/<int:campaign_id>/samples/create/", methods=["GET", "POST"])
+@login_required
+@role_access_rights(ROLE.chercheur)
+def create_sample(campaign_id: int):
+    """
+    Crée un nouvel échantillon.
+
+    Args:
+        campaign_id (int): L'identifiant de la campagne à laquelle l'échantillon appartient.
+
+    Returns:
+        str: Le rendu du template de création d'échantillon ou une redirection vers la page de détails de la campagne.
+        redirect: Redirige vers la page de détails de la campagne après la création réussie de l'échantillon.
+    """
+
+    form: SampleForm = SampleForm()
+    
+    if form.validate_on_submit():
+        form.create_sample(campaign_id= campaign_id)
+        return redirect(url_for("campaign_detail", campaign_id= campaign_id))
+    
+    return render_template("create_sample.html", form=form, campaign_id=campaign_id)
+
+@app.route("/campaigns/samples/<int:sample_id>/edit/", methods=["GET", "POST"])
+@login_required
+@role_access_rights(ROLE.chercheur)
+def edit_sample(sample_id: int):
+    """
+    Édite un échantillon existant.
+
+    Args:
+        sample_id (int): L'identifiant de l'échantillon à éditer.
+    
+    Returns:
+        str: Le rendu du template d'édition d'échantillon ou une redirection vers la page de détails de l'échantillon.
+    """
+    form: SampleForm = SampleForm()
+
+    edit_sample: ECHANTILLON = ECHANTILLON.query.filter_by(id_echantillon=sample_id).first()
+
+    if form.validate_on_submit():
+    
+        form.update(sample_id= sample_id)
+        print(f"Editing Sample ID: {sample_id}")
+
+        return redirect(url_for("sample_detail", sample_id= sample_id))
+    
+    # Pre-fill form with existing campaign data only on GET request
+    form.dna_file.data = edit_sample.fichier_sequence_adn
+    # TODO: Handle file field pre-filling properly
+
+    form.comment.data = edit_sample.commentaire
+    
+    if edit_sample.espece:
+        form.specie.data = edit_sample.espece
+
+    form.submit.label.text = "Update Sample"
+    
+    return render_template("edit_sample.html", form=form, sample_id=sample_id)
+
+
+@app.route("/campaigns/samples/<int:sample_id>/delete/", methods=["GET", "POST"])
+@login_required
+@role_access_rights(ROLE.chercheur)
+def delete_sample(sample_id: int):
+    """
+    Supprime un échantillon existant.
+    
+    Args:
+        sample_id (int): L'identifiant de l'échantillon à supprimer.
+    
+    Returns:
+        redirect: Redirige vers la page de détails de la campagne après la suppression.
+    """
+    
+    sample: ECHANTILLON = ECHANTILLON.query.filter_by(id_echantillon=sample_id).first()
+    db.session.delete(sample)
+    db.session.commit()
+    print(f"Deleting Sample ID: {sample_id}")
+    return redirect(url_for("campaign_detail", campaign_id= sample.id_campagne))
 
 def _pagination(data: list, page: int, items_per_page: int = 5) -> tuple[list,int]:
     """Pagine les données en fonction de la page et du nombre d"éléments par page.

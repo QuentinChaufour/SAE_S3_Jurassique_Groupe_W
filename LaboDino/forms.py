@@ -1,7 +1,7 @@
 from .app import db,app
-from .models import PERSONNEL,ROLE,PLATEFORME, CAMPAGNE,PARTICIPER_CAMPAGNE
+from .models import PERSONNEL,ROLE,PLATEFORME, CAMPAGNE,PARTICIPER_CAMPAGNE,ESPECE,ECHANTILLON
 from flask_wtf import FlaskForm
-from wtforms import HiddenField, StringField, PasswordField, SubmitField,DateField, FloatField, IntegerField, BooleanField, SelectField
+from wtforms import HiddenField, StringField, PasswordField, SubmitField,DateField, FloatField, IntegerField, BooleanField, SelectField, TextAreaField, FileField
 from wtforms.validators import DataRequired
 from flask_login import current_user
 
@@ -9,10 +9,10 @@ from flask_login import current_user
 class LoginForm(FlaskForm):
     """Form for user login."""
 
-    id = StringField(label='Identifier', validators=[DataRequired()])
-    password = PasswordField(label='Password', validators=[DataRequired()])
-    next = HiddenField()
-    submit = SubmitField(label='Login')
+    id: StringField = StringField(label='Identifier', validators=[DataRequired()])
+    password: PasswordField= PasswordField(label='Password', validators=[DataRequired()])
+    next: HiddenField = HiddenField()
+    submit: SubmitField = SubmitField(label='Login')
 
     def authenticate(self):
         
@@ -109,3 +109,57 @@ class CampaignForm(FlaskForm):
         else:
             print(f"Campaign with ID {campaign_id} not found.")
 
+class SampleForm(FlaskForm):
+    """Form for adding or editing a sample."""
+
+    comment : TextAreaField = TextAreaField(label='Comment : ')
+    
+    dna_file : FileField = FileField(label='DNA File : ',
+                                     validators=[DataRequired()])
+    
+    with app.app_context():
+        specie_choices: list[ESPECE] = ESPECE.query.all()
+
+    specie : SelectField = SelectField(label='Specie : ',
+                                       choices=[(specie.id_espece,specie) for specie in specie_choices])
+
+    submit : SubmitField = SubmitField(label='Add Sample')
+
+    def create_sample(self, campaign_id: int) -> None:
+        
+        comment_value: str = self.comment.data
+        dna_file_value: str = self.dna_file.data
+        specie_value: int = self.specie.data
+
+        id_specie: int = None
+
+        if specie_value is not None:
+            id_specie = specie_value
+
+        new_sample: ECHANTILLON = ECHANTILLON(
+            id_campagne=campaign_id,
+            commentaire=comment_value,
+            fichier_sequence_adn=dna_file_value,
+            id_espece=id_specie)
+        
+        db.session.add(new_sample)
+        db.session.commit()
+
+        # TODO : Handle file upload properly
+
+    def update(self, sample_id: int) -> None:
+        """Update an existing sample."""
+        sample: ECHANTILLON = ECHANTILLON.query.filter_by(id_echantillon=sample_id).first()
+
+        if sample:
+            try:
+                sample.commentaire = self.comment.data
+                sample.fichier_sequence_adn = self.dna_file.data
+                if self.specie.data is not None:
+                    sample.id_espece = self.specie.data
+
+                db.session.add(sample)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print(f"Error updating sample: {e}")

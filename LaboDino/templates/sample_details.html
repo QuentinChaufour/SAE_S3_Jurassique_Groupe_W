@@ -2,8 +2,6 @@
 
 {% block content %}
 
-<a href="{{ url_for('sample_detail', sample_id=sample) }}">Edit Sample</a>
-
 <h2 class="title">Sample Details</h2>
 
 <div>
@@ -12,6 +10,11 @@
         <p><strong>Espece:</strong> {{ sample }}</p>
         <p><strong>Description:</strong> {{ sample}}</p>
     </section>
+
+    <div>
+        <input type="button" value="Delete" class="btn-delete typographie" onclick="if(confirm('Êtes-vous sûr de vouloir supprimer cet échantillon ?')) { location.href='{{ url_for('delete_sample', sample_id=sample.id_echantillon) }}' }">
+        <input type="button" value="Update" class="btn-edit typographie" onclick="location.href='{{ url_for('edit_sample', sample_id=sample.id_echantillon) }}'">
+    </div>
 
     <section>
         <h2>Select a sample to compare</h2>
