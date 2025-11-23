@@ -3,24 +3,28 @@
 {% block content %}
 
 <div class="box_container">
-    <h1 class="title">{{ campaign_id }}</h1>
+    <h1 class="title">{{ campaign.id_campagne }}</h1>
 
     <table class="table-borders-bottom">
         <tbody>
             <tr>
-                <td>Lieu de campagne: {{ campaign_id}}</td>
+                <td>Lieu de campagne: {{ campaign.lieu }}</td>
             </tr>
             <tr>
-                <td>Date de début: {{ campaign_id}}</td>
-                <td>Date de fin: {{ campaign_id}}</td>
-                <td>Durée: {{ campaign_id}}</td>
+                <td>Date de début: {{ campaign.dateDebut }}</td>
+                <td>Date de fin: {{ campaign.dateDebut + timedelta(days=campaign.duree) }}</td>
+                <td>Durée: {{ campaign.duree }} jours</td>
             </tr>
             <tr>
-                <td>Plateforme: {{ campaign_id}}</td>
-                <td>Coût total: {{ campaign_id}}</td>
+                <td>Status: {{ "Validée" if campaign.valide else "Non validée" }}</td>
+                <td>Plateforme: {{ campaign.nom_plateforme }}</td>
+                <td>Coût total: {{ campaign.plateforme.cout_journalier * campaign.duree }}</td>
             </tr>
         </tbody>
     </table>
+
+    <input type="button" value="Delete" class="btn-delete typographie" onclick="if(confirm('Êtes-vous sûr de vouloir supprimer cette campagne ?')) { location.href='{{ url_for('delete_campaign', campaign_id=campaign.id_campagne) }}' }">
+    <input type="button" value="Update" class="btn-edit typographie" onclick="location.href='{{ url_for('edit_campaign', campaign_id=campaign.id_campagne) }}'">
 
     <h2>Echantillons ADN retrouvé</h2>
     <br>
@@ -33,10 +37,10 @@
             </tr>
         </thead>
         <tbody>
-            {% for sample in samples %}
-            <tr onclick="location.href='{{ url_for("sample_detail", sample_id=sample) }}'">
-                <td>{{ sample }}</td>
-                <td>{{ sample }}</td>
+            {% for sample in campaign.echantillons %}
+            <tr onclick="location.href='{{ url_for("sample_detail", sample_id=sample.id_echantillon) }}'">
+                <td>{{ sample.id_echantillon }}</td>
+                <td>{{ sample.description }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -46,13 +50,12 @@
 
     <table id="participant-table">
         <tbody>
-            <!-- dictionnaire des participants pour simplifier la répartition en ligne de 3 (max) -->
-            {% for row,participant_row in participants.items() %}
-            <tr>
-                {% for participant in participant_row %}
-                <td>{{ participant }}</td>
-                {% endfor %}
-            </tr>
+            {% for i in range(campaign.participerCampagne|length) %}
+
+                {% if i % 3 == 0 %}<tr>{% endif %}
+                <td>{{ campaign.participerCampagne[i].personnel.nom }} {{ campaign.participerCampagne[i].personnel.prenom }}</td>
+                {% if i % 3 == 2 %}</tr>{% endif %}
+
             {% endfor %}
 
         </tbody>

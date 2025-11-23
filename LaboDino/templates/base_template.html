@@ -17,12 +17,19 @@
                 <ul>
                     <li>Langues</li>
                     <li>Menu</li>
-                    {% block retour %}
-                    {% endblock %}
+                    {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                    {% else %}
+                        <li id="disabled-logout">Logout</li>
+                    {% endif %}
                 </ul>
             </nav>
         </div>
     </header>
+
+    {% block retour %}
+    <!-- Espace pour un bouton de retour ou une navigation supplémentaire -->
+    {% endblock %}
 
     {% block content %}
 

@@ -7,36 +7,37 @@
 
     <section class="table-btn">
         <input type="button" value="Filtres" class="btn-filter typographie">
-        <input type="button" value="Ajouter une campagne" id="btn-add-campaign" class="typographie">
+        <input type="button" value="Ajouter une campagne" id="btn-add-campaign" class="typographie" onclick="location.href='{{ url_for('create_campaign') }}'">
     </section>
 
     <table class="table-borders">
         <thead>
             <tr class="header-row">
-                <th>Nom</th>
+
                 <th>Lieu</th>
                 <th>Date de début</th>
                 <th>Durée</th>
                 <th>Plateforme</th>
+                <th>Status</th>
             </tr>
         </thead>
         <tbody>
             {% for campaign in campaigns %}
-            <tr onclick="location.href='{{ url_for("campaign_detail", campaign_id=campaign) }}'" style="cursor: grab;">
-                <td>{{ campaign }}</td>
-                <td>{{ campaign }}</td>
-                <td>{{ campaign }}</td>
-                <td>{{ campaign }}</td>
-                <td>{{ campaign }}</td>
+            <tr onclick="location.href='{{ url_for("campaign_detail", campaign_id=campaign.id_campagne) }}'" style="cursor: grab;">
+                <td>{{ campaign.lieu }}</td>
+                <td>{{ campaign.dateDebut }}</td>
+                <td>{{ campaign.duree }}</td>
+                <td>{{ campaign.nom_plateforme }}</td>
+                <td>{% if campaign.valide %} Validée {% else %} Invalide {% endif %}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
     <section class="pagination">
-        <a href="{{ url_for('get_campaigns',page=page-1) }}" class="pagination-btn typographie"><</a>
+        <a href="{{ url_for('get_campaigns',page=page-1, completed=request.args.get('completed')) }}" class="pagination-btn typographie"><</a>
         <p>{{ page }}</p>
-        <a href="{{ url_for('get_campaigns',page=page+1) }}" class="pagination-btn typographie"> > </a>
+        <a href="{{ url_for('get_campaigns',page=page+1, completed=request.args.get('completed')) }}" class="pagination-btn typographie"> > </a>
     </section>
 </div>
 

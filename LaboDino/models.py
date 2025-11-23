@@ -37,7 +37,7 @@ class ECHANTILLON(db.Model):
     __tablename__ = 'ECHANTILLON'
     id_echantillon = db.Column("idEchantillon",db.Integer, primary_key=True, autoincrement=True)
     id_campagne = db.Column("idCampagne",db.Integer,db.ForeignKey("CAMPAGNE.idCampagne"))
-    fichier_sequence_adn = db.Column(MEDIUMTEXT)
+    fichier_sequence_adn = db.Column("fichierSequenceADN",MEDIUMTEXT)
     id_espece = db.Column("idEspece", db.Integer, db.ForeignKey("ESPECE.idEspece"), nullable=True)
     commentaire = db.Column(db.Text)
     espece = db.relationship("ESPECE", back_populates="echantillons")
