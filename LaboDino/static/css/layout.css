@@ -153,7 +153,6 @@ table {
 }
 
 th {
-    padding: 1%;
     text-align: center;
 }
 
@@ -161,15 +160,26 @@ th {
     width: 90%;
 }
 
+.table-borders tr{
+    height: 8vh;
+}
+
 .table-borders-bottom td{
     padding: 2%;
 }
 
 .table-borders-bottom {
-    width: 80%;
+    width: 90%;
     margin-bottom: 2%;
 }
 
 #participant-table td {
     padding: 2%;
+}
+
+.CRUD_btn{
+    display: flex;
+    width: 50%;
+    justify-content: space-around;
+    padding: 2% 2%;
 }

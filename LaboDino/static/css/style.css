@@ -111,10 +111,24 @@
 
 table {
     border-collapse: collapse;
+    border-radius: 20px;
 }
 
-.table-borders tr {
-    border: 2px solid #4F4F4F;
+
+.table-borders {
+    border-collapse: separate; /* Change to separate */
+    border-spacing: 0; /* Remove gaps between cells */
+    border-radius: 20px;
+    border: 2px solid #4F4F4F; /* Border around the entire table */
+    overflow: hidden; /* Clips content to rounded corners */
+}
+
+.table-borders th, .table-borders td{
+    border-bottom: 2px solid #4F4F4F;
+}
+
+.table-borders td{
+    text-align: center;
 }
 
 .table-borders tr:not(.header-row):hover {
@@ -128,12 +142,17 @@ table {
 }
 
 #btn-add-campaign {
-    border-radius: 20px;
+    border-radius: 40px;
     background: rgba(20, 174, 92, 0.80);
 }
 
 .table-borders-bottom tr {
     border-bottom: 2px solid #4F4F4F;
+}
+
+/* remove double border on the last row */
+.table-borders tr:last-child td{
+    border-bottom: None;
 }
 
 .table-borders-bottom td {
@@ -152,4 +171,11 @@ table {
     font-style: normal;
     font-weight: 500;
     line-height: 130%;
+    text-align: center;
+    background-color: #BEEAC5;
 }
+
+/* 
+https://colorhunt.co/palette/d7c097e7deaf73af6f007e6e
+https://colorhunt.co/palette/f5f5f0e6d8c3c2a68c5d866c
+*/
