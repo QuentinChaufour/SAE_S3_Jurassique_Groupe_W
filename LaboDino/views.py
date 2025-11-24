@@ -17,7 +17,6 @@ def home():
 def login():
     """
     Affiche le formulaire de connexion et gère la soumission du formulaire.
-    A la route : /login/
     En cas de succès, redirige vers le menu selon le role de l'utilisateur.
     """
     
@@ -43,7 +42,6 @@ def login():
 def logout():
     """
     Déconnecte l'utilisateur actuel.
-    A la route : /logout/
     Et le redirige vers la page de connexion.
     """
 
@@ -56,7 +54,6 @@ def logout():
 def set_budget():
     """
     Affiche le formulaire de définition du budget et gère la soumission du formulaire.
-    A la route : /budget/
     N'est accessible qu'aux utilisateurs avec les rôles DIRECTION.
     """
 
@@ -75,7 +72,6 @@ def set_budget():
 def get_campaigns(completed: bool = None):
     """
     Affiche la page de présentation de l"ensembles des campagnes.
-    A la route : /campaigns/
     N'est accessible qu'aux utilisateurs avec les rôles RESEARCHER.
 
     Args:
@@ -112,7 +108,6 @@ def get_campaigns(completed: bool = None):
 def create_campaign():
     """
     Affiche le formulaire de création d"une nouvelle campagne et gère la soumission du formulaire.
-    A la route : /campaigns/create
     N'est accessible qu'aux utilisateurs avec les rôles RESEARCHER.
 
     Returns:
@@ -139,7 +134,6 @@ def create_campaign():
 def edit_campaign(campaign_id: int):
     """
     Affiche le formulaire d"édition d"une campagne existante et gère la soumission du formulaire.
-    A la route : /campaigns/edit/<int:campaign_id> où campaign_id est l'identifiant de la campagne à éditer.
     N'est accessible qu'aux utilisateurs avec les rôles RESEARCHER.
 
     Args:
@@ -179,7 +173,6 @@ def edit_campaign(campaign_id: int):
 def delete_campaign(campaign_id: int):
     """
     Supprime une campagne existante.
-    A la route : /campaigns/delete/<int:campaign_id> où campaign_id est l'identifiant de la campagne à supprimer.
     N'est accessible qu'aux utilisateurs avec les rôles RESEARCHER.
 
     Args:
@@ -201,7 +194,6 @@ def delete_campaign(campaign_id: int):
 def campaign_detail(campaign_id: int):
     """
     Affiche les détails d"une campagne spécifique.
-    A la route : /campaigns/<int:campaign_id> ou campaign_id est l'identifiant de la campagne.
     N'est accessible qu'aux utilisateurs avec les rôles RESEARCHER.
 
     Args:
