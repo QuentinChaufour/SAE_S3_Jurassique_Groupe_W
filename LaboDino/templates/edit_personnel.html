@@ -15,7 +15,7 @@
 
     <div id="admin-div">
         <!-- Le formulaire pointe vers la bonne route avec l'ID de la personne -->
-        <form action="{{ url_for('edit_personnel', idPersonnel=personnel.idPersonnel) }}" method="post" id="edit-personne">
+        <form action="{{ url_for('edit_personnel', id_personnel=personnel.id_personnel) }}" method="post" id="edit-personne">
             <section >
                 <p class="edit-personne">Nom :</p>
                 <!-- La valeur est pré-remplie avec les données actuelles -->

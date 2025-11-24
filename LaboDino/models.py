@@ -85,8 +85,8 @@ class PERSONNEL(db.Model, UserMixin):
     mdp = db.Column(db.String(10), unique=True)
     role = db.Column(db.Enum(ROLE))
 
-    participerCampagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="personnel")
-    posseder = db.relationship("POSSEDER", back_populates="personnels")
+    participerCampagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="personnel", cascade="all, delete-orphan")
+    posseder = db.relationship("POSSEDER", back_populates="personnels", cascade="all, delete-orphan")
 
     def __init__(self, nom, prenom, mdp, role):
         self.nom = nom
