@@ -51,6 +51,17 @@
 
     <h2>Participants : </h2>
 
+    <div class="CRUD_btn">
+        {% if current_user.is_authenticated and not is_participating %}
+        <input type="button" value="Enroll" class="btn-participate typographie" onclick="location.href='{{ url_for('enroll_campaign', campaign_id=campaign.id_campagne) }}'">
+        <input type="button" disabled value="Disenroll" class="btn-disengage typographie" onclick="if(confirm('Êtes-vous sûr de vouloir supprimer cette campagne ?')) { location.href='{{ url_for('disenroll_campaign', campaign_id=campaign.id_campagne) }}' }">
+        {% else %}
+        <input type="button" disabled value="Enroll" class="btn-participate typographie" onclick="location.href='{{ url_for('enroll_campaign', campaign_id=campaign.id_campagne) }}'">
+        <input type="button" value="Disenroll" class="btn-disengage typographie" onclick="if(confirm('Êtes-vous sûr de vouloir supprimer cette campagne ?')) { location.href='{{ url_for('disenroll_campaign', campaign_id=campaign.id_campagne) }}' }">
+        {% endif %}
+
+    </div>
+
     <table id="participant-table">
         <tbody>
             {% for i in range(campaign.participerCampagne|length) %}

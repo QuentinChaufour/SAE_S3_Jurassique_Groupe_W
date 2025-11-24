@@ -4,6 +4,7 @@ from flask_wtf import FlaskForm
 from wtforms import HiddenField, StringField, PasswordField, SubmitField,DateField, FloatField, IntegerField, BooleanField, SelectField, TextAreaField, FileField
 from wtforms.validators import DataRequired
 from flask_login import current_user
+from sqlalchemy.exc import OperationalError
 
 
 class LoginForm(FlaskForm):
@@ -64,7 +65,7 @@ class CampaignForm(FlaskForm):
     participate: BooleanField = BooleanField(label='Participer ?')
     submit : SubmitField = SubmitField(label='Submit Campaign')
 
-    def create_campaign(self) -> None:
+    def create_campaign(self) -> None|OperationalError:
         """Create a new campaign."""
         plateforme_value: str = self.plateforme.data
         lieu_value: str = self.lieu.data
@@ -72,26 +73,36 @@ class CampaignForm(FlaskForm):
         duree_value: int = self.duree.data
         participate_value: bool = self.participate.data
 
-        new_campaign: CAMPAGNE = CAMPAGNE(
-            nom_plateforme=plateforme_value,
-            dateDebut=startDate_value,
-            duree=duree_value,
-            lieu=lieu_value,
-        )
-
-        db.session.add(new_campaign)
-        db.session.commit()
-
-        # If the user wants to participate, add him to the list of participants
-        if participate_value and current_user.is_authenticated:
-            participate: PARTICIPER_CAMPAGNE = PARTICIPER_CAMPAGNE(
-                id_personnel=current_user.id_personnel,
-                id_campagne=new_campaign.id_campagne
+        try:
+            new_campaign: CAMPAGNE = CAMPAGNE(
+                nom_plateforme=plateforme_value,
+                dateDebut=startDate_value,
+                duree=duree_value,
+                lieu=lieu_value,
             )
-            db.session.add(participate)
+    
+            db.session.add(new_campaign)
             db.session.commit()
 
-    def update(self, campaign_id: int) -> None:
+        except OperationalError as e:
+            db.session.rollback()
+            raise e
+
+        # If the user wants to participate, add him to the list of participants
+        try:
+            if participate_value and current_user.is_authenticated:
+                participate: PARTICIPER_CAMPAGNE = PARTICIPER_CAMPAGNE(
+                    id_personnel=current_user.id_personnel,
+                    id_campagne=new_campaign.id_campagne
+                )
+                db.session.add(participate)
+                db.session.commit()
+
+        except OperationalError as e:
+            db.session.rollback()
+            raise e
+
+    def update(self, campaign_id: int) -> None|OperationalError:
         """Update an existing campaign."""
         campagne: CAMPAGNE = CAMPAGNE.query.filter_by(id_campagne=campaign_id).first()
 
@@ -103,9 +114,9 @@ class CampaignForm(FlaskForm):
                 campagne.duree = self.duree.data
                 db.session.add(campagne)
                 db.session.commit()
-            except Exception as e:
+            except OperationalError as e:
                 db.session.rollback()
-                print(f"Error updating campaign: {e}")
+                raise e
         else:
             print(f"Campaign with ID {campaign_id} not found.")
 
@@ -152,14 +163,11 @@ class SampleForm(FlaskForm):
         sample: ECHANTILLON = ECHANTILLON.query.filter_by(id_echantillon=sample_id).first()
 
         if sample:
-            try:
-                sample.commentaire = self.comment.data
-                sample.fichier_sequence_adn = self.dna_file.data
-                if self.specie.data is not None:
-                    sample.id_espece = self.specie.data
+            sample.commentaire = self.comment.data
+            sample.fichier_sequence_adn = self.dna_file.data
 
-                db.session.add(sample)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                print(f"Error updating sample: {e}")
+            if self.specie.data is not None:
+                sample.id_espece = self.specie.data
+                
+            db.session.add(sample)
+            db.session.commit()

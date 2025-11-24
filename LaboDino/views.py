@@ -1,10 +1,11 @@
 from .forms import LoginForm, BudgetForm, CampaignForm, SampleForm
 from .app import app,db
 from .decorators import role_access_rights
-from .models import PERSONNEL, CAMPAGNE, ECHANTILLON, ROLE, ECHANTILLON
+from .models import PERSONNEL, CAMPAGNE, ECHANTILLON, ROLE, ECHANTILLON,PARTICIPER_CAMPAGNE
 from flask import render_template,redirect, url_for,request
 from flask_login import login_user, logout_user, login_required, current_user
 from datetime import timedelta
+from sqlalchemy.exc import OperationalError
 
 @app.route("/")
 def home():
@@ -122,8 +123,13 @@ def create_campaign():
     form: CampaignForm = CampaignForm()
     
     if form.validate_on_submit():
-        form.create_campaign()
-        return redirect(url_for("get_campaigns"))
+        try:
+            form.create_campaign()
+            return redirect(url_for("get_campaigns"))
+        except OperationalError as e:
+            print(f"Database error occurred while creating campaign: {e}")
+            #TODO
+            # Optionally, you can flash a message to the user here
     
     return render_template("create_campaign.html", form=form)
 
@@ -148,11 +154,15 @@ def edit_campaign(campaign_id: int):
     edit_campaign: CAMPAGNE = CAMPAGNE.query.filter_by(id_campagne=campaign_id).first()
 
     if form.validate_on_submit():
-    
-        form.update(campaign_id= campaign_id)
-        print(f"Editing Campaign ID: {campaign_id}")
+        try:
+            form.update(campaign_id= campaign_id)
+            print(f"Editing Campaign ID: {campaign_id}")
 
-        return redirect(url_for("get_campaigns"))
+            return redirect(url_for("get_campaigns"))
+        except OperationalError as e:
+            print(f"Database error occurred while updating Campaign ID {campaign_id}: {e}")
+            #TODO
+            # Optionally, you can flash a message to the user here
     
     # Pre-fill form with existing campaign data only on GET request
     form.plateforme.data = edit_campaign.nom_plateforme
@@ -202,9 +212,69 @@ def campaign_detail(campaign_id: int):
     """
     campaign: CAMPAGNE = CAMPAGNE.query.filter_by(id_campagne=campaign_id).first()
 
-    # Logic to retrieve and display campaign details
+    is_participating: bool = current_user.id_personnel in [personnel.id_personnel for personnel in campaign.participerCampagne]
+
     print(f"Campaign ID: {campaign.id_campagne}")
-    return render_template("campaign_details.html", campaign=campaign, timedelta=timedelta)
+    return render_template("campaign_details.html", campaign=campaign, timedelta=timedelta, is_participating=is_participating)
+
+@app.route("/campaigns/<int:campaign_id>/enroll/", methods=["GET", "POST"])
+@login_required
+@role_access_rights(ROLE.chercheur)
+def enroll_campaign(campaign_id: int):
+    """
+    Inscrit l'utilisateur actuel à une campagne spécifique.
+
+    Args:
+        campaign_id (int): L'identifiant de la campagne à laquelle s'inscrire.
+
+    Returns:
+        redirect: Redirige vers la page de détails de la campagne après l'inscription.
+    """
+    participation: PARTICIPER_CAMPAGNE = PARTICIPER_CAMPAGNE.query.filter_by(id_personnel=current_user.id_personnel, id_campagne=campaign_id).first()
+
+    
+    
+    if current_user and not participation:
+        try:
+            new_participation = PARTICIPER_CAMPAGNE(id_personnel=current_user.id_personnel, id_campagne=campaign_id)
+            db.session.add(new_participation)
+            db.session.commit()
+            print(f"User {current_user.id_personnel} enrolled in Campaign ID: {campaign_id}")
+
+        except OperationalError as e:
+            db.session.rollback()
+            print(f"Database error occurred while enrolling user {current_user.id_personnel} in Campaign ID: {campaign_id}: {e}")
+            #TODO
+            # Optionally, you can flash a message to the user here
+    else:
+        print(f"User {current_user.id_personnel} is already enrolled in Campaign ID: {campaign_id}")
+
+    return redirect(url_for("campaign_detail", campaign_id=campaign_id))
+
+@app.route("/campaigns/<int:campaign_id>/disenroll/", methods=["GET", "POST"])
+@login_required
+@role_access_rights(ROLE.chercheur)
+def disenroll_campaign(campaign_id: int):
+    """
+    Désinscrit l'utilisateur actuel d'une campagne spécifique.
+
+    Args:
+        campaign_id (int): L'identifiant de la campagne de laquelle se désinscrire.
+
+    Returns:
+        redirect: Redirige vers la page de détails de la campagne après la désinscription.
+    """
+    participation: PARTICIPER_CAMPAGNE = PARTICIPER_CAMPAGNE.query.filter_by(id_personnel=current_user.id_personnel, id_campagne=campaign_id).first()
+
+    if current_user and participation:
+        db.session.delete(participation)
+        db.session.commit()
+
+        print(f"User {current_user.id_personnel} disenrolled from Campaign ID: {campaign_id}")
+    else:
+        print(f"User {current_user.id_personnel} is not enrolled in Campaign ID: {campaign_id}")
+
+    return redirect(url_for("campaign_detail", campaign_id=campaign_id))
 
 @app.route("/campaigns/<int:campaign_id>/samples/<int:sample_id>")
 @login_required
