@@ -1,168 +1,117 @@
-from LaboDino.forms import LoginForm, BudgetForm
-from LaboDino.models import PERSONNEL, ROLE
-from .app import app, db
-from flask import render_template, jsonify, request, redirect, url_for, Response
-import json
+from .forms import LoginForm, BudgetForm
+from .app import app
+from .decorators import role_access_rights
+from .models import PERSONNEL, ROLE
+from flask import render_template,redirect, url_for,request, jsonify, request, redirect, url_for, Response
+from flask_login import login_user, logout_user, login_required
 
-@app.route('/')
+@app.route("/")
 def home():
-    return render_template('show_campaigns.html', campaigns= [2,46,67])
 
-@app.route('/login/', methods=['GET', 'POST'])
+    return redirect(url_for("get_campaigns"))
+    #return render_template("campaign_details.html",campaign_id= 2 ,participants= {1:["a","b","c"],2:["d","e"]})
+
+@app.route("/login/", methods=["GET", "POST"])
 def login():
-    """Affiche le formulaire de connexion et gère la soumission du formulaire."""
-
+    """
+    Affiche le formulaire de connexion et gère la soumission du formulaire.
+    A la route : /login/
+    En cas de succès, redirige vers le menu selon le role de l'utilisateur.
+    """
+    
     form = LoginForm()
 
-    if form.validate_on_submit():
-        user = form.authenticate()
-        if user:
+    if not form.is_submitted():
+        form.next.data = request.args.get("next")
+
+    elif form.validate_on_submit():
+        unUser = form.authenticate()
+        if unUser:
             # Successful login logic here
-            pass
+            login_user(unUser)
+            next = form.next.data or url_for("get_campaigns")
+            return redirect(next)
         else:
             # Failed login logic here
-            pass
-    print("test")
+            print("Authentication failed")
+
     print(form.id.data)
     print(form.password.data)
-    return render_template('connexion.html', form=form)
+    return render_template("login.html", form=form)
 
-@app.route('/budget/', methods=['GET', 'POST'])
+@app.route("/logout/")
+def logout():
+    """
+    Déconnecte l'utilisateur actuel.
+    A la route : /logout/
+    Et le redirige vers la page de connexion.
+    """
+
+    logout_user()
+    return redirect(url_for("login"))
+
+@app.route("/budget/", methods=["GET", "POST"])
+@login_required
+@role_access_rights(ROLE.direction)
 def set_budget():
-    """Affiche le formulaire de définition du budget et gère la soumission du formulaire."""
+    """
+    Affiche le formulaire de définition du budget et gère la soumission du formulaire.
+    A la route : /budget/
+    N'est accessible qu'aux utilisateurs avec les rôles DIRECTION.
+    """
 
     form = BudgetForm()
 
     if form.validate_on_submit():
         date, montant = form.add_budget()
         # Logic to handle the budget submission
-        pass
-    print("Budget Form Data:", form.date.data, form.montant.data)
-    
+        print("Budget Form Data:", date,montant)
 
-    return render_template('budget_page.html', form=form)
+    return render_template("budget_page.html", form=form)
 
-@app.route('/campaigns/', methods=['GET', 'POST'])
+@login_required
+@app.route("/campaigns/", methods=["GET", "POST"])
+@role_access_rights(ROLE.chercheur)
 def get_campaigns():
-    """Affiche la page de présentation de l'ensembles des campagnes."""
+    """
+    Affiche la page de présentation de l"ensembles des campagnes.
+    A la route : /campaigns/
+    N'est accessible qu'aux utilisateurs avec les rôles RESEARCHER.
+    """
 
-    return render_template('show_campaigns.html', campaigns= [2,46,67])
+    # getting all campaigns
+    data = [2,46,67,89,23,12,45,78,90,11,34,56]  # Example data
 
-@app.route('/campaigns/<int:campaign_id>')
+    # getting the page number from query parameters
+    page = request.args.get('page', 1, type=int)
+
+    return render_template("campaign_dashboard.html", campaigns= _pagination(data, page), page= page)
+
+@app.route("/campaigns/create/", methods=["GET", "POST"])
+@login_required
+@role_access_rights(ROLE.chercheur)
+def create_campaign():
+    """
+    Affiche le formulaire de création d"une nouvelle campagne et gère la soumission du formulaire.
+    A la route : /campaigns/create
+    N'est accessible qu'aux utilisateurs avec les rôles RESEARCHER.
+    """
+
+    # TODO
+    pass
+
+@app.route("/campaigns/<int:campaign_id>/", methods=["GET", "POST"])
+@login_required
+@role_access_rights(ROLE.chercheur)
 def campaign_detail(campaign_id):
-    """Affiche les détails d'une campagne spécifique."""
+    """
+    Affiche les détails d"une campagne spécifique.
+    A la route : /campaigns/<int:campaign_id> ou campaign_id est l'identifiant de la campagne.
+    N'est accessible qu'aux utilisateurs avec les rôles RESEARCHER.
+
+    Args:
+        campaign_id (int): L"identifiant de la campagne à afficher.
+    """
+
+    # Logic to retrieve and display campaign details
     print(f"Campaign ID: {campaign_id}")
-
-@app.route('/gestion_personnel/', methods=['GET', 'POST'])
-def gestion_personnel():
-    filtre = request.form.get('filtre')
-    
-    # On commence par une requête de base
-    query = PERSONNEL.query
-
-    # On applique le tri en fonction du filtre
-    if filtre == 'nom':
-        query = query.order_by(PERSONNEL.nom)
-    elif filtre == 'prenom':
-        query = query.order_by(PERSONNEL.prenom)
-    elif filtre == 'role':
-        query = query.order_by(PERSONNEL.role)
-    else:
-        # Tri par défaut si aucun filtre n'est sélectionné
-        query = query.order_by(PERSONNEL.nom)
-
-    # On exécute la requête finale
-    personnels = query.all()
-    
-    return render_template('personnel_administratif.html', personnels=personnels, filtre_actif=filtre)
-
-@app.route('/gestion_personnel/add', methods=['POST'])
-def add_personnel():
-    try:
-        nom = request.form.get('nom')
-        prenom = request.form.get('prenom')
-        role_str = request.form.get('role')
-
-        personnel_existant = PERSONNEL.query.filter_by(nom=nom, prenom=prenom, role=role_str).first()
-        
-        if nom == '' or prenom == '' or role_str == '':
-            data = {
-                'success': False,
-                'message': 'Vous ne pouvez pas créer un personnel avec un nom vide, un prénom vide ou sans role, vous pouvez retourner en arrière'
-            }
-            json_response = json.dumps(data, indent=4, ensure_ascii=False)
-            
-            return Response(response=json_response,
-                            status=400,
-                            mimetype='application/json')
-        if personnel_existant:
-            data = {
-                'success': False,
-                'message': 'Un personnel avec ce nom, prénom et rôle existe déjà, vous pouvez retourner en arrière'
-            }
-            json_response = json.dumps(data, indent=4, ensure_ascii=False)
-            
-            return Response(response=json_response,
-                            status=400,
-                            mimetype='application/json')
-        if PERSONNEL.query.filter_by(nom=nom, prenom=prenom).first() is None:
-            new_personnel = PERSONNEL(nom=nom,
-                                    prenom=prenom,
-                                    mdp = nom,
-                                    role=role_str)
-        else : 
-            new_personnel = PERSONNEL(nom=nom,
-                                    prenom=prenom,
-                                    mdp = nom,
-                                    role=role_str)
-
-        
-        db.session.add(new_personnel)
-        db.session.commit()
-        return redirect(url_for('gestion_personnel'))
-    
-    except Exception as e:
-        db.session.rollback()
-        data = {
-            'success': False,
-            'message': f'Erreur lors de la modification: {str(e)}'
-        }
-        json_response = json.dumps(data, indent=4, ensure_ascii=False)
-            
-        return Response(response=json_response,
-                        status=400,
-                        mimetype='application/json')
-    
-@app.route('/gestion_personnel/delete', methods=['POST'])
-def erase_personnel():
-    id_personnel = request.form.get("idPersonnel")
-    personnel = PERSONNEL.query.get(id_personnel)
-
-    if personnel:
-        db.session.delete(personnel)
-        db.session.commit()
-    return redirect(url_for('gestion_personnel'))
-
-# NOUVELLE ROUTE (GET) pour afficher la page de modification
-@app.route('/gestion_personnel/edit/<int:idPersonnel>', methods=['GET'])
-def show_edit_form(idPersonnel):
-    personnel = PERSONNEL.query.get_or_404(idPersonnel)
-    return render_template('edit_personnel.html', personnel=personnel)
-
-# ROUTE MODIFIÉE (POST) pour traiter la modification
-@app.route('/gestion_personnel/edit/<int:idPersonnel>', methods=['POST'])
-def edit_personnel(idPersonnel):
-    personnel = PERSONNEL.query.get(idPersonnel)
-
-    if personnel:
-        try:
-            personnel.nom = request.form.get('nom')
-            personnel.prenom = request.form.get('prenom')
-            personnel.role = request.form.get('role')
-            db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-            # Gérer l'erreur, par exemple en affichant un message
-            print(f"Erreur lors de la mise à jour : {e}")
-            
-    return redirect(url_for('gestion_personnel'))

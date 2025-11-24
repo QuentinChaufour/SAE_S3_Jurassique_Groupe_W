@@ -5,12 +5,16 @@
     <img src="{{ url_for('static', filename='image/logo.png') }}" alt="logo">
 </section>
 
-<div id="box_container">
-    <section id="box_block">
+<div class="box_container">
+    <section class="box_block">
         <h2>Fixer le budget mensuel</h2>
         <!-- Formulaire de definition du budget -->
         <form method="POST" role="form" action="{{ url_for('set_budget') }}">
+            {{ form.csrf_token }}
             <div class="form_field">
+                {{ form.date.label (class_ = "form-label") }}
+                {{ form.date (class_ ="form-input") }}
+                <br>
                 {{ form.montant.label (class_ = "form-label") }}
                 {{ form.montant (class_ ="form-input") }}
             </div>

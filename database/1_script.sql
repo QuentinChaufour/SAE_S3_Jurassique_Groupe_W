@@ -1,3 +1,5 @@
+CREATE DATABASE IF NOT EXISTS labodino;
+USE labodino;
 
 CREATE OR REPLACE TABLE BUDGET (
     dateMoisAnnee DATE,
