@@ -1,4 +1,4 @@
-from .forms import LoginForm, BudgetForm, PlatformCreationForm  
+from .forms import LoginForm, BudgetForm, PlatformCreationForm, PlatformModifyForm
 from .app import app, db
 from .decorators import role_access_rights
 from .models import PERSONNEL, ROLE, PLATEFORME
@@ -80,6 +80,46 @@ def platform_management():
     data = PLATEFORME.query.all()
     page = request.args.get('page', 1, type=int)
     return render_template('platform_management.html', form=form, platforms= _pagination(data, page), page= page)
+
+@app.route("/choice_action_tech/platform_management/<string:platform_name>/", methods=["GET", "POST"])
+@login_required
+@role_access_rights(ROLE.technicien)
+def platform_detail(platform_name):
+
+    form = PlatformModifyForm()
+
+    if form.validate_on_submit():
+        platforms_name = [plateforme.nom_plateforme for plateforme in PLATEFORME.query.all()]
+        if form.nom_plateforme.data in platforms_name:
+            platform = PLATEFORME.query.filter_by(nom_plateforme=form.nom_plateforme.data).first()
+            platform.nb_personnes_requises = form.nb_personnes_requises.data
+            platform.cout_journalier = form.cout_journalier.data
+            platform.intervalle_maintenance = form.intervalle_maintenance.data
+            print(platform)
+            db.session.commit()
+        return redirect(url_for('platform_detail', platform_name=platform_name))
+
+    platform = PLATEFORME.query.filter_by(nom_plateforme=platform_name).first()
+
+    print(f"Campaign ID: {platform_name}")
+    return render_template("platform_details.html", platform_name=platform_name, form=form,
+                           nb_required_person= platform.nb_personnes_requises,
+                           daily_cost = platform.cout_journalier,
+                           maintenance_interval = platform.intervalle_maintenance)
+
+@app.route('/choice_action_tech/platform_management/delete/', methods=['POST'])
+def erase_plateforme():
+
+    nom_plateform = request.form.get("nom_plateforme")
+    platform = PLATEFORME.query.get(nom_plateform)
+    print("PLAT DEL", platform)
+    if platform:
+
+        db.session.delete(platform)
+
+        db.session.commit()
+
+    return redirect(url_for('platform_management'))
 
 @app.route("/logout/")
 def logout():

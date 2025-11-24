@@ -1,0 +1,47 @@
+{% extends "base_template.html" %}
+
+{% block content %}
+
+<div class="box_container">
+    <h1 class="title">{{ platform_name }}</h1>
+
+    <table class="table-borders-bottom">
+        <tbody>
+            <tr>
+                <td>Nom plateforme: {{ platform_name}}</td>
+            </tr>
+            <tr>
+                <td>Nb Personnes: {{ nb_required_person}}</td>
+                <td>Prix/jour: {{ daily_cost}}</td>
+                <td>Maintenance: {{ maintenance_interval}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div id="create_platform">
+            <h2>Créer une plateforme</h2>
+            <form id="plateform_creation_form" method="POST" role="form" action="{{ url_for('platform_detail', platform_name=platform_name) }}">
+                {{ form.hidden_tag() }}
+                <div class="login-form">
+                    {{ form.nom_plateforme.label (class_ = "login-form-label") }}
+                    {{ form.nom_plateforme (class_ ="login-input") }}
+                </div>
+                <div class="login-form">
+                    {{ form.nb_personnes_requises.label (class_ = "login-form-label") }}
+                    {{ form.nb_personnes_requises (class_ ="login-input") }}
+                </div>
+                <div class="login-form">
+                    {{ form.cout_journalier.label (class_ = "login-form-label") }}
+                    {{ form.cout_journalier (class_ ="login-input") }}
+                </div>
+                <div class="login-form">
+                    {{ form.intervalle_maintenance.label (class_ = "login-form-label") }}
+                    {{ form.intervalle_maintenance (class_ ="login-input") }}
+                </div>
+                <div id="login-form-submit">
+                    <input type="submit" value="Modifier">
+                </div>
+            </form>
+        </div>
+</div>
+
+{% endblock %}

@@ -39,7 +39,14 @@ class PlatformCreationForm(FlaskForm):
     cout_journalier = FloatField('Cout Journalier', validators=[DataRequired()])
     intervalle_maintenance = IntegerField('Intervalle Maintenance', validators=[DataRequired()])
     submit = SubmitField('Créer la plateforme')
-        
+
+class PlatformModifyForm(FlaskForm):
+    nom_plateforme = StringField('Nom Plateforme', validators=[DataRequired()])
+    nb_personnes_requises = IntegerField('Nombre Personnes Requises', validators=[DataRequired()])
+    cout_journalier = FloatField('Cout Journalier', validators=[DataRequired()])
+    intervalle_maintenance = IntegerField('Intervalle Maintenance', validators=[DataRequired()])
+    submit = SubmitField('Modifier la plateforme')
+
     
 
 class BudgetForm(FlaskForm):

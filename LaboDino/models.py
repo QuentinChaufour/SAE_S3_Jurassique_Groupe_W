@@ -10,8 +10,8 @@ class ROLE(enum.Enum):
     direction = 'direction'
 
 inclure_equipement = db.Table("INCLURE_EQUIPEMENT", 
-                              db.Column("nom_plateforme_inclure", db.String(50), db.ForeignKey("PLATEFORME.nomPlateforme"), primary_key=True), 
-                              db.Column("id_equipement_inclure", db.Integer, db.ForeignKey("EQUIPEMENT.idEquipement"), primary_key=True))
+                              db.Column("nomPlateforme", db.String(50), db.ForeignKey("PLATEFORME.nomPlateforme"), primary_key=True), 
+                              db.Column("idEquipement", db.Integer, db.ForeignKey("EQUIPEMENT.idEquipement"), primary_key=True))
 
 necessiter_habilitation = db.Table("NECESSITER_HABILITATION", 
                                    db.Column("id_equipement_necessiter", db.Integer, db.ForeignKey("EQUIPEMENT.idEquipement"), primary_key=True),
@@ -159,8 +159,8 @@ class PLATEFORME(db.Model):
     intervalle_maintenance = db.Column("intervalleMaintenance", db.Integer)
     
     equipements = db.relationship('EQUIPEMENT', secondary=inclure_equipement, back_populates='plateformes')
-    maintenances = db.relationship('MAINTENANCE', back_populates='plateforme')
-    campagnes = db.relationship('CAMPAGNE', back_populates='plateforme')
+    maintenances = db.relationship('MAINTENANCE', back_populates='plateforme', cascade="all, delete-orphan")
+    campagnes = db.relationship('CAMPAGNE', back_populates='plateforme', cascade="all, delete-orphan")
     
 
     def __init__(self, nom_plateforme="", nb_personnes_requises=0, cout_journalier=0, intervalle_maintenance=0):

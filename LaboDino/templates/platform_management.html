@@ -12,14 +12,21 @@
                         <th>Nom</th>
                         <th>Nombre Personnes</th>
                         <th>Cout Journalier</th>
+                        <th>Supression</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for platform in platforms %}
-                    <tr>
+                    <tr onclick="location.href='{{ url_for("platform_detail", platform_name=platform.nom_plateforme) }}'" style="cursor: grab;">
                         <td>{{ platform.nom_plateforme}}</td>
                         <td>{{ platform.nb_personnes_requises}}</td>
                         <td>{{ platform.cout_journalier}}</td>
+                        <td><form action="{{ url_for('erase_plateforme') }}" method="post" style="display: inline;">
+                            <input type="hidden" name="nom_plateforme" value="{{ platform.nom_plateforme }}">
+                            <button type="submit" class="supress-btn" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette personne ?');">
+                                Supprimer
+                            </button>
+                        </form></td>
                     </tr>
                     {% endfor %}
                 </tbody>
