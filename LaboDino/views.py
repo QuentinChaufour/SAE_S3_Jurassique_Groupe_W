@@ -83,7 +83,8 @@ def add_personnel():
         prenom = request.form.get('prenom')
         role_str = request.form.get('role')
 
-        personnel_existant = PERSONNEL.query.filter_by(nom=nom, prenom=prenom).first()
+        personnel_existant = PERSONNEL.query.filter_by(nom=nom, prenom=prenom, role=role_str).first()
+        
         if nom == '' or prenom == '' or role_str == '':
             data = {
                 'success': False,
@@ -97,18 +98,24 @@ def add_personnel():
         if personnel_existant:
             data = {
                 'success': False,
-                'message': 'Un personnel avec ce nom et prénom existe déjà, vous pouvez retourner en arrière'
+                'message': 'Un personnel avec ce nom, prénom et rôle existe déjà, vous pouvez retourner en arrière'
             }
             json_response = json.dumps(data, indent=4, ensure_ascii=False)
             
             return Response(response=json_response,
                             status=400,
                             mimetype='application/json')
+        if PERSONNEL.query.filter_by(nom=nom, prenom=prenom).first() is None:
+            new_personnel = PERSONNEL(nom=nom,
+                                    prenom=prenom,
+                                    mdp = nom,
+                                    role=role_str)
+        else : 
+            new_personnel = PERSONNEL(nom=nom,
+                                    prenom=prenom,
+                                    mdp = nom,
+                                    role=role_str)
 
-        new_personnel = PERSONNEL(nom=nom,
-                                prenom=prenom,
-                                mdp = nom,
-                                role=role_str)
         
         db.session.add(new_personnel)
         db.session.commit()
