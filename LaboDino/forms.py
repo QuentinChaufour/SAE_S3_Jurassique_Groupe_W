@@ -121,7 +121,7 @@ class SampleForm(FlaskForm):
         specie_choices: list[ESPECE] = ESPECE.query.all()
 
     specie : SelectField = SelectField(label='Specie : ',
-                                       choices=[(specie.id_espece,specie) for specie in specie_choices])
+                                       choices=[(None,"")] + [(specie.id_espece,specie) for specie in specie_choices])
 
     submit : SubmitField = SubmitField(label='Add Sample')
 
