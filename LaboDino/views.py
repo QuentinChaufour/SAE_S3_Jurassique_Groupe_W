@@ -1,16 +1,17 @@
 from .forms import LoginForm, BudgetForm, CampaignForm, SampleForm
 from .app import app,db
 from .decorators import role_access_rights
-from .models import PERSONNEL, CAMPAGNE, ECHANTILLON, ROLE, ECHANTILLON,PARTICIPER_CAMPAGNE
-from flask import render_template,redirect, url_for,request
+from .models import PERSONNEL, CAMPAGNE, ECHANTILLON, ROLE, ECHANTILLON,PARTICIPER_CAMPAGNE, BUDGET
+from flask import render_template,redirect, url_for,request,jsonify
 from flask_login import login_user, logout_user, login_required, current_user
-from datetime import timedelta
+from datetime import datetime, timedelta
 from sqlalchemy.exc import OperationalError
+from sqlalchemy import extract
 
 @app.route("/")
 def home():
 
-    return redirect(url_for("get_campaigns"))
+    return redirect(url_for("set_budget"))
     #return render_template("campaign_details.html",campaign_id= 2 ,participants= {1:["a","b","c"],2:["d","e"]})
 
 @app.route("/login/", methods=["GET", "POST"])
@@ -61,10 +62,57 @@ def set_budget():
 
     if form.validate_on_submit():
         date, montant = form.add_budget()
-        # Logic to handle the budget submission
+        
+        budget: BUDGET = BUDGET.query.filter(
+            extract('year', BUDGET.date_mois_annee) == date.year,
+            extract('month', BUDGET.date_mois_annee) == date.month
+        ).first()
+
+        try:
+            if budget is not None:
+                budget.budget_total = montant
+                db.session.commit()
+
+            else:
+                new_budget = BUDGET(date_mois_annee= date, budget_total= montant)
+                db.session.add(new_budget)
+                db.session.commit()
+        
+        except OperationalError as e:
+            print(e)
+            # TODO
+
         print("Budget Form Data:", date,montant)
 
     return render_template("budget_page.html", form=form)
+
+
+@app.route("/budget/get_budget/", methods=["GET"])
+@login_required
+@role_access_rights(ROLE.direction)
+def get_budget():
+    """
+    Récupère le montant du budget pour un mois et une année donnés.
+    Pour mettre a jour dynamiquement le formulaire de budget.
+    """
+    date_str = request.args.get("date")
+    if not date_str:
+        return jsonify({"montant": None})
+
+    try:
+        date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    except ValueError:
+        return jsonify({"montant": None})
+
+    budget = BUDGET.query.filter(
+        extract('year', BUDGET.date_mois_annee) == date.year,
+        extract('month', BUDGET.date_mois_annee) == date.month
+    ).first()
+
+    if budget:
+        return jsonify({"montant": budget.budget_total})
+    else:
+        return jsonify({"montant": None})
 
 @app.route("/campaigns/", methods=["GET", "POST"])
 @login_required
