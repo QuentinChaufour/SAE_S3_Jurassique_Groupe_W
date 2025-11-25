@@ -37,7 +37,7 @@ class ECHANTILLON(db.Model):
     __tablename__ = 'ECHANTILLON'
     id_echantillon = db.Column("idEchantillon",db.Integer, primary_key=True, autoincrement=True)
     id_campagne = db.Column("idCampagne",db.Integer,db.ForeignKey("CAMPAGNE.idCampagne"))
-    fichier_sequence_adn = db.Column(MEDIUMTEXT)
+    fichier_sequence_adn = db.Column("fichierSequenceADN", MEDIUMTEXT)
     id_espece = db.Column("idEspece", db.Integer, db.ForeignKey("ESPECE.idEspece"), nullable=True)
     commentaire = db.Column(db.Text)
     espece = db.relationship("ESPECE", back_populates="echantillons")
@@ -60,7 +60,7 @@ class CAMPAGNE(db.Model):
     duree = db.Column(db.Integer)
     lieu = db.Column(db.String(100))
     valide = db.Column(db.Boolean)
-    participerCampagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="campagne")
+    participerCampagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="campagne", cascade="all, delete-orphan")
     plateforme = db.relationship("PLATEFORME", back_populates="campagnes")
     echantillons = db.relationship("ECHANTILLON", back_populates="campagne")
 

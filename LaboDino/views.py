@@ -64,6 +64,27 @@ def tech_choice_action():
 @app.route('/choice_action_tech/platform_management/', methods=['GET', 'POST'])
 @role_access_rights(ROLE.technicien)
 def platform_management():
+
+    if request.method == 'POST':
+        filtre = request.form.get('filtre')
+    else:
+        filtre = request.args.get('filtre')
+    
+    # On commence par une requête de base
+    query = PLATEFORME.query
+
+    # On applique le tri en fonction du filtre
+    print("FILTRE", filtre)
+    if filtre == 'nom':
+        query = query.order_by(PLATEFORME.nom_plateforme)
+    elif filtre == 'nb_personnes_requises':
+        query = query.order_by(PLATEFORME.nb_personnes_requises)
+    elif filtre == 'cout_journalier':
+        query = query.order_by(PLATEFORME.cout_journalier)
+    else:
+        # Tri par défaut si aucun filtre n'est sélectionné
+        query = query.order_by(PLATEFORME.nom_plateforme)
+    
     form = PlatformCreationForm()
 
     if form.validate_on_submit():
@@ -76,10 +97,10 @@ def platform_management():
         db.session.add(platform)
         print(platform)
         db.session.commit()
-        return redirect(url_for('platform_management'))
-    data = PLATEFORME.query.all()
+        return redirect(url_for('platform_management', filtre=filtre))
+    data = query.all()
     page = request.args.get('page', 1, type=int)
-    return render_template('platform_management.html', form=form, platforms= _pagination(data, page), page= page)
+    return render_template('platform_management.html', form=form, platforms= _pagination(data, page), page= page, filtre_actif=filtre)
 
 @app.route("/choice_action_tech/platform_management/<string:platform_name>/", methods=["GET", "POST"])
 @login_required
@@ -119,7 +140,8 @@ def erase_plateforme():
 
         db.session.commit()
 
-    return redirect(url_for('platform_management'))
+    filtre = request.values.get('filtre')
+    return redirect(url_for('platform_management', filtre=filtre))
 
 @app.route("/logout/")
 def logout():
