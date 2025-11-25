@@ -1,12 +1,26 @@
 {% extends "base_template.html" %}
 
 {% block content %}
+
 <section id="logo">
     <img src="{{ url_for('static', filename='image/logo.png') }}" alt="logo">
 </section>
 
 <div class="box_container">
     <section class="box_block">
+
+        <h2 class="title">Budget du mois</h2>
+        {% if remaining_budget != None %}
+            <section>
+                <p>Budget total : {{ total_budget }} €</p>
+                <p>Budget restant : {{ remaining_budget }} €</p>
+            </section>
+        {% else %}
+            <section>
+                <p>Pas de Budget établis pour le mois actuel</p>
+            </section>
+        {% endif %}
+
         <h2 class="title">Fixer le budget mensuel</h2>
         <!-- Formulaire de definition du budget -->
         <form method="POST" role="form" action="{{ url_for('set_budget') }}">

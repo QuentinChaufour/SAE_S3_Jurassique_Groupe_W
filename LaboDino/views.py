@@ -6,7 +6,7 @@ from flask import render_template,redirect, url_for,request,jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from datetime import datetime, timedelta
 from sqlalchemy.exc import OperationalError
-from sqlalchemy import extract
+from sqlalchemy import extract,func
 
 @app.route("/")
 def home():
@@ -60,6 +60,20 @@ def set_budget():
 
     form = BudgetForm()
 
+    # current budget if exists
+    curr_date: datetime.date = datetime.now()
+    current_budget: BUDGET = BUDGET.query.filter(
+            extract('year', BUDGET.date_mois_annee) == curr_date.year,
+            extract('month', BUDGET.date_mois_annee) == curr_date.month
+        ).first()
+
+    remaining_budget: float = None
+    curr_budget: float = None
+
+    if current_budget is not None:
+        remaining_budget = db.session.query(func.remainingBudget(curr_date)).scalar()
+        curr_budget_value = current_budget.budget_total
+
     if form.validate_on_submit():
         date, montant = form.add_budget()
         
@@ -84,7 +98,8 @@ def set_budget():
 
         print("Budget Form Data:", date,montant)
 
-    return render_template("budget_page.html", form=form)
+    return render_template("budget_page.html", form=form, remaining_budget= remaining_budget, total_budget= curr_budget_value)
+
 
 
 @app.route("/budget/get_budget/", methods=["GET"])
@@ -113,6 +128,8 @@ def get_budget():
         return jsonify({"montant": budget.budget_total})
     else:
         return jsonify({"montant": None})
+
+
 
 @app.route("/campaigns/", methods=["GET", "POST"])
 @login_required
@@ -150,6 +167,8 @@ def get_campaigns(completed: bool = None):
 
     return render_template("campaign_dashboard.html", campaigns= paginated_data, page= current_page)
 
+
+
 @app.route("/campaigns/create/", methods=["GET", "POST"])
 @login_required
 @role_access_rights(ROLE.chercheur)
@@ -175,6 +194,8 @@ def create_campaign():
             # Optionally, you can flash a message to the user here
     
     return render_template("create_campaign.html", form=form)
+
+
 
 @app.route("/campaigns/<int:campaign_id>/edit/", methods=["GET", "POST"])
 @login_required
@@ -215,6 +236,8 @@ def edit_campaign(campaign_id: int):
     
     return render_template("edit_campaign.html", form=form, campaign_id=campaign_id)
 
+
+
 @app.route("/campaigns/<int:campaign_id>/delete/", methods=["GET", "POST"])
 @login_required
 @role_access_rights(ROLE.chercheur)
@@ -236,6 +259,8 @@ def delete_campaign(campaign_id: int):
     print(f"Deleting Campaign ID: {campaign_id}")
     return redirect(url_for("get_campaigns"))
 
+
+
 @app.route("/campaigns/<int:campaign_id>/", methods=["GET", "POST"])
 @login_required
 @role_access_rights(ROLE.chercheur)
@@ -256,6 +281,8 @@ def campaign_detail(campaign_id: int):
 
     print(f"Campaign ID: {campaign.id_campagne}")
     return render_template("campaign_details.html", campaign=campaign, timedelta=timedelta, is_participating=is_participating)
+
+
 
 @app.route("/campaigns/<int:campaign_id>/enroll/", methods=["GET", "POST"])
 @login_required
@@ -291,6 +318,8 @@ def enroll_campaign(campaign_id: int):
 
     return redirect(url_for("campaign_detail", campaign_id=campaign_id))
 
+
+
 @app.route("/campaigns/<int:campaign_id>/disenroll/", methods=["GET", "POST"])
 @login_required
 @role_access_rights(ROLE.chercheur)
@@ -316,6 +345,8 @@ def disenroll_campaign(campaign_id: int):
 
     return redirect(url_for("campaign_detail", campaign_id=campaign_id))
 
+
+
 @app.route("/campaigns/<int:campaign_id>/samples/<int:sample_id>")
 @login_required
 @role_access_rights(ROLE.chercheur)
@@ -335,6 +366,8 @@ def sample_detail(sample_id: int, campaign_id: int):
     shown_samples,page = _pagination(data= samples, page= request.args.get(key="page",default=1,type=int), items_per_page=10)
 
     return render_template("sample_details.html", sample=sample, samples=shown_samples, page=page)
+
+
 
 @app.route("/campaigns/<int:campaign_id>/samples/create/", methods=["GET", "POST"])
 @login_required
@@ -358,6 +391,8 @@ def create_sample(campaign_id: int):
         return redirect(url_for("campaign_detail", campaign_id= campaign_id))
     
     return render_template("create_sample.html", form=form, campaign_id=campaign_id)
+
+
 
 @app.route("/campaigns/samples/<int:sample_id>/edit/", methods=["GET", "POST"])
 @login_required
@@ -417,6 +452,8 @@ def delete_sample(sample_id: int):
     print(f"Deleting Sample ID: {sample_id}")
     return redirect(url_for("campaign_detail", campaign_id= sample.id_campagne))
 
+
+
 def _pagination(data: list, page: int, items_per_page: int = 5) -> tuple[list,int]:
     """Pagine les données en fonction de la page et du nombre d"éléments par page.
     
@@ -439,4 +476,12 @@ def _pagination(data: list, page: int, items_per_page: int = 5) -> tuple[list,in
     end: int = begin + items_per_page
 
     return data[begin:end], page
+
+
+
+def _budget_graph() -> None:
+    """
+    
+    """
+    pass
   
