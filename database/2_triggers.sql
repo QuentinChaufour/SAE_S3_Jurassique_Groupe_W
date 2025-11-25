@@ -162,7 +162,7 @@ begin
     end if;
 
     -- verifie que le budget voulant être modifié n'est pas pour un mois passé
-    if(MONTH(old.dateMoisAnnee) < MONTH(currentDate) OR YEAR(old.dateMoisAnnee) < YEAR(currentDate)) then
+    if(MONTH(old.dateMoisAnnee) < MONTH(currentDate) AND YEAR(old.dateMoisAnnee) < YEAR(currentDate)) then
         set messageErreur = 'La date budget indiqué dépassé, modification annulé';
         signal SQLSTATE '45000' set MESSAGE_TEXT = messageErreur;
     end if;
