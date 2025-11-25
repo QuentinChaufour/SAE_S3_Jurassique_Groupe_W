@@ -133,11 +133,8 @@ def erase_plateforme():
 
     nom_plateform = request.form.get("nom_plateforme")
     platform = PLATEFORME.query.get(nom_plateform)
-    print("PLAT DEL", platform)
     if platform:
-
         db.session.delete(platform)
-
         db.session.commit()
 
     filtre = request.values.get('filtre')

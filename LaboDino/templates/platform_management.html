@@ -7,7 +7,7 @@
         <div id="platform_table">
             <form action="{{ url_for('platform_management') }}" method="post" id="filter-form">
                 <select id="filter-button" name="filtre" onchange="this.form.submit()">
-                    <option value="">Filtrer par...</option>
+                    <option value="">Filtrer</option>
                     <option value="nom" {% if filtre_actif == 'nom' %}selected{% endif %}>Nom</option>
                     <option value="nb_personnes_requises" {% if filtre_actif == 'nb_personnes_requises' %}selected{% endif %}>Nombre Personnes</option>
                     <option value="cout_journalier" {% if filtre_actif == 'cout_journalier' %}selected{% endif %}>Cout Journalier</option>
@@ -30,7 +30,7 @@
                         <td>{{ platform.cout_journalier}}</td>
                         <td><form action="{{ url_for('erase_plateforme', filtre=filtre_actif) }}" method="post" style="display: inline;">
                             <input type="hidden" name="nom_plateforme" value="{{ platform.nom_plateforme }}">
-                            <button type="submit" class="supress-btn" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette personne ?');">
+                            <button type="submit" class="supress-btn" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette plateforme ?');">
                                 Supprimer
                             </button>
                         </form></td>
