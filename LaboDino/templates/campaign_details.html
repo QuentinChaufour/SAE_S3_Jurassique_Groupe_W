@@ -36,6 +36,7 @@
         <thead>
             <tr class="header-row">
                 <th>ID</th>
+                <th>Espece</th>
                 <th colspan="3">Description</th>
             </tr>
         </thead>
@@ -43,7 +44,18 @@
             {% for sample in campaign.echantillons %}
             <tr onclick="location.href='{{ url_for("sample_detail", sample_id=sample.id_echantillon, campaign_id=campaign.id_campagne) }}'">
                 <td>{{ sample.id_echantillon }}</td>
-                <td>{{ sample.description }}</td>
+                
+                {% if sample.espece != None %}
+                    <td>{{ sample.espece.nom_espece }}</td>
+                {% else %}
+                    <td>Inconnu</td>
+                {% endif %}
+                
+                {% if sample.commentaire == "" %}
+                    <td>Aucune description disponible</td>
+                {% else %}
+                    <td>{{ sample.commentaire }}</td>
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>

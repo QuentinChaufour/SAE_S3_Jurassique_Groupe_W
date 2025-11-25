@@ -145,7 +145,7 @@ def edit_campaign(campaign_id: int):
 
     form: CampaignForm = CampaignForm()
 
-    edit_campaign: CAMPAGNE = CAMPAGNE.query.filter_by(id_campagne=campaign_id).first()
+    update_campaign: CAMPAGNE = CAMPAGNE.query.filter_by(id_campagne=campaign_id).first()
 
     if form.validate_on_submit():
         try:
@@ -159,10 +159,10 @@ def edit_campaign(campaign_id: int):
             # Optionally, you can flash a message to the user here
     
     # Pre-fill form with existing campaign data only on GET request
-    form.plateforme.data = edit_campaign.nom_plateforme
-    form.lieu.data = edit_campaign.lieu
-    form.startDate.data = edit_campaign.dateDebut
-    form.duree.data = edit_campaign.duree
+    form.plateforme.data = update_campaign.nom_plateforme
+    form.lieu.data = update_campaign.lieu
+    form.startDate.data = update_campaign.dateDebut
+    form.duree.data = update_campaign.duree
     form.submit.label.text = "Update Campaign"
     
     return render_template("edit_campaign.html", form=form, campaign_id=campaign_id)
@@ -284,8 +284,9 @@ def sample_detail(sample_id: int, campaign_id: int):
     sample: ECHANTILLON = ECHANTILLON.query.filter_by(id_echantillon=sample_id).first()
     print(f"Sample ID: {sample.id_echantillon}")
     samples : list[ECHANTILLON] = ECHANTILLON.query.all()
+    shown_samples,page = _pagination(data= samples, page= request.args.get(key="page",default=1,type=int), items_per_page=10)
 
-    return render_template("sample_details.html", sample=sample, samples=samples)
+    return render_template("sample_details.html", sample=sample, samples=shown_samples, page=page)
 
 @app.route("/campaigns/<int:campaign_id>/samples/create/", methods=["GET", "POST"])
 @login_required
