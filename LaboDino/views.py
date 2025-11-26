@@ -8,6 +8,10 @@ from datetime import datetime, timedelta
 from sqlalchemy.exc import OperationalError
 from sqlalchemy import extract,func
 
+import matplotlib
+matplotlib.use('Agg')  # Use non-GUI backend
+from matplotlib import pyplot as plt
+
 @app.route("/")
 def home():
 
@@ -31,7 +35,17 @@ def login():
         if unUser:
             # Successful login logic here
             login_user(unUser)
-            next = form.next.data or url_for("get_campaigns",completed= None)
+
+            role_next: str = None
+            
+            match(unUser.get_role):
+                case ROLE.direction:
+                    role_next = url_for("set_budget")
+                case ROLE.chercheur:
+                    role_next = url_for("get_campaigns", completed=None)
+
+            next: str = form.next.data or role_next
+
             return redirect(next)
         else:
             # Failed login logic here
@@ -58,6 +72,9 @@ def set_budget():
     N'est accessible qu'aux utilisateurs avec les rôles DIRECTION.
     """
 
+    # Créer le graph
+    _budget_graph()
+
     form = BudgetForm()
 
     # current budget if exists
@@ -68,7 +85,7 @@ def set_budget():
         ).first()
 
     remaining_budget: float = None
-    curr_budget: float = None
+    curr_budget_value: float = None
 
     if current_budget is not None:
         remaining_budget = db.session.query(func.remainingBudget(curr_date)).scalar()
@@ -97,6 +114,8 @@ def set_budget():
             # TODO
 
         print("Budget Form Data:", date,montant)
+        # Production du graphe
+        # possibilité d'ajouter des filtres/paramètres
 
     return render_template("budget_page.html", form=form, remaining_budget= remaining_budget, total_budget= curr_budget_value)
 
@@ -482,6 +501,35 @@ def _pagination(data: list, page: int, items_per_page: int = 5) -> tuple[list,in
 def _budget_graph() -> None:
     """
     
+    Produit le graphe représentant les budgets alloué
+    et les budgets utilisé en fonction de leurs dates
+
     """
-    pass
-  
+    
+    # getting the data
+    try:
+        budgets: list[BUDGET] = BUDGET.query.order_by(BUDGET.date_mois_annee).all()
+
+        if len(budgets) == 0:
+            return
+
+        used_budgets: list[float] = []
+        for budget in budgets:
+            used_budgets.append(budget.budget_total - db.session.query(func.remainingBudget(budget.date_mois_annee)).scalar())
+
+        budgets_value: list[float] = [budget.budget_total for budget in budgets]
+        dates: list[str] = [budget.date_mois_annee for budget in budgets]
+
+
+        plt.figure(figsize=(10,6))
+        plt.plot(dates, budgets_value, label= "total budget")
+        plt.plot(dates, used_budgets,linestyle= "-.",label= "remaining budget",)
+
+        plt.ylabel("Amount (€)")
+        plt.xlabel("date")
+        plt.legend()
+        plt.savefig("LaboDino/static/image/budget_graph.png", format="png")
+        plt.close()
+
+    except Exception as e:
+        print(e)
