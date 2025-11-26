@@ -34,19 +34,24 @@
     font-size: 2.5rem;
 }
 
-#navbar-items li {
+#navbar-items ul li {
     background-color: salmon;
     border-radius: 1rem;
     cursor: pointer;
 }
 
-#navbar-items li:hover {
+#navbar-items ul li:hover {
     background-color: bisque;
     transition: ease-in-out 0.3s;
 }
 
 #navbar-items ul {
     list-style: none;
+}
+
+#navbar-items li a {
+    text-decoration: none;
+    color: inherit;
 }
 
 #logo {

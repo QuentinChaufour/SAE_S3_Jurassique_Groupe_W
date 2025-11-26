@@ -1,5 +1,7 @@
 {% extends "base_template.html" %}
-
+{% block retour %}
+<li><a href="{{ url_for('tech_choice_action') }}">Retour</a></li>
+{% endblock %}
 {% block content %}
 <div id="platform_management">
     <h1>Gestion des plateformes</h1>
@@ -28,7 +30,7 @@
                         <td>{{ platform.nom_plateforme}}</td>
                         <td>{{ platform.nb_personnes_requises}}</td>
                         <td>{{ platform.cout_journalier}}</td>
-                        <td><form action="{{ url_for('erase_plateforme', filtre=filtre_actif) }}" method="post" style="display: inline;">
+                        <td><form action="{{ url_for('delete_plateforme', filtre=filtre_actif) }}" method="post" style="display: inline;">
                             <input type="hidden" name="nom_plateforme" value="{{ platform.nom_plateforme }}">
                             <button type="submit" class="supress-btn" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette plateforme ?');">
                                 Supprimer

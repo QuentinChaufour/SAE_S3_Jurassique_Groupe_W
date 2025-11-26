@@ -1,5 +1,7 @@
 {% extends "base_template.html" %}
-
+{% block retour %}
+<li><a href="{{ url_for('login') }}">Retour</a></li>
+{% endblock %}
 {% block content %}
 <div id="main_tech_dashboard">
     <h1>Choix des actions</h1>

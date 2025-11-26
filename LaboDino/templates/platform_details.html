@@ -1,25 +1,27 @@
 {% extends "base_template.html" %}
-
+{% block retour %}
+<li><a href="{{ url_for('platform_management') }}">Retour</a></li>
+{% endblock %}
 {% block content %}
 
 <div class="box_container">
-    <h1 class="title">{{ platform_name }}</h1>
+    <h1 class="title">{{ platform.nom_plateforme }}</h1>
 
     <table class="table-borders-bottom">
         <tbody>
             <tr>
-                <td>Nom plateforme: {{ platform_name}}</td>
+                <td>Nom plateforme: {{ platform.nom_plateforme}}</td>
             </tr>
             <tr>
-                <td>Nb Personnes: {{ nb_required_person}}</td>
-                <td>Prix/jour: {{ daily_cost}}</td>
-                <td>Maintenance: {{ maintenance_interval}}</td>
+                <td>Nb Personnes: {{ platform.nb_personnes_requises}}</td>
+                <td>Prix/jour: {{ platform.cout_journalier}}</td>
+                <td>Maintenance: {{ platform.intervalle_maintenance}}</td>
             </tr>
         </tbody>
     </table>
     <div id="create_platform">
             <h2>Modifier une plateforme</h2>
-            <form id="plateform_creation_form" method="POST" role="form" action="{{ url_for('platform_detail', platform_name=platform_name) }}">
+            <form id="plateform_creation_form" method="POST" role="form" action="{{ url_for('platform_detail', platform_name=platform.nom_plateforme) }}">
                 {{ form.hidden_tag() }}
                 <div class="login-form">
                     {{ form.nom_plateforme.label (class_ = "login-form-label") }}

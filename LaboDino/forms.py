@@ -33,20 +33,12 @@ class LoginForm(FlaskForm):
         # Return the user if password matches, else return None
         return user if user.mdp == password else None
     
-class PlatformCreationForm(FlaskForm):
+class PlatformForm(FlaskForm):
     nom_plateforme = StringField('Nom Plateforme', validators=[DataRequired()])
     nb_personnes_requises = IntegerField('Nombre Personnes Requises', validators=[DataRequired()])
     cout_journalier = FloatField('Cout Journalier', validators=[DataRequired()])
     intervalle_maintenance = IntegerField('Intervalle Maintenance', validators=[DataRequired()])
     submit = SubmitField('Créer la plateforme')
-
-class PlatformModifyForm(FlaskForm):
-    nom_plateforme = StringField('Nom Plateforme', validators=[DataRequired()])
-    nb_personnes_requises = IntegerField('Nombre Personnes Requises', validators=[DataRequired()])
-    cout_journalier = FloatField('Cout Journalier', validators=[DataRequired()])
-    intervalle_maintenance = IntegerField('Intervalle Maintenance', validators=[DataRequired()])
-    submit = SubmitField('Modifier la plateforme')
-
     
 
 class BudgetForm(FlaskForm):

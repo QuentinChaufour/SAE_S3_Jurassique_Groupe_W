@@ -1,9 +1,10 @@
-from .forms import LoginForm, BudgetForm, PlatformCreationForm, PlatformModifyForm
+from .forms import LoginForm, BudgetForm, PlatformForm
 from .app import app, db
 from .decorators import role_access_rights
 from .models import PERSONNEL, ROLE, PLATEFORME
 from flask import render_template,redirect, url_for,request
 from flask_login import login_user, logout_user, login_required
+from sqlalchemy.exc import OperationalError
 
 @app.route("/")
 def home():
@@ -33,17 +34,18 @@ def login():
                 next_page = form.next.data
             else:
                 user_role = unUser.get_role()
-                if user_role == ROLE.chercheur:
-                    next_page = url_for("get_campaigns")
-                elif user_role == ROLE.technicien:
-                    next_page = url_for("tech_choice_action")
-                elif user_role == ROLE.direction:
-                    next_page = url_for("set_budget")
-                elif user_role == ROLE.administratif:
-                    #TODO need to have the admin page in order to put the redirection
-                    next_page = url_for("login") 
-                else:
-                    next_page = url_for("login")
+                match user_role:
+                    case ROLE.chercheur:
+                        next_page = url_for("get_campaigns")
+                    case ROLE.technicien:
+                        next_page = url_for("tech_choice_action")
+                    case ROLE.direction:
+                        next_page = url_for("set_budget")
+                    case ROLE.administratif:
+                        #TODO need to have the admin page in order to put the redirection
+                        next_page = url_for("login")
+                    case default:
+                        next_page = url_for("login")
             
             return redirect(next_page)
         else:
@@ -54,14 +56,16 @@ def login():
     print(form.password.data)
     return render_template("login.html", form=form)
 
-@login_required
+
 @app.route('/choice_action_tech/')
+@login_required
 @role_access_rights(ROLE.technicien)
 def tech_choice_action():
     return render_template('technical_choice.html')
 
-@login_required
+
 @app.route('/choice_action_tech/platform_management/', methods=['GET', 'POST'])
+@login_required
 @role_access_rights(ROLE.technicien)
 def platform_management():
 
@@ -70,35 +74,39 @@ def platform_management():
     else:
         filtre = request.args.get('filtre')
     
-    # On commence par une requête de base
     query = PLATEFORME.query
 
-    # On applique le tri en fonction du filtre
     print("FILTRE", filtre)
-    if filtre == 'nom':
-        query = query.order_by(PLATEFORME.nom_plateforme)
-    elif filtre == 'nb_personnes_requises':
-        query = query.order_by(PLATEFORME.nb_personnes_requises)
-    elif filtre == 'cout_journalier':
-        query = query.order_by(PLATEFORME.cout_journalier)
-    else:
-        # Tri par défaut si aucun filtre n'est sélectionné
-        query = query.order_by(PLATEFORME.nom_plateforme)
+    match filtre:
+        case 'nom':
+            query = query.order_by(PLATEFORME.nom_plateforme)
+        case 'nb_personnes_requises':
+            query = query.order_by(PLATEFORME.nb_personnes_requises)
+        case 'cout_journalier':
+            query = query.order_by(PLATEFORME.cout_journalier)
+        case default:
+            query = query.order_by(PLATEFORME.nom_plateforme)
     
-    form = PlatformCreationForm()
+    form = PlatformForm()
 
     if form.validate_on_submit():
-        platform = PLATEFORME(
-            nom_plateforme=form.nom_plateforme.data,
-            nb_personnes_requises=form.nb_personnes_requises.data,
-            cout_journalier=form.cout_journalier.data,
-            intervalle_maintenance=form.intervalle_maintenance.data
-        )
-        db.session.add(platform)
-        print(platform)
-        db.session.commit()
+        try:
+            platform = PLATEFORME(
+                nom_plateforme=form.nom_plateforme.data,
+                nb_personnes_requises=form.nb_personnes_requises.data,
+                cout_journalier=form.cout_journalier.data,
+                intervalle_maintenance=form.intervalle_maintenance.data
+            )
+            db.session.add(platform)
+            print(platform)
+            db.session.commit()
+        except OperationalError as e:
+            print(f"Database error occurred while creating platform: {e}")
+
         return redirect(url_for('platform_management', filtre=filtre))
-    data = query.all()
+    
+    data = query.all()  
+
     page = request.args.get('page', 1, type=int)
     return render_template('platform_management.html', form=form, platforms= _pagination(data, page), page= page, filtre_actif=filtre)
 
@@ -107,29 +115,27 @@ def platform_management():
 @role_access_rights(ROLE.technicien)
 def platform_detail(platform_name):
 
-    form = PlatformModifyForm()
-
+    form = PlatformForm()
     if form.validate_on_submit():
         platforms_name = [plateforme.nom_plateforme for plateforme in PLATEFORME.query.all()]
         if form.nom_plateforme.data in platforms_name:
             platform = PLATEFORME.query.filter_by(nom_plateforme=form.nom_plateforme.data).first()
+            print("PLATEFORME ", PLATEFORME.query.filter_by(nom_plateforme=form.nom_plateforme.data).first())
             platform.nb_personnes_requises = form.nb_personnes_requises.data
             platform.cout_journalier = form.cout_journalier.data
             platform.intervalle_maintenance = form.intervalle_maintenance.data
             print(platform)
             db.session.commit()
-        return redirect(url_for('platform_detail', platform_name=platform_name))
+            return redirect(url_for('platform_detail', platform_name=form.nom_plateforme.data))
 
     platform = PLATEFORME.query.filter_by(nom_plateforme=platform_name).first()
 
     print(f"Campaign ID: {platform_name}")
-    return render_template("platform_details.html", platform_name=platform_name, form=form,
-                           nb_required_person= platform.nb_personnes_requises,
-                           daily_cost = platform.cout_journalier,
-                           maintenance_interval = platform.intervalle_maintenance)
+     
+    return render_template("platform_details.html", platform=platform, form=form)
 
 @app.route('/choice_action_tech/platform_management/delete/', methods=['POST'])
-def erase_plateforme():
+def delete_plateforme():
 
     nom_plateform = request.form.get("nom_plateforme")
     platform = PLATEFORME.query.get(nom_plateform)
