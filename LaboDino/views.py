@@ -38,7 +38,7 @@ def login():
 
             role_next: str = None
             
-            match(unUser.get_role):
+            match(unUser.role):
                 case ROLE.direction:
                     role_next = url_for("set_budget")
                 case ROLE.chercheur:
@@ -384,7 +384,9 @@ def sample_detail(sample_id: int, campaign_id: int):
     samples : list[ECHANTILLON] = ECHANTILLON.query.all()
     shown_samples,page = _pagination(data= samples, page= request.args.get(key="page",default=1,type=int), items_per_page=10)
 
-    return render_template("sample_details.html", sample=sample, samples=shown_samples, page=page)
+    selected_sample:int = request.args.get(key="selected_sample",default=None,type=int)
+
+    return render_template("sample_details.html", sample=sample, samples=shown_samples, page=page, selected_sample_id= selected_sample)
 
 
 

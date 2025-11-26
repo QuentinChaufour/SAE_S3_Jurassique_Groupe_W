@@ -8,7 +8,7 @@
     <section>
         <p><strong>Sample ID:</strong> {{ sample.id_echantillon }}</p>
         <p><strong>Espece:</strong> {{ sample.espece.nom_espece if sample.espece != None else Inconnu }}</p>
-        <p><strong>Description:</strong> {{ sample}}</p>
+        <p><strong>Description:</strong> {{ sample.commentaire }}</p>
     </section>
 
     <div class="CRUD_btn">
@@ -28,8 +28,12 @@
             <tbody>
                 {% for other_sample in samples %}
                 {% if other_sample.id_echantillon != sample.id_echantillon %}
-                <tr>
-                    <td>{{ other_sample.id_echantillon }}</td>
+
+                {% if other_sample.id_echantillon == selected_sample_id %}
+                <tr class="selected-sample">
+                {% else %}
+                <tr onclick="location.href='{{ url_for("sample_detail", sample_id=sample.id_echantillon, campaign_id=sample.id_campagne, page= page, selected_sample= other_sample.id_echantillon) }}'">
+                {% endif %}
 
                     {% if other_sample.espece != None %}
                         <td>{{ other_sample.espece.nom_espece }}</td>
