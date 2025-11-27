@@ -1,7 +1,7 @@
-from .forms import LoginForm, BudgetForm, PlatformForm
+from .forms import LoginForm, BudgetForm, PlatformForm, MaintenanceForm
 from .app import app, db
 from .decorators import role_access_rights
-from .models import PERSONNEL, ROLE, PLATEFORME
+from .models import PERSONNEL, ROLE, PLATEFORME, MAINTENANCE
 from flask import render_template,redirect, url_for,request
 from flask_login import login_user, logout_user, login_required
 from sqlalchemy.exc import OperationalError
@@ -145,6 +145,91 @@ def delete_plateforme():
 
     filtre = request.values.get('filtre')
     return redirect(url_for('platform_management', filtre=filtre))
+
+
+
+
+
+
+@app.route('/menu_technician/maintenance_management/', methods=['GET', 'POST'])
+@login_required
+@role_access_rights(ROLE.technicien)
+def maintenance_management():
+
+    if request.method == 'POST':
+        filtre = request.form.get('filtre')
+    else:
+        filtre = request.args.get('filtre')
+    
+    query = MAINTENANCE.query
+
+    print("FILTRE", filtre)
+    match filtre:
+        case 'date':
+            query = query.order_by(MAINTENANCE.date_maintenance)
+        case 'duree':
+            query = query.order_by(MAINTENANCE.duree_maintenance)
+        case 'nom_plateforme':
+            query = query.order_by(MAINTENANCE.nom_plateforme)
+        case default:
+            query = query.order_by(MAINTENANCE.date_maintenance)
+    
+    form = MaintenanceForm()
+
+    if form.validate_on_submit():
+        try:
+            maintenance = MAINTENANCE(
+                nom_plateforme=form.nom_plateforme.data,
+                date_maintenance=form.date_maintenance.data,
+                duree_maintenance=form.duree_maintenance.data,
+            )
+            db.session.add(maintenance)
+            print(maintenance)
+            db.session.commit()
+        except OperationalError as e:
+            print(f"Database error occurred while creating platform: {e}")
+
+        return redirect(url_for('maintenance_management', filtre=filtre))
+    
+    data = query.all()  
+
+    page = request.args.get('page', 1, type=int)
+    return render_template('maintenance_management.html', form=form, platforms= _pagination(data, page), page= page, filtre_actif=filtre)
+
+@app.route("/menu_technician/maintenance_management/<string:platform_name>/", methods=["GET", "POST"])
+@login_required
+@role_access_rights(ROLE.technicien)
+def maintenance_detail(platform_name):
+
+    form = MaintenanceForm()
+    if form.validate_on_submit():
+        maintenances_name = [maintenance.nom_plateforme for maintenance in PLATEFORME.query.all()]
+        if form.nom_plateforme.data in maintenances_name:
+            maintenance = MAINTENANCE.query.filter_by(nom_plateforme=form.nom_plateforme.data).first()
+            print("MAINTENANCE ", MAINTENANCE.query.filter_by(nom_plateforme=form.nom_plateforme.data).first())
+            maintenance.date_maintenance = form.date_maintenance.data
+            maintenance.duree_maintenance = form.duree_maintenance.data
+            print(maintenance)
+            db.session.commit()
+            return redirect(url_for('maintenance_detail', platform_name=form.nom_plateforme.data))
+
+    maintenance = MAINTENANCE.query.filter_by(nom_plateforme=platform_name).first()
+
+    print(f"MAINTENANCE Platforme Name: {platform_name}")
+     
+    return render_template("maintenance_details.html", maintenance=maintenance, form=form)
+
+@app.route('/menu_technician/maintenance_management/delete/', methods=['POST'])
+def delete_maintenance():
+
+    nom_plateform = request.form.get("nom_plateforme")
+    maintenance = MAINTENANCE.query.get(nom_plateform)
+    if maintenance:
+        db.session.delete(maintenance)
+        db.session.commit()
+
+    filtre = request.values.get('filtre')
+    return redirect(url_for('maintenance_management', filtre=filtre))
 
 @app.route("/logout/")
 def logout():

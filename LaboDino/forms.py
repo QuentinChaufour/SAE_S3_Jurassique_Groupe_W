@@ -40,6 +40,12 @@ class PlatformForm(FlaskForm):
     intervalle_maintenance = IntegerField('Intervalle Maintenance', validators=[DataRequired()])
     submit = SubmitField('Créer la plateforme')
     
+class MaintenanceForm(FlaskForm):
+    date_maintenance = StringField('Date', validators=[DataRequired()])
+    duree_maintenance = IntegerField('Duree', validators=[DataRequired()])
+    nom_plateforme = FloatField('Nom plateforme', validators=[DataRequired()])
+    submit = SubmitField('Créer la maintenance')
+    
 
 class BudgetForm(FlaskForm):
     """Form for defining a budget."""
