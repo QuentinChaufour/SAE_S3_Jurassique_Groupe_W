@@ -41,9 +41,9 @@ class PlatformForm(FlaskForm):
     submit = SubmitField('Créer la plateforme')
     
 class MaintenanceForm(FlaskForm):
-    date_maintenance = StringField('Date', validators=[DataRequired()])
+    date_maintenance = DateField('Date', validators=[DataRequired()])
     duree_maintenance = IntegerField('Duree', validators=[DataRequired()])
-    nom_plateforme = FloatField('Nom plateforme', validators=[DataRequired()])
+    nom_plateforme = StringField('Nom plateforme', validators=[DataRequired()])
     submit = SubmitField('Créer la maintenance')
     
 

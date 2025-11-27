@@ -23,15 +23,16 @@
                         <th>Plateforme</th>
                         <th>Supression</th>
                     </tr>
-                </thead>
+                </thead> 
                 <tbody>
                     {% for maintenance in maintenances %}
-                    <tr onclick="location.href='{{ url_for("maintenance_detail", platform_name=maintenance.nom_plateforme) }}'" style="cursor: grab;">
-                        <td>{{ maintenance.Date}}</td>
-                        <td>{{ maintenance.dur}}</td>
-                        <td>{{ maintenance.cout_journalier}}</td>
+                    <tr onclick="location.href='{{ url_for("maintenance_detail", platform_name=maintenance.nom_plateforme, date_maintenance=maintenance.date_maintenance.strftime('%Y-%m-%d')) }}'" style="cursor: grab;">
+                        <td>{{ maintenance.date_maintenance}}</td>
+                        <td>{{ maintenance.duree_maintenance}}</td>
+                        <td>{{ maintenance.nom_plateforme}}</td>
                         <td><form action="{{ url_for('delete_maintenance', filtre=filtre_actif) }}" method="post" style="display: inline;">
                             <input type="hidden" name="nom_plateforme" value="{{ maintenance.nom_plateforme }}">
+                            <input type="hidden" name="date_maintenance" value="{{ maintenance.date_maintenance }}">
                             <button type="submit" class="supress-btn" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette maintenance ?');">
                                 Supprimer
                             </button>
@@ -62,6 +63,13 @@
                     <input type="submit" value="Créer">
                 </div>
             </form>
+            {% with messages = get_flashed_messages()%}
+            {% if messages%}
+                {% for message in messages%}
+                <p>{{message}}</p>
+                {%endfor%}
+            {%endif%}
+            {%endwith%}
         </div>
     </div>
     <section class="pagination">

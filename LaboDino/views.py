@@ -2,9 +2,10 @@ from .forms import LoginForm, BudgetForm, PlatformForm, MaintenanceForm
 from .app import app, db
 from .decorators import role_access_rights
 from .models import PERSONNEL, ROLE, PLATEFORME, MAINTENANCE
-from flask import render_template,redirect, url_for,request
+from flask import flash, render_template,redirect, url_for,request
 from flask_login import login_user, logout_user, login_required
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import IntegrityError
+from datetime import datetime, date
 
 @app.route("/")
 def home():
@@ -100,7 +101,7 @@ def platform_management():
             db.session.add(platform)
             print(platform)
             db.session.commit()
-        except OperationalError as e:
+        except IntegrityError as e:
             print(f"Database error occurred while creating platform: {e}")
 
         return redirect(url_for('platform_management', filtre=filtre))
@@ -131,7 +132,6 @@ def platform_detail(platform_name):
     platform = PLATEFORME.query.filter_by(nom_plateforme=platform_name).first()
 
     print(f"Campaign ID: {platform_name}")
-     
     return render_template("platform_details.html", platform=platform, form=form)
 
 @app.route('/menu_technician/platform_management/delete/', methods=['POST'])
@@ -146,16 +146,16 @@ def delete_plateforme():
     filtre = request.values.get('filtre')
     return redirect(url_for('platform_management', filtre=filtre))
 
-
-
-
-
-
 @app.route('/menu_technician/maintenance_management/', methods=['GET', 'POST'])
 @login_required
 @role_access_rights(ROLE.technicien)
 def maintenance_management():
-
+    """
+    Permet de visualiser l'ensemble des maintenances, de filtrer la vue selon
+    certains paramètres, de supprimer des maintenances 
+    et de créer une maintenance pour une plateforme qui existe et pour une date dans le futur.
+    A la route : /menu_technician/maintenance_management/
+    """
     if request.method == 'POST':
         filtre = request.form.get('filtre')
     else:
@@ -169,7 +169,7 @@ def maintenance_management():
             query = query.order_by(MAINTENANCE.date_maintenance)
         case 'duree':
             query = query.order_by(MAINTENANCE.duree_maintenance)
-        case 'nom_plateforme':
+        case 'plateforme':
             query = query.order_by(MAINTENANCE.nom_plateforme)
         case default:
             query = query.order_by(MAINTENANCE.date_maintenance)
@@ -178,52 +178,86 @@ def maintenance_management():
 
     if form.validate_on_submit():
         try:
-            maintenance = MAINTENANCE(
-                nom_plateforme=form.nom_plateforme.data,
-                date_maintenance=form.date_maintenance.data,
-                duree_maintenance=form.duree_maintenance.data,
-            )
-            db.session.add(maintenance)
-            print(maintenance)
-            db.session.commit()
-        except OperationalError as e:
+            plateforme = PLATEFORME.query.filter_by(nom_plateforme=form.nom_plateforme.data).first()
+            if not plateforme:
+                flash("La plateforme que vous essayez de renseigner n'existe pas.")
+            elif form.date_maintenance.data < date.today():
+                flash("Impossible de créer une maintenance avec une date passée")
+            else:
+                maintenance = MAINTENANCE(
+                    nom_plateforme=form.nom_plateforme.data,
+                    date_maintenance=form.date_maintenance.data,
+                    duree_maintenance=form.duree_maintenance.data,
+                )
+                db.session.add(maintenance)
+                print(maintenance)
+                db.session.commit()
+        except IntegrityError as e:
             print(f"Database error occurred while creating platform: {e}")
 
         return redirect(url_for('maintenance_management', filtre=filtre))
     
     data = query.all()  
-
     page = request.args.get('page', 1, type=int)
-    return render_template('maintenance_management.html', form=form, platforms= _pagination(data, page), page= page, filtre_actif=filtre)
 
-@app.route("/menu_technician/maintenance_management/<string:platform_name>/", methods=["GET", "POST"])
+    return render_template('maintenance_management.html', form=form, maintenances= _pagination(data, page), page= page, filtre_actif=filtre)
+
+@app.route("/menu_technician/maintenance_management/<string:platform_name>/<string:date_maintenance>", methods=["GET", "POST"])
 @login_required
 @role_access_rights(ROLE.technicien)
-def maintenance_detail(platform_name):
-
+def maintenance_detail(platform_name, date_maintenance):
+    """
+    Affiche les détails d'une maintenance sélectionnée
+    avec la possibilité de la modifier.
+    A la route : /menu_technician/maintenance_management/<string:platform_name>/<string:date_maintenance>
+    où "platform_name" est le nom de la plateforme de la maintenance et "date_maintenance" la date de début de la maintenance
+    """
+    date = datetime.strptime(date_maintenance, '%Y-%m-%d').date()
     form = MaintenanceForm()
+
     if form.validate_on_submit():
-        maintenances_name = [maintenance.nom_plateforme for maintenance in PLATEFORME.query.all()]
-        if form.nom_plateforme.data in maintenances_name:
-            maintenance = MAINTENANCE.query.filter_by(nom_plateforme=form.nom_plateforme.data).first()
-            print("MAINTENANCE ", MAINTENANCE.query.filter_by(nom_plateforme=form.nom_plateforme.data).first())
-            maintenance.date_maintenance = form.date_maintenance.data
-            maintenance.duree_maintenance = form.duree_maintenance.data
-            print(maintenance)
-            db.session.commit()
-            return redirect(url_for('maintenance_detail', platform_name=form.nom_plateforme.data))
+        try:
+            maintenance = MAINTENANCE.query.filter_by(nom_plateforme=platform_name,date_maintenance=date).first()
+            if maintenance:
+                if form.date_maintenance.data < date.today():
+                    flash("Impossible de créer une maintenance avec une date passée")
+                db.session.delete(maintenance)
+                db.session.commit()
+                
+                nouvelle_maintenance = MAINTENANCE(
+                    nom_plateforme=form.nom_plateforme.data,
+                    date_maintenance=form.date_maintenance.data,
+                    duree_maintenance=form.duree_maintenance.data
+                )
+                db.session.add(nouvelle_maintenance)
+                db.session.commit()
+                
+                return redirect(url_for('maintenance_detail', 
+                                      platform_name=form.nom_plateforme.data,
+                                      date_maintenance=form.date_maintenance.data.strftime('%Y-%m-%d')))
+            else:
+                flash('Maintenance introuvable.')
+                
+        except IntegrityError as e:
+            print(f"Database error occurred while creating platform: {e}")
 
-    maintenance = MAINTENANCE.query.filter_by(nom_plateforme=platform_name).first()
-
-    print(f"MAINTENANCE Platforme Name: {platform_name}")
+    maintenance = MAINTENANCE.query.filter_by(nom_plateforme=platform_name, date_maintenance=date).first()
+    if not maintenance:
+        return redirect(url_for('maintenance_management'))
+    
+    print(f"MAINTENANCE Plateforme: {platform_name}, Date: {date_maintenance}")
      
     return render_template("maintenance_details.html", maintenance=maintenance, form=form)
 
 @app.route('/menu_technician/maintenance_management/delete/', methods=['POST'])
 def delete_maintenance():
-
-    nom_plateform = request.form.get("nom_plateforme")
-    maintenance = MAINTENANCE.query.get(nom_plateform)
+    """
+    Supprime la maintenance sélectionnée
+    """
+    nom_plateforme = request.form.get("nom_plateforme")
+    date_maintenance = request.form.get("date_maintenance")
+    maintenance = MAINTENANCE.query.filter_by(nom_plateforme=nom_plateforme, date_maintenance=date_maintenance).first()
+    
     if maintenance:
         db.session.delete(maintenance)
         db.session.commit()

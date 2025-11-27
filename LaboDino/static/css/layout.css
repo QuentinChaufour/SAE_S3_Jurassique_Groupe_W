@@ -163,6 +163,8 @@ th {
 
 .table-borders-bottom td{
     padding: 2%;
+    text-align: center;
+    width: 33.33%;
 }
 
 .table-borders-bottom {
