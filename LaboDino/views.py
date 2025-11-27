@@ -38,7 +38,7 @@ def login():
                     case ROLE.chercheur:
                         next_page = url_for("get_campaigns")
                     case ROLE.technicien:
-                        next_page = url_for("tech_choice_action")
+                        next_page = url_for("menu_technician")
                     case ROLE.direction:
                         next_page = url_for("set_budget")
                     case ROLE.administratif:
@@ -57,14 +57,14 @@ def login():
     return render_template("login.html", form=form)
 
 
-@app.route('/choice_action_tech/')
+@app.route('/menu_technician/')
 @login_required
 @role_access_rights(ROLE.technicien)
-def tech_choice_action():
+def menu_technician():
     return render_template('technical_choice.html')
 
 
-@app.route('/choice_action_tech/platform_management/', methods=['GET', 'POST'])
+@app.route('/menu_technician/platform_management/', methods=['GET', 'POST'])
 @login_required
 @role_access_rights(ROLE.technicien)
 def platform_management():
@@ -110,7 +110,7 @@ def platform_management():
     page = request.args.get('page', 1, type=int)
     return render_template('platform_management.html', form=form, platforms= _pagination(data, page), page= page, filtre_actif=filtre)
 
-@app.route("/choice_action_tech/platform_management/<string:platform_name>/", methods=["GET", "POST"])
+@app.route("/menu_technician/platform_management/<string:platform_name>/", methods=["GET", "POST"])
 @login_required
 @role_access_rights(ROLE.technicien)
 def platform_detail(platform_name):
@@ -134,7 +134,7 @@ def platform_detail(platform_name):
      
     return render_template("platform_details.html", platform=platform, form=form)
 
-@app.route('/choice_action_tech/platform_management/delete/', methods=['POST'])
+@app.route('/menu_technician/platform_management/delete/', methods=['POST'])
 def delete_plateforme():
 
     nom_plateform = request.form.get("nom_plateforme")
