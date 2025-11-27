@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import HiddenField, StringField, PasswordField, SubmitField,DateField, FloatField
+from wtforms import HiddenField, StringField, PasswordField, SubmitField,DateField, FloatField, IntegerField
 from wtforms.validators import DataRequired
 from .models import PERSONNEL,ROLE
 
@@ -19,13 +19,26 @@ class LoginForm(FlaskForm):
 
         user = PERSONNEL.query.filter_by(id_personnel=id).first()
         #user = Personnel.query.filter_by(nom=name, prenom=firstname)
-
+        if user:
+            print(f"User found: {user.nom} {user.prenom}")
+            print(f"Password in DB: '{user.mdp}'")
+            print(f"Password entered: '{password}'")
+            print(f"Match: {user.mdp == password}")
+        else:
+            print(f"No user found with ID: {id}")
         # If no user found return None
         if user is None:
             return None
 
         # Return the user if password matches, else return None
         return user if user.mdp == password else None
+    
+class PlatformForm(FlaskForm):
+    nom_plateforme = StringField('Nom Plateforme', validators=[DataRequired()])
+    nb_personnes_requises = IntegerField('Nombre Personnes Requises', validators=[DataRequired()])
+    cout_journalier = FloatField('Cout Journalier', validators=[DataRequired()])
+    intervalle_maintenance = IntegerField('Intervalle Maintenance', validators=[DataRequired()])
+    submit = SubmitField('Créer la plateforme')
     
 
 class BudgetForm(FlaskForm):

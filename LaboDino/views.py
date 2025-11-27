@@ -1,9 +1,10 @@
-from .forms import LoginForm, BudgetForm
-from .app import app
+from .forms import LoginForm, BudgetForm, PlatformForm
+from .app import app, db
 from .decorators import role_access_rights
-from .models import PERSONNEL, ROLE
+from .models import PERSONNEL, ROLE, PLATEFORME
 from flask import render_template,redirect, url_for,request
 from flask_login import login_user, logout_user, login_required
+from sqlalchemy.exc import OperationalError
 
 @app.route("/")
 def home():
@@ -27,10 +28,26 @@ def login():
     elif form.validate_on_submit():
         unUser = form.authenticate()
         if unUser:
-            # Successful login logic here
             login_user(unUser)
-            next = form.next.data or url_for("get_campaigns")
-            return redirect(next)
+            
+            if form.next.data:
+                next_page = form.next.data
+            else:
+                user_role = unUser.get_role()
+                match user_role:
+                    case ROLE.chercheur:
+                        next_page = url_for("get_campaigns")
+                    case ROLE.technicien:
+                        next_page = url_for("menu_technician")
+                    case ROLE.direction:
+                        next_page = url_for("set_budget")
+                    case ROLE.administratif:
+                        #TODO need to have the admin page in order to put the redirection
+                        next_page = url_for("login")
+                    case default:
+                        next_page = url_for("login")
+            
+            return redirect(next_page)
         else:
             # Failed login logic here
             print("Authentication failed")
@@ -38,6 +55,96 @@ def login():
     print(form.id.data)
     print(form.password.data)
     return render_template("login.html", form=form)
+
+
+@app.route('/menu_technician/')
+@login_required
+@role_access_rights(ROLE.technicien)
+def menu_technician():
+    return render_template('technical_choice.html')
+
+
+@app.route('/menu_technician/platform_management/', methods=['GET', 'POST'])
+@login_required
+@role_access_rights(ROLE.technicien)
+def platform_management():
+
+    if request.method == 'POST':
+        filtre = request.form.get('filtre')
+    else:
+        filtre = request.args.get('filtre')
+    
+    query = PLATEFORME.query
+
+    print("FILTRE", filtre)
+    match filtre:
+        case 'nom':
+            query = query.order_by(PLATEFORME.nom_plateforme)
+        case 'nb_personnes_requises':
+            query = query.order_by(PLATEFORME.nb_personnes_requises)
+        case 'cout_journalier':
+            query = query.order_by(PLATEFORME.cout_journalier)
+        case default:
+            query = query.order_by(PLATEFORME.nom_plateforme)
+    
+    form = PlatformForm()
+
+    if form.validate_on_submit():
+        try:
+            platform = PLATEFORME(
+                nom_plateforme=form.nom_plateforme.data,
+                nb_personnes_requises=form.nb_personnes_requises.data,
+                cout_journalier=form.cout_journalier.data,
+                intervalle_maintenance=form.intervalle_maintenance.data
+            )
+            db.session.add(platform)
+            print(platform)
+            db.session.commit()
+        except OperationalError as e:
+            print(f"Database error occurred while creating platform: {e}")
+
+        return redirect(url_for('platform_management', filtre=filtre))
+    
+    data = query.all()  
+
+    page = request.args.get('page', 1, type=int)
+    return render_template('platform_management.html', form=form, platforms= _pagination(data, page), page= page, filtre_actif=filtre)
+
+@app.route("/menu_technician/platform_management/<string:platform_name>/", methods=["GET", "POST"])
+@login_required
+@role_access_rights(ROLE.technicien)
+def platform_detail(platform_name):
+
+    form = PlatformForm()
+    if form.validate_on_submit():
+        platforms_name = [plateforme.nom_plateforme for plateforme in PLATEFORME.query.all()]
+        if form.nom_plateforme.data in platforms_name:
+            platform = PLATEFORME.query.filter_by(nom_plateforme=form.nom_plateforme.data).first()
+            print("PLATEFORME ", PLATEFORME.query.filter_by(nom_plateforme=form.nom_plateforme.data).first())
+            platform.nb_personnes_requises = form.nb_personnes_requises.data
+            platform.cout_journalier = form.cout_journalier.data
+            platform.intervalle_maintenance = form.intervalle_maintenance.data
+            print(platform)
+            db.session.commit()
+            return redirect(url_for('platform_detail', platform_name=form.nom_plateforme.data))
+
+    platform = PLATEFORME.query.filter_by(nom_plateforme=platform_name).first()
+
+    print(f"Campaign ID: {platform_name}")
+     
+    return render_template("platform_details.html", platform=platform, form=form)
+
+@app.route('/menu_technician/platform_management/delete/', methods=['POST'])
+def delete_plateforme():
+
+    nom_plateform = request.form.get("nom_plateforme")
+    platform = PLATEFORME.query.get(nom_plateform)
+    if platform:
+        db.session.delete(platform)
+        db.session.commit()
+
+    filtre = request.values.get('filtre')
+    return redirect(url_for('platform_management', filtre=filtre))
 
 @app.route("/logout/")
 def logout():
