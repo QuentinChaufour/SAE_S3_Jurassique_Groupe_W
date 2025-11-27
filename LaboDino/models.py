@@ -10,12 +10,12 @@ class ROLE(enum.Enum):
     direction = 'direction'
 
 inclure_equipement = db.Table("INCLURE_EQUIPEMENT", 
-                              db.Column("nom_plateforme_inclure", db.String(50), db.ForeignKey("PLATEFORME.nomPlateforme"), primary_key=True), 
-                              db.Column("id_equipement_inclure", db.Integer, db.ForeignKey("EQUIPEMENT.idEquipement"), primary_key=True))
+                              db.Column("nomPlateforme", db.String(50), db.ForeignKey("PLATEFORME.nomPlateforme"), primary_key=True), 
+                              db.Column("idEquipement", db.Integer, db.ForeignKey("EQUIPEMENT.idEquipement"), primary_key=True))
 
 necessiter_habilitation = db.Table("NECESSITER_HABILITATION", 
-                                   db.Column("id_equipement_necessiter", db.Integer, db.ForeignKey("EQUIPEMENT.idEquipement"), primary_key=True),
-                                   db.Column("id_habilitation_necessiter", db.Integer, db.ForeignKey("HABILITATION.idHabilitation"), primary_key=True))
+                                   db.Column("idEquipement", db.Integer, db.ForeignKey("EQUIPEMENT.idEquipement"), primary_key=True),
+                                   db.Column("idHabilitation", db.Integer, db.ForeignKey("HABILITATION.idHabilitation"), primary_key=True))
 
 class ESPECE(db.Model):
     __tablename__ = 'ESPECE'

@@ -1,7 +1,7 @@
-from .forms import LoginForm, BudgetForm, CampaignForm, SampleForm
+from .forms import LoginForm, BudgetForm, CampaignForm, SampleForm, EquipmentForm
 from .app import app,db
 from .decorators import role_access_rights
-from .models import PERSONNEL, CAMPAGNE, ECHANTILLON, ROLE, ECHANTILLON,PARTICIPER_CAMPAGNE, BUDGET
+from .models import PERSONNEL, CAMPAGNE, ECHANTILLON, ROLE, ECHANTILLON,PARTICIPER_CAMPAGNE, BUDGET, EQUIPEMENT, ESPECE, PLATEFORME
 from flask import render_template,redirect, url_for,request,jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from datetime import datetime, timedelta
@@ -15,7 +15,7 @@ from matplotlib import pyplot as plt
 @app.route("/")
 def home():
 
-    return redirect(url_for("set_budget"))
+    return redirect(url_for("login"))
     #return render_template("campaign_details.html",campaign_id= 2 ,participants= {1:["a","b","c"],2:["d","e"]})
 
 @app.route("/login/", methods=["GET", "POST"])
@@ -42,7 +42,9 @@ def login():
                 case ROLE.direction:
                     role_next = url_for("set_budget")
                 case ROLE.chercheur:
-                    role_next = url_for("get_campaigns", completed=None)
+                    role_next = url_for("menu_researcher", completed=None)
+                case ROLE.technicien:
+                    role_next = url_for("get_equipments")
 
             next: str = form.next.data or role_next
 
@@ -149,6 +151,11 @@ def get_budget():
         return jsonify({"montant": None})
 
 
+@app.route("/researcher/",methods=["GET"])
+def menu_researcher():
+    return render_template("menu_chercheur.html")
+
+
 
 @app.route("/campaigns/", methods=["GET", "POST"])
 @login_required
@@ -172,7 +179,7 @@ def get_campaigns(completed: bool = None):
 
     # getting all campaigns
     if completed is not None:
-        data: list[CAMPAGNE] = CAMPAGNE.query.all()
+        data: list[CAMPAGNE] = CAMPAGNE.query.order_by(CAMPAGNE.dateDebut).all()
     elif completed:
         data: list[CAMPAGNE] = CAMPAGNE.query.filter_by(valide=True).all()
 
@@ -366,17 +373,27 @@ def disenroll_campaign(campaign_id: int):
 
 
 
+@app.route("/samples/")
+@login_required
+@role_access_rights(ROLE.chercheur)
+def get_samples():
+    
+    return render_template("sample_dashboard.html",page=None, samples=[])
+
+
+
 @app.route("/campaigns/<int:campaign_id>/samples/<int:sample_id>")
 @login_required
 @role_access_rights(ROLE.chercheur)
 def sample_detail(sample_id: int, campaign_id: int):
     """
-        Affiche les détails d"un échantillon spécifique.
+    Affiche les détails d"un échantillon spécifique.
 
-        Args:
-            sample_id (int): L'identifiant de l'échantillon à afficher.
-        Returns:
-            str: Le rendu du template des détails de l'échantillon.
+    Args:
+        sample_id (int): L'identifiant de l'échantillon à afficher.
+
+    Returns:
+        str: Le rendu du template des détails de l'échantillon.
     """
 
     sample: ECHANTILLON = ECHANTILLON.query.filter_by(id_echantillon=sample_id).first()
@@ -475,8 +492,63 @@ def delete_sample(sample_id: int):
 
 
 
+@app.route("/equipments/", methods=["GET","POST"])
+@login_required
+@role_access_rights(ROLE.technicien)
+def get_equipments():
+    """
+
+    """
+
+    form: EquipmentForm = EquipmentForm()
+
+    page: int = request.args.get(key="page", default=1, type=int)
+    selected_equipment: int = request.args.get(key="selected_equipment", default=None, type=int)
+    
+    equipments: list[EQUIPEMENT] = EQUIPEMENT.query.all()
+    equipments, page = _pagination(data= equipments, page= page)
+
+    if form.validate_on_submit():
+        if selected_equipment is not None:
+            form.update(id_equipment= selected_equipment)
+        else:
+            form.create_equipment()
+
+        return redirect(url_for('get_equipments', page=page, selected_equipment=selected_equipment))
+    
+    equipment_selected: EQUIPEMENT = EQUIPEMENT.query.filter_by(id_equipement= selected_equipment).first()
+
+    if equipment_selected is not None:
+        form.name.data = equipment_selected.nom_equipement
+        form.submit.label.text = "Update"
+
+        if equipment_selected.plateformes:
+            form.plateform.data = equipment_selected.plateformes[0].nom_plateforme
+
+        if equipment_selected.habilitations:
+            form.habilitation.data = str(equipment_selected.habilitations[0].id_habilitation)
+
+    return render_template("equipment_dashboard.html",form= form, page= page, equipments= equipments, selected_equipment= selected_equipment)
+
+
+
+@app.route("/equipements/<int:id_equipment>/delete/")
+@login_required
+@role_access_rights(ROLE.technicien)
+def delete_equipment(id_equipment: int) -> None:
+    """
+
+    """
+    equipment: EQUIPEMENT = EQUIPEMENT.query.get(id_equipment)
+    db.session.delete(equipment)
+    db.session.commit()
+    return redirect("get_equipments")
+
+
+
 def _pagination(data: list, page: int, items_per_page: int = 5) -> tuple[list,int]:
-    """Pagine les données en fonction de la page et du nombre d"éléments par page.
+    """
+    Pagine les données en fonction de la page et du nombre d"éléments par page.
     
     Args:
         data (list): La liste des données à paginer.

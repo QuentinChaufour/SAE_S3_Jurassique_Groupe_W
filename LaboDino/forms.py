@@ -1,5 +1,5 @@
 from .app import db,app
-from .models import PERSONNEL,ROLE,PLATEFORME, CAMPAGNE,PARTICIPER_CAMPAGNE,ESPECE,ECHANTILLON
+from .models import PERSONNEL,ROLE,PLATEFORME, CAMPAGNE,PARTICIPER_CAMPAGNE,ESPECE,ECHANTILLON, EQUIPEMENT, HABILITATION
 from flask_wtf import FlaskForm
 from wtforms import HiddenField, StringField, PasswordField, SubmitField,DateField, FloatField, IntegerField, BooleanField, SelectField, TextAreaField, FileField
 from wtforms.validators import DataRequired
@@ -171,3 +171,74 @@ class SampleForm(FlaskForm):
                 
             db.session.add(sample)
             db.session.commit()
+
+
+class EquipmentForm(FlaskForm):
+    """
+    Form for ceating and updating equipments
+    """
+    with app.app_context():
+        name: StringField = StringField(label="nom", validators=[DataRequired()])
+        plateform: SelectField =  SelectField(label="Plateforme", 
+                                              choices=[(None,"")] + [(plateform.nom_plateforme,plateform.nom_plateforme) for plateform in PLATEFORME.query.all()])
+        habilitation: SelectField = SelectField(label="Habilitation required", 
+                                                choices=[(None,"")] + [(hab.id_habilitation,hab.nom_habilitation) for hab in HABILITATION.query.all()])
+
+        submit: SubmitField = SubmitField(label="Créer equipement")
+
+    def create_equipment(self) -> None:
+        """ Create a new equipment"""
+        
+        equipment: EQUIPEMENT = EQUIPEMENT(nom_equipement= self.name.data)
+        db.session.add(equipment)
+
+        if self.plateform.data != "None":
+            used_plateform: PLATEFORME = PLATEFORME.query.filter_by(nom_plateforme= self.plateform.data).first()
+            equipment.plateformes.append(used_plateform)
+
+            db.session.commit()
+        
+        if self.habilitation.data != "None":
+            habilitation: HABILITATION = HABILITATION.query.get(int(self.habilitation.data))
+            equipment.habilitations.append(habilitation)
+
+            db.session.commit()
+
+    def update(self, id_equipment: int) -> None:
+        """ Update an existing equipment """
+        
+        equipment: EQUIPEMENT = EQUIPEMENT.query.filter_by(id_equipement= id_equipment).first()
+
+        if equipment is not None:
+            try:
+
+                equipment.nom_equipement = self.name.data
+
+                if self.plateform.data:
+
+                    if self.plateform.data == "None":
+                        equipment.plateformes.clear()
+
+                    else:
+                        equipment.plateformes.clear()
+                        used_plateform: PLATEFORME = PLATEFORME.query.filter_by(nom_plateforme= self.plateform.data).first()
+                    
+                        if used_plateform: equipment.plateformes.append(used_plateform)
+
+                if self.habilitation.data:
+
+                    if self.habilitation.data == "None":
+                        equipment.habilitations.clear()    
+
+                    else:
+                        equipment.habilitations.clear()
+                        habilitation: HABILITATION = HABILITATION.query.get(int(self.habilitation.data))
+
+                        if habilitation: equipment.habilitations.append(habilitation)
+
+                db.session.commit()
+
+            except OperationalError as e:
+                db.session.rollback()
+                print(e)
+                # TODO
