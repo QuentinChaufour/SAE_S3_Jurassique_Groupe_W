@@ -200,11 +200,10 @@ def add_personnel():
                         status=400,
                         mimetype='application/json')
     
-@app.route('/gestion_personnel/delete', methods=['POST'])
+@app.route('/gestion_personnel/<int:id_personnel>/delete', methods=['POST'])
 @login_required
 @role_access_rights(ROLE.administratif)
-def erase_personnel():
-    id_personnel = request.form.get("id_personnel")
+def erase_personnel(id_personnel):
     personnel = PERSONNEL.query.get(id_personnel)
 
     if personnel:
