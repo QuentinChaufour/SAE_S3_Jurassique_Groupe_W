@@ -1,3 +1,9 @@
+from LaboDino.models import PERSONNEL
+from LaboDino.tests.conftest import testapp
+
+def _get_researcher(testapp) -> PERSONNEL:
+    with testapp.app_context():
+        return PERSONNEL.query.filter_by(nom= "Martin", prenom= "Sophie", mdp="mdp456").first()
 
 def login_researcher(client, id: int, password: str, next: str):
 
@@ -17,8 +23,9 @@ def test_campaigns_dashboard_after_login(client, testapp):
 
         assert "/login/?next=%2Fcampaigns%2F" in response.headers["Location"]
 
-        response = login_researcher(client, id=1, password="pass123",next="/campaigns/?page=3")
-
+        # User connecté
+        chercheur = _get_researcher(testapp)
+        response = login_researcher(client, id=chercheur.id_personnel, password="mdp456",next="/campaigns/?page=3")
         assert response.status_code == 200
         assert b"Montana, USA" in response.data
 
