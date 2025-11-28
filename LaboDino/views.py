@@ -46,7 +46,10 @@ def login():
                         next = url_for("menu_researcher", completed=None)
                     case ROLE.technicien:
                         next = url_for("get_equipments")
+                    case default:
+                        next = url_for("login")
 
+            print(f"Redirecting to: {next}")
             return redirect(next)
         else:
             # Failed login logic here
@@ -175,16 +178,19 @@ def get_campaigns(completed: bool = None):
         str: Le rendu du template de la liste des campagnes.
 
     """
+    completed = request.args.get("completed", default= completed, type= str)
+    print(f"Completed filter value: {completed}")
 
     # getting all campaigns
-    if completed is not None:
-        data: list[CAMPAGNE] = CAMPAGNE.query.order_by(CAMPAGNE.dateDebut).all()
-    elif completed:
+    if completed is None:
+        data: list[CAMPAGNE] = CAMPAGNE.query.order_by(CAMPAGNE.dateDebut.desc()).all()
+        print(f"Fetching all campaigns without filtering. Total campaigns fetched: {len(data)}")
+    elif completed == "True":
         data: list[CAMPAGNE] = CAMPAGNE.query.filter_by(valide=True).all()
-
+        print(f"Filtering for completed campaigns. Total campaigns fetched: {len(data)}")
     else:
         data: list[CAMPAGNE] = CAMPAGNE.query.filter_by(valide=False).all()
-    
+        print(f"Filtering for incomplete campaigns. Total campaigns fetched: {len(data)}")
 
     # getting the page number from query parameters
     page = request.args.get('page', 1, type=int)

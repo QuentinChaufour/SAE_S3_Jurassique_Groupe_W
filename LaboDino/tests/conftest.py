@@ -9,6 +9,10 @@ from LaboDino.models import (
 
 @pytest.fixture
 def testapp():
+
+    app.config['TESTING'] = True
+    app.config['WTF_CSRF_ENABLED'] = False
+
     with app.app_context():
 
         personnel1 = PERSONNEL("Dupont", "Jean", "mdp123", ROLE.administratif)
