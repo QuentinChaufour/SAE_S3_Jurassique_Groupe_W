@@ -219,7 +219,7 @@ class MAINTENANCE(db.Model):
 
     def __repr__(self):
         return 'Maintenance : ' + self.nom_plateforme
-
+    
 @login_manager.user_loader
 def load_user(user_id: int) -> PERSONNEL:
-    return PERSONNEL.query.filter_by(id_personnel=user_id).first()
+    return PERSONNEL.query.get(user_id)

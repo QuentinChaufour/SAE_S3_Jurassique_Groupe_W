@@ -27,26 +27,25 @@ def login():
     
     form = LoginForm()
 
-    if not form.is_submitted():
-        form.next.data = request.args.get("next")
+    form.next.data = request.args.get("next")
 
-    elif form.validate_on_submit():
+    if form.validate_on_submit():
         unUser: PERSONNEL = form.authenticate()
         if unUser:
             # Successful login logic here
             login_user(unUser)
 
-            role_next: str = None
-            
-            match(unUser.role):
-                case ROLE.direction:
-                    role_next = url_for("set_budget")
-                case ROLE.chercheur:
-                    role_next = url_for("menu_researcher", completed=None)
-                case ROLE.technicien:
-                    role_next = url_for("get_equipments")
+            next: str = form.next.data
 
-            next: str = form.next.data or role_next
+            if next is None:
+            
+                match(unUser.role):
+                    case ROLE.direction:
+                        next = url_for("set_budget")
+                    case ROLE.chercheur:
+                        next = url_for("menu_researcher", completed=None)
+                    case ROLE.technicien:
+                        next = url_for("get_equipments")
 
             return redirect(next)
         else:
