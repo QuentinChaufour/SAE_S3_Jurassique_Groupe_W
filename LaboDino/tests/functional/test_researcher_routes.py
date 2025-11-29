@@ -1,6 +1,6 @@
 from datetime import date
-from LaboDino.models import PERSONNEL,CAMPAGNE
-from LaboDino.tests.conftest import testapp
+from LaboDino.models import PARTICIPER_CAMPAGNE, PERSONNEL,CAMPAGNE
+from LaboDino.app import db
 
 # Fonction de récupération des PK a cause des autos-increment ---------
 
@@ -143,7 +143,64 @@ def test_campaigns_dashboard_after_login(client, testapp):
 
 
 def test_create_campaign_after_login(client, testapp):
-    pass
+    with testapp.app_context():
+        response = client.get("/campaigns/create/", follow_redirects= False)
+        assert response.status_code == 302
+
+        assert "/login/?next=%2Fcampaigns%2Fcreate%2F" in response.headers["Location"]
+        # User connecté
+        chercheur: PERSONNEL = _get_researcher(testapp)
+
+        response = login_researcher(client, id=chercheur.id_personnel, password="mdp456",next="/campaigns/create/")
+        assert response.status_code == 200
+        assert b"Create a Campaign" in response.data
+
+        assert client.post(
+            "/campaigns/create/",
+            data={
+                "plateforme": "Plateforme A",
+                "lieu": "Test Land",
+                "startDate": "2024-02-01",
+                "duree": 15,
+                "participate": "false"
+            },
+            follow_redirects=True,
+        ).status_code == 200
+
+        response = client.get("/campaigns/?page=3", follow_redirects= True)
+        print(response.data)
+        assert b"Test Land" in response.data
+
+        assert client.post(
+            "/campaigns/create/",
+            data={
+                "plateforme": "Plateforme B",
+                "lieu": "Test Land B",
+                "startDate": "2024-02-01",
+                "duree": 5,
+                "participate": "on"
+            },
+            follow_redirects=True,
+        ).status_code == 200
+
+        response = client.get("/campaigns/?page=3", follow_redirects= True)
+        print(response.data)
+        assert b"Test Land B" in response.data
+        camp = CAMPAGNE.query.filter_by(nom_plateforme= "Plateforme B",lieu= "Test Land B", dateDebut= date(2024, 2, 1)).first()
+        print(camp.participerCampagne)
+
+        assert chercheur.id_personnel == camp.participerCampagne[0].id_personnel
+
+        # Clean up the created campaigns
+        with testapp.app_context():
+            camp1 = CAMPAGNE.query.filter_by(nom_plateforme= "Plateforme A",lieu= "Test Land", dateDebut= date(2024, 2, 1)).first()
+            camp2 = CAMPAGNE.query.filter_by(nom_plateforme= "Plateforme B",lieu= "Test Land B", dateDebut= date(2024, 2, 1)).first()
+            part = PARTICIPER_CAMPAGNE.query.filter_by(id_campagne= camp2.id_campagne, id_personnel= chercheur.id_personnel).first()
+
+            db.session.delete(part)
+            db.session.delete(camp1)
+            db.session.delete(camp2)
+            db.session.commit()
 
 
 

@@ -195,6 +195,7 @@ def get_campaigns(completed: bool = None):
     # getting the page number from query parameters
     page = request.args.get('page', 1, type=int)
     paginated_data, current_page = _pagination(data, page)
+    print(paginated_data)
 
     return render_template("campaign_dashboard.html", campaigns= paginated_data, page= current_page)
 
@@ -214,7 +215,7 @@ def create_campaign():
     """
 
     form: CampaignForm = CampaignForm()
-    
+
     if form.validate_on_submit():
         try:
             form.create_campaign()

@@ -94,7 +94,7 @@ def testapp():
                       (maint3.nom_plateforme, maint3.date_maintenance)]
 
         part_camp1 = PARTICIPER_CAMPAGNE(camp1.id_campagne, personnel1.id_personnel)
-        part_camp2 = PARTICIPER_CAMPAGNE(camp2.id_campagne, personnel2.id_personnel)
+        part_camp2 = PARTICIPER_CAMPAGNE(camp2.id_campagne, personnel4.id_personnel)
         part_camp3 = PARTICIPER_CAMPAGNE(camp1.id_campagne, personnel3.id_personnel)
         part_camp4 = PARTICIPER_CAMPAGNE(camp2.id_campagne, personnel3.id_personnel)
         db.session.add_all([part_camp1, part_camp2, part_camp3, part_camp4])

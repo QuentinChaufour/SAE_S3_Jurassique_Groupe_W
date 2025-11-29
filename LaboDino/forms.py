@@ -50,20 +50,24 @@ class BudgetForm(FlaskForm):
     
 class CampaignForm(FlaskForm):
     """Form for creating or editing a campaign."""
-    with app.app_context():
-        plateforme_choices: list[PLATEFORME] = PLATEFORME.query.all()
 
     lieu : StringField = StringField(label='Lieu de la campagne : ',
                                      validators=[DataRequired()])
     plateforme : SelectField = SelectField(label='Plateforme :',
-                                           choices=[plateform.nom_plateforme for plateform in plateforme_choices], 
+                                           choices=[], 
                                            validators=[DataRequired()])
     startDate : DateField = DateField(label='Début de la campagne :',
                                       validators=[DataRequired()])
     duree : IntegerField = IntegerField(label='Durée (en jours) :',
                                          validators=[DataRequired()])
-    participate: BooleanField = BooleanField(label='Participer ?')
+    participate: BooleanField = BooleanField(label='Participer ?', false_values=("false", "0",0, "", None), default=False)
     submit : SubmitField = SubmitField(label='Submit Campaign')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.plateforme.choices = [
+            p.nom_plateforme for p in PLATEFORME.query.all()
+        ]
 
     def create_campaign(self) -> None|OperationalError:
         """Create a new campaign."""
@@ -81,22 +85,18 @@ class CampaignForm(FlaskForm):
                 lieu=lieu_value,
             )
     
-            db.session.add(new_campaign)
-            db.session.commit()
+            
 
-        except OperationalError as e:
-            db.session.rollback()
-            raise e
-
-        # If the user wants to participate, add him to the list of participants
-        try:
             if participate_value and current_user.is_authenticated:
                 participate: PARTICIPER_CAMPAGNE = PARTICIPER_CAMPAGNE(
                     id_personnel=current_user.id_personnel,
                     id_campagne=new_campaign.id_campagne
                 )
+                new_campaign.participerCampagne.append(participate)
                 db.session.add(participate)
-                db.session.commit()
+
+            db.session.add(new_campaign)
+            db.session.commit()
 
         except OperationalError as e:
             db.session.rollback()
@@ -128,13 +128,16 @@ class SampleForm(FlaskForm):
     dna_file : FileField = FileField(label='DNA File : ',
                                      validators=[DataRequired()])
     
-    with app.app_context():
-        specie_choices: list[ESPECE] = ESPECE.query.all()
-
     specie : SelectField = SelectField(label='Specie : ',
-                                       choices=[(None,"")] + [(specie.id_espece,specie) for specie in specie_choices])
+                                       choices=[])
 
     submit : SubmitField = SubmitField(label='Add Sample')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.specie.choices = [(None,"")] + [
+            (specie.id_espece, specie.nom_espece) for specie in ESPECE.query.all()
+        ]
 
     def create_sample(self, campaign_id: int) -> None:
         
@@ -177,14 +180,21 @@ class EquipmentForm(FlaskForm):
     """
     Form for ceating and updating equipments
     """
-    with app.app_context():
-        name: StringField = StringField(label="nom", validators=[DataRequired()])
-        plateform: SelectField =  SelectField(label="Plateforme", 
-                                              choices=[(None,"")] + [(plateform.nom_plateforme,plateform.nom_plateforme) for plateform in PLATEFORME.query.all()])
-        habilitation: SelectField = SelectField(label="Habilitation required", 
-                                                choices=[(None,"")] + [(hab.id_habilitation,hab.nom_habilitation) for hab in HABILITATION.query.all()])
+    name: StringField = StringField(label="nom", validators=[DataRequired()])
+    plateform: SelectField =  SelectField(label="Plateforme", 
+                                          choices= [])
+    habilitation: SelectField = SelectField(label="Habilitation required", 
+                                            choices=[])
+    submit: SubmitField = SubmitField(label="Créer equipement")
 
-        submit: SubmitField = SubmitField(label="Créer equipement")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.plateform.choices = [(None,"")] + [
+            p.nom_plateforme for p in PLATEFORME.query.all()
+        ]
+        self.habilitation.choices = [(None, "")] + [
+            (h.id_habilitation, h.nom_habilitation) for h in HABILITATION.query.all()
+        ]
 
     def create_equipment(self) -> None:
         """ Create a new equipment"""
