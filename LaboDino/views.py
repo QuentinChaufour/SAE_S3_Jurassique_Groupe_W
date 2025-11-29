@@ -387,7 +387,7 @@ def get_samples():
 
 
 
-@app.route("/campaigns/<int:campaign_id>/samples/<int:sample_id>")
+@app.route("/campaigns/<int:campaign_id>/samples/<int:sample_id>/", methods=["GET"])
 @login_required
 @role_access_rights(ROLE.chercheur)
 def sample_detail(sample_id: int, campaign_id: int):
