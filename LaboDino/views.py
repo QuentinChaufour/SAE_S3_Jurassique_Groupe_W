@@ -37,7 +37,7 @@ def login():
 
             next: str = form.next.data
 
-            if next is None:
+            if next is None or next == "":
             
                 match(unUser.role):
                     case ROLE.direction:
@@ -253,7 +253,7 @@ def edit_campaign(campaign_id: int):
             form.update(campaign_id= campaign_id)
             print(f"Editing Campaign ID: {campaign_id}")
 
-            return redirect(url_for("get_campaigns"))
+            return redirect(url_for("campaign_detail", campaign_id= campaign_id))
         except OperationalError as e:
             print(f"Database error occurred while updating Campaign ID {campaign_id}: {e}")
             #TODO
@@ -333,10 +333,13 @@ def enroll_campaign(campaign_id: int):
 
     
     
-    if current_user and not participation:
+    if current_user.is_authenticated and not participation:
         try:
             new_participation = PARTICIPER_CAMPAGNE(id_personnel=current_user.id_personnel, id_campagne=campaign_id)
             db.session.add(new_participation)
+
+            campagne: CAMPAGNE = CAMPAGNE.query.filter_by(id_campagne=campaign_id).first()
+            campagne.participerCampagne.append(new_participation)
             db.session.commit()
             print(f"User {current_user.id_personnel} enrolled in Campaign ID: {campaign_id}")
 
@@ -367,7 +370,10 @@ def disenroll_campaign(campaign_id: int):
     """
     participation: PARTICIPER_CAMPAGNE = PARTICIPER_CAMPAGNE.query.filter_by(id_personnel=current_user.id_personnel, id_campagne=campaign_id).first()
 
-    if current_user and participation:
+    if current_user.is_authenticated and participation:
+
+        campagne: CAMPAGNE = CAMPAGNE.query.filter_by(id_campagne=campaign_id).first()
+        campagne.participerCampagne.remove(participation)
         db.session.delete(participation)
         db.session.commit()
 
@@ -455,12 +461,15 @@ def edit_sample(sample_id: int):
 
     edit_sample: ECHANTILLON = ECHANTILLON.query.filter_by(id_echantillon=sample_id).first()
 
+    print(form.validate_on_submit())
+    print(form.errors)
+
     if form.validate_on_submit():
     
         form.update(sample_id= sample_id)
         print(f"Editing Sample ID: {sample_id}")
 
-        return redirect(url_for("sample_detail", sample_id= sample_id))
+        return redirect(url_for("sample_detail", sample_id= sample_id, campaign_id= edit_sample.id_campagne))
     
     # Pre-fill form with existing campaign data only on GET request
     form.dna_file.data = edit_sample.fichier_sequence_adn
@@ -546,8 +555,9 @@ def delete_equipment(id_equipment: int) -> None:
 
     """
     equipment: EQUIPEMENT = EQUIPEMENT.query.get(id_equipment)
-    db.session.delete(equipment)
-    db.session.commit()
+    if equipment:
+        db.session.delete(equipment)
+        db.session.commit()
     return redirect("get_equipments")
 
 

@@ -129,7 +129,9 @@ class SampleForm(FlaskForm):
                                      validators=[DataRequired()])
     
     specie : SelectField = SelectField(label='Specie : ',
-                                       choices=[])
+                                       choices=[],
+                                       coerce=lambda v: None if v in (None, "", "None") else int(v),
+                                       )
 
     submit : SubmitField = SubmitField(label='Add Sample')
 
@@ -182,9 +184,13 @@ class EquipmentForm(FlaskForm):
     """
     name: StringField = StringField(label="nom", validators=[DataRequired()])
     plateform: SelectField =  SelectField(label="Plateforme", 
-                                          choices= [])
+                                          choices= [],
+                                          coerce=lambda v: None if v in (None, "", "None") else v
+                                          )
     habilitation: SelectField = SelectField(label="Habilitation required", 
-                                            choices=[])
+                                            choices=[],
+                                            coerce=lambda v: None if v in (None, "", "None") else int(v)
+                                            )
     submit: SubmitField = SubmitField(label="Créer equipement")
 
     def __init__(self, *args, **kwargs):

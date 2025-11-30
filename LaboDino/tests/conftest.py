@@ -112,7 +112,7 @@ def testapp():
 
         echantillon1 = ECHANTILLON(camp1.id_campagne, "TRex_dent.adn", "Dent de T-Rex")
         echantillon2 = ECHANTILLON(camp2.id_campagne, "Tric_corne.adn", "Corne de Triceratops")
-        echantillon3 = ECHANTILLON(camp3.id_campagne, "plume.adn", "Vertèbre de sauropode")
+        echantillon3 = ECHANTILLON(camp3.id_campagne, "plume.adn", "Vertebre de sauropode")
         db.session.add_all([echantillon1, echantillon2, echantillon3])
         db.session.commit()
         echantillon_ids = [echantillon1.id_echantillon, echantillon2.id_echantillon, echantillon3.id_echantillon]
