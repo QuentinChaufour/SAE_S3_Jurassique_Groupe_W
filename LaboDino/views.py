@@ -2,7 +2,7 @@ from .forms import LoginForm, BudgetForm, CampaignForm, SampleForm, EquipmentFor
 from .app import app,db
 from .decorators import role_access_rights
 from .models import PERSONNEL, CAMPAGNE, ECHANTILLON, ROLE, ECHANTILLON,PARTICIPER_CAMPAGNE, BUDGET, EQUIPEMENT, ESPECE, PLATEFORME
-from flask import render_template,redirect, url_for,request,jsonify
+from flask import render_template,redirect, url_for,request,jsonify,flash
 from flask_login import login_user, logout_user, login_required, current_user
 from datetime import datetime, timedelta
 from sqlalchemy.exc import OperationalError
@@ -219,11 +219,10 @@ def create_campaign():
     if form.validate_on_submit():
         try:
             form.create_campaign()
+            flash("Campaign created successfully.")
             return redirect(url_for("get_campaigns"))
         except OperationalError as e:
-            print(f"Database error occurred while creating campaign: {e}")
-            #TODO
-            # Optionally, you can flash a message to the user here
+            flash(f"Database error occurred while creating campaign: {e}", category="error")
     
     return render_template("create_campaign.html", form=form)
 
@@ -252,12 +251,11 @@ def edit_campaign(campaign_id: int):
         try:
             form.update(campaign_id= campaign_id)
             print(f"Editing Campaign ID: {campaign_id}")
+            flash("Campaign updated successfully.")
 
             return redirect(url_for("campaign_detail", campaign_id= campaign_id))
         except OperationalError as e:
-            print(f"Database error occurred while updating Campaign ID {campaign_id}: {e}")
-            #TODO
-            # Optionally, you can flash a message to the user here
+            flash(f"Database error occurred while updating campaign: {e}", category="error")
     
     # Pre-fill form with existing campaign data only on GET request
     form.plateforme.data = update_campaign.nom_plateforme
@@ -285,10 +283,14 @@ def delete_campaign(campaign_id: int):
         redirect: Redirige vers la liste des campagnes après la suppression.
     """
 
-    db.session.delete(CAMPAGNE.query.filter_by(id_campagne=campaign_id).first())
+    campaign: CAMPAGNE = CAMPAGNE.query.filter_by(id_campagne=campaign_id).first()
+    if campaign is None:
+        flash("Campaign not found.", category="error")
+        return redirect(url_for("get_campaigns"))
+    db.session.delete(campaign)
     db.session.commit()
+    flash("Campaign deleted successfully.", category="error")
     
-    print(f"Deleting Campaign ID: {campaign_id}")
     return redirect(url_for("get_campaigns"))
 
 
@@ -341,15 +343,13 @@ def enroll_campaign(campaign_id: int):
             campagne: CAMPAGNE = CAMPAGNE.query.filter_by(id_campagne=campaign_id).first()
             campagne.participerCampagne.append(new_participation)
             db.session.commit()
-            print(f"User {current_user.id_personnel} enrolled in Campaign ID: {campaign_id}")
+            flash(f"Successfully enrolled in campaign")
 
         except OperationalError as e:
             db.session.rollback()
-            print(f"Database error occurred while enrolling user {current_user.id_personnel} in Campaign ID: {campaign_id}: {e}")
-            #TODO
-            # Optionally, you can flash a message to the user here
+            flash(f"Database error occurred while enrolling in campaign: {e}", category="error")
     else:
-        print(f"User {current_user.id_personnel} is already enrolled in Campaign ID: {campaign_id}")
+        flash(f"You are already enrolled in this campaign for this period", category="info")
 
     return redirect(url_for("campaign_detail", campaign_id=campaign_id))
 
@@ -377,9 +377,9 @@ def disenroll_campaign(campaign_id: int):
         db.session.delete(participation)
         db.session.commit()
 
-        print(f"User {current_user.id_personnel} disenrolled from Campaign ID: {campaign_id}")
+        flash(f"Successfully disenrolled from campaign")
     else:
-        print(f"User {current_user.id_personnel} is not enrolled in Campaign ID: {campaign_id}")
+        flash(f"You are not enrolled in this campaign", category="info")
 
     return redirect(url_for("campaign_detail", campaign_id=campaign_id))
 
@@ -437,8 +437,12 @@ def create_sample(campaign_id: int):
     form: SampleForm = SampleForm()
     
     if form.validate_on_submit():
-        form.create_sample(campaign_id= campaign_id)
-        return redirect(url_for("campaign_detail", campaign_id= campaign_id))
+        try:
+            form.create_sample(campaign_id= campaign_id)
+            flash("Sample created successfully")
+            return redirect(url_for("campaign_detail", campaign_id= campaign_id))
+        except OperationalError as e:
+            flash(e, category="error")
     
     return render_template("create_sample.html", form=form, campaign_id=campaign_id)
 
@@ -465,9 +469,11 @@ def edit_sample(sample_id: int):
     print(form.errors)
 
     if form.validate_on_submit():
-    
-        form.update(sample_id= sample_id)
-        print(f"Editing Sample ID: {sample_id}")
+        try:
+            form.update(sample_id= sample_id)
+            flash("Sample updated successfully")
+        except OperationalError as e:
+            flash(e, category="error")
 
         return redirect(url_for("sample_detail", sample_id= sample_id, campaign_id= edit_sample.id_campagne))
     
@@ -500,9 +506,13 @@ def delete_sample(sample_id: int):
     """
     
     sample: ECHANTILLON = ECHANTILLON.query.filter_by(id_echantillon=sample_id).first()
+    if sample is None:
+        flash("Sample not found", category="error")
+        return redirect(url_for("get_campaigns"))
+    
     db.session.delete(sample)
     db.session.commit()
-    print(f"Deleting Sample ID: {sample_id}")
+    flash(f"Sample ID {sample_id} deleted successfully")
     return redirect(url_for("campaign_detail", campaign_id= sample.id_campagne))
 
 
@@ -512,7 +522,10 @@ def delete_sample(sample_id: int):
 @role_access_rights(ROLE.technicien)
 def get_equipments():
     """
+    Affiche la page de gestion des équipements.
 
+    Returns:
+        str: Le rendu du template de gestion des équipements.
     """
 
     form: EquipmentForm = EquipmentForm()
@@ -552,13 +565,23 @@ def get_equipments():
 @role_access_rights(ROLE.technicien)
 def delete_equipment(id_equipment: int) -> None:
     """
+    Supprime un équipement existant.
 
+    Args:
+        id_equipment (int): L'identifiant de l'équipement à supprimer.
+
+    Returns:
+        redirect: Redirige vers la liste des équipements après la suppression.
     """
     equipment: EQUIPEMENT = EQUIPEMENT.query.get(id_equipment)
     if equipment:
         db.session.delete(equipment)
         db.session.commit()
-    return redirect("get_equipments")
+        flash(f"Equipment ID {id_equipment} deleted successfully")
+    else:
+        flash(f"Equipment ID {id_equipment} not found", category="error")
+
+    return redirect(url_for("get_equipments"))
 
 
 

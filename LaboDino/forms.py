@@ -141,7 +141,11 @@ class SampleForm(FlaskForm):
             (specie.id_espece, specie.nom_espece) for specie in ESPECE.query.all()
         ]
 
-    def create_sample(self, campaign_id: int) -> None:
+    def create_sample(self, campaign_id: int) -> None| OperationalError:
+
+        campaign: CAMPAGNE = CAMPAGNE.query.filter_by(id_campagne=campaign_id).first()
+        if campaign is None or not campaign.valide:
+            raise OperationalError("Cannot add sample to an invalid or non-existent campaign.")
         
         comment_value: str = self.comment.data
         dna_file_value: str = self.dna_file.data
@@ -163,7 +167,7 @@ class SampleForm(FlaskForm):
 
         # TODO : Handle file upload properly
 
-    def update(self, sample_id: int) -> None:
+    def update(self, sample_id: int) -> None| OperationalError:
         """Update an existing sample."""
         sample: ECHANTILLON = ECHANTILLON.query.filter_by(id_echantillon=sample_id).first()
 
@@ -176,6 +180,9 @@ class SampleForm(FlaskForm):
                 
             db.session.add(sample)
             db.session.commit()
+
+        else:
+            raise OperationalError(f"Sample with ID {sample_id} not found.")
 
 
 class EquipmentForm(FlaskForm):
@@ -211,16 +218,14 @@ class EquipmentForm(FlaskForm):
         if self.plateform.data != "None":
             used_plateform: PLATEFORME = PLATEFORME.query.filter_by(nom_plateforme= self.plateform.data).first()
             equipment.plateformes.append(used_plateform)
-
-            db.session.commit()
         
         if self.habilitation.data != "None":
             habilitation: HABILITATION = HABILITATION.query.get(int(self.habilitation.data))
             equipment.habilitations.append(habilitation)
 
-            db.session.commit()
+        db.session.commit()
 
-    def update(self, id_equipment: int) -> None:
+    def update(self, id_equipment: int) -> None| OperationalError:
         """ Update an existing equipment """
         
         equipment: EQUIPEMENT = EQUIPEMENT.query.filter_by(id_equipement= id_equipment).first()
@@ -256,5 +261,7 @@ class EquipmentForm(FlaskForm):
 
             except OperationalError as e:
                 db.session.rollback()
-                print(e)
-                # TODO
+                raise e
+
+        else:
+            raise OperationalError(f"Equipment with ID {id_equipment} not found.")

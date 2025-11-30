@@ -59,6 +59,19 @@ h2{
     margin: 2vh;
 }
 
+.flashes {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.flashes > p {
+    margin: 1rem;
+    padding: 1rem;
+    border: 2px solid #4F4F4F;
+    border-radius: 10px;
+}
+
 .box_container{
     display: flex;
     flex-direction: column;
