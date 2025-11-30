@@ -1,5 +1,9 @@
 {% extends "base_template.html" %}
 
+{% block retour %}
+    <a href="{{ url_for('get_samples') }}" class="back-link typographie">← Retour au dashboard d'échantillon</a>
+{% endblock %}
+
 {% block content %}
 
 <div class="box_container">

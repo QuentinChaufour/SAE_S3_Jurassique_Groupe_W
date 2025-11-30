@@ -1,5 +1,10 @@
 {% extends "base_template.html" %}
 
+{% block retour %}
+    <a href="{{ url_for('campaign_detail', campaign_id=campaign_id) }}" class="back-link typographie">← Back to Campaign Details</a>
+{% endblock %}
+
+
 {% block content %}
 
 <div class="box_container">

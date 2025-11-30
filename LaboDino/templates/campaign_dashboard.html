@@ -1,5 +1,9 @@
 {% extends "base_template.html" %}
 
+{% block retour %}
+    <a href="{{ url_for('menu_researcher') }}" class="back-link typographie">← Retour au menu</a>
+{% endblock %}
+
 {% block content %}
 
 <div class="box_container">

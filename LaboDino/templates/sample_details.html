@@ -1,5 +1,10 @@
 {% extends "base_template.html" %}
 
+{% block retour %}
+    <a href="{{ url_for('campaign_detail', campaign_id=sample.id_campagne) }}" class="back-link typographie">← Retour au détails campagne</a>
+    <a href="{{ url_for('get_samples') }}" class="back-link typographie">← Retour au dashboard d'échantillon</a>
+{% endblock %}
+
 {% block content %}
 
 <h2 class="title">Sample Details</h2>

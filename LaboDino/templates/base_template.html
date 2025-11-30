@@ -27,9 +27,11 @@
         </div>
     </header>
 
+    <div id="retour">
     {% block retour %}
     <!-- Espace pour un bouton de retour ou une navigation supplémentaire -->
     {% endblock %}
+    </div>
 
     {% with messages = get_flashed_messages(with_categories=True) %}
         {% if messages %}
