@@ -218,7 +218,8 @@ def show_edit_form(id_personnel):
         return "Personnel non trouvé", 404
     return render_template('edit_personnel.html', personnel=personnel)
 
-@app.route('/gestion_personnel/edit/<int:id_personnel>', methods=['POST'])
+@app.route('/gestion_personnel/edit/<int:id_personnel>/', methods=['POST'])
+
 @login_required
 @role_access_rights(ROLE.administratif)
 def edit_personnel(id_personnel):
