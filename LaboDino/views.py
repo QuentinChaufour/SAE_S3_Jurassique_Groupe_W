@@ -89,7 +89,8 @@ def platform_management():
             query = query.order_by(PLATEFORME.nom_plateforme)
     
     form = PlatformForm()
-    form.create_platform(filtre)
+    if form.validate_on_submit():
+        form.create_platform(filtre)
     
     data = query.all()  
 
@@ -102,7 +103,8 @@ def platform_management():
 def platform_detail(platform_name):
 
     form = PlatformForm()
-    form.modify_platform()
+    if form.validate_on_submit():
+        form.modify_platform()
 
     platform = PLATEFORME.query.filter_by(nom_plateforme=platform_name).first()
 
@@ -150,8 +152,8 @@ def maintenance_management():
             query = query.order_by(MAINTENANCE.date_maintenance)
     
     form = MaintenanceForm()
-
-    form.create_maintenance(filtre)
+    if form.validate_on_submit():
+        form.create_maintenance(filtre)
     
     data = query.all()  
     page = request.args.get('page', 1, type=int)
@@ -170,8 +172,8 @@ def maintenance_detail(platform_name, date_maintenance):
     """
     date = datetime.strptime(date_maintenance, '%Y-%m-%d').date()
     form = MaintenanceForm()
-
-    form.modify_maintenance(platform_name, date_maintenance)
+    if form.validate_on_submit():
+        form.modify_maintenance(platform_name, date_maintenance)
 
     maintenance = MAINTENANCE.query.filter_by(nom_plateforme=platform_name, date_maintenance=date).first()
     if not maintenance:

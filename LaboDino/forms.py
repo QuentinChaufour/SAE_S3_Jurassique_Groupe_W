@@ -44,7 +44,8 @@ class PlatformForm(FlaskForm):
     submit = SubmitField('Créer la plateforme')
 
     def create_platform(self, filtre):
-        if self.validate_on_submit():
+        platform = PLATEFORME.query.filter_by(nom_plateforme=self.nom_plateforme.data).first()
+        if not platform:
             try:
                 platform = PLATEFORME(
                     nom_plateforme=self.nom_plateforme.data,
@@ -55,23 +56,25 @@ class PlatformForm(FlaskForm):
                 db.session.add(platform)
                 print(platform)
                 db.session.commit()
+                flash("Plateforme créée avec succès !")
             except IntegrityError as e:
                 print(f"Database error occurred while creating platform: {e}")
-
-            return redirect(url_for('platform_management', filtre=filtre))
+                flash("Erreur avec la base de donnée lors de la création de la plateforme", "error")
+        else:
+            flash("Impossible de créer deux plateformes qui portent le même nom !", "error")
+        return redirect(url_for('platform_management', filtre=filtre))
     
     def modify_platform(self):
-        if self.validate_on_submit():
-            platforms_name = [plateforme.nom_plateforme for plateforme in PLATEFORME.query.all()]
-            if self.nom_plateforme.data in platforms_name:
-                platform = PLATEFORME.query.filter_by(nom_plateforme=self.nom_plateforme.data).first()
-                print("PLATEFORME ", PLATEFORME.query.filter_by(nom_plateforme=self.nom_plateforme.data).first())
-                platform.nb_personnes_requises = self.nb_personnes_requises.data
-                platform.cout_journalier = self.cout_journalier.data
-                platform.intervalle_maintenance = self.intervalle_maintenance.data
-                print(platform)
-                db.session.commit()
-                return redirect(url_for('platform_detail', platform_name=self.nom_plateforme.data))
+        platform = PLATEFORME.query.filter_by(nom_plateforme=self.nom_plateforme.data).first()
+        print("PLATEFORME ", PLATEFORME.query.filter_by(nom_plateforme=self.nom_plateforme.data).first())
+        platform.nb_personnes_requises = self.nb_personnes_requises.data
+        platform.cout_journalier = self.cout_journalier.data
+        platform.intervalle_maintenance = self.intervalle_maintenance.data
+        print(platform)
+        db.session.commit()
+        flash("Plateforme modifiée avec succès")
+        return redirect(url_for('platform_detail', platform_name=self.nom_plateforme.data))
+
 
 class MaintenanceForm(FlaskForm):
     date_maintenance = DateField('Date', validators=[DataRequired()])
@@ -80,54 +83,64 @@ class MaintenanceForm(FlaskForm):
     submit = SubmitField('Créer la maintenance')
 
     def create_maintenance(self, filtre):
-        if self.validate_on_submit():
-            try:
-                plateforme = PLATEFORME.query.filter_by(nom_plateforme=self.nom_plateforme.data).first()
-                if not plateforme:
-                    flash("La plateforme que vous essayez de renseigner n'existe pas.")
-                elif self.date_maintenance.data < date.today():
-                    flash("Impossible de créer une maintenance avec une date passée")
-                else:
-                    maintenance = MAINTENANCE(
-                        nom_plateforme=self.nom_plateforme.data,
-                        date_maintenance=self.date_maintenance.data,
-                        duree_maintenance=self.duree_maintenance.data,
-                    )
-                    db.session.add(maintenance)
-                    print(maintenance)
-                    db.session.commit()
-            except IntegrityError as e:
-                print(f"Database error occurred while creating platform: {e}")
+        try:
+            plateforme = PLATEFORME.query.filter_by(nom_plateforme=self.nom_plateforme.data).first()
+            maintenance = MAINTENANCE.query.filter_by(
+                nom_plateforme=self.nom_plateforme.data, 
+                date_maintenance=self.date_maintenance.data
+            ).first()        
+            if not plateforme:
+                flash("La plateforme que vous essayez de renseigner n'existe pas.", "error")
+            elif self.date_maintenance.data < date.today():
+                flash("Impossible de créer une maintenance avec une date passée", "error")
+            elif maintenance:
+                flash("Impossible de créer deux maintenances débutant le même jour pour la même plateforme", "error")
+            else:
+                maintenance = MAINTENANCE(
+                    nom_plateforme=self.nom_plateforme.data,
+                    date_maintenance=self.date_maintenance.data,
+                    duree_maintenance=self.duree_maintenance.data,
+                )
+                db.session.add(maintenance)
+                print(maintenance)
+                db.session.commit()
+                flash("Maintenance créée avec succès !")
+        except IntegrityError as e:
+            print(f"Database error occurred while creating platform: {e}")
+            flash("Erreur avec la base de donnée lors de la création de la plateforme", "error")
 
-            return redirect(url_for('maintenance_management', filtre=filtre))
+        return redirect(url_for('maintenance_management', filtre=filtre))
         
     def modify_maintenance(self, platform_name, date_maintenance):
         date = datetime.strptime(date_maintenance, '%Y-%m-%d').date()
-        if self.validate_on_submit():
-            try:
-                maintenance = MAINTENANCE.query.filter_by(nom_plateforme=platform_name,date_maintenance=date).first()
-                if maintenance:
-                    if self.date_maintenance.data < date.today():
-                        flash("Impossible de créer une maintenance avec une date passée")
-                    db.session.delete(maintenance)
-                    db.session.commit()
-                    
-                    nouvelle_maintenance = MAINTENANCE(
-                        nom_plateforme=self.nom_plateforme.data,
-                        date_maintenance=self.date_maintenance.data,
-                        duree_maintenance=self.duree_maintenance.data
-                    )
-                    db.session.add(nouvelle_maintenance)
-                    db.session.commit()
-                    
+        try:
+            maintenance = MAINTENANCE.query.filter_by(nom_plateforme=self.nom_plateforme.data, date_maintenance=date).first()
+            if maintenance:
+                if self.date_maintenance.data < date.today():
+                    flash("Impossible de créer une maintenance avec une date passée", "error")
                     return redirect(url_for('maintenance_detail', 
-                                        platform_name=self.nom_plateforme.data,
-                                        date_maintenance=self.date_maintenance.data.strftime('%Y-%m-%d')))
-                else:
-                    flash('Maintenance introuvable.')
-                    
-            except IntegrityError as e:
-                print(f"Database error occurred while creating platform: {e}")
+                                    platform_name=self.nom_plateforme.data,
+                                    date_maintenance=self.date_maintenance.data.strftime('%Y-%m-%d')))
+                db.session.delete(maintenance)
+                db.session.commit()
+                
+                nouvelle_maintenance = MAINTENANCE(
+                    nom_plateforme=self.nom_plateforme.data,
+                    date_maintenance=self.date_maintenance.data,
+                    duree_maintenance=self.duree_maintenance.data
+                )
+                db.session.add(nouvelle_maintenance)
+                db.session.commit()
+                flash("Maintenance modifiée avec succès !")
+                return redirect(url_for('maintenance_detail', 
+                                    platform_name=self.nom_plateforme.data,
+                                    date_maintenance=self.date_maintenance.data.strftime('%Y-%m-%d')))
+            else:
+                flash("Maintenance introuvable.", "error")
+                
+        except IntegrityError as e:
+            print(f"Database error occurred while creating platform: {e}")
+            flash("Erreur avec la base de donnée lors de la création de la plateforme", "error")
 
 class BudgetForm(FlaskForm):
     """Form for defining a budget."""
