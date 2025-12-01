@@ -199,40 +199,44 @@ def add_personnel():
         return Response(response=json_response,
                         status=400,
                         mimetype='application/json')
-    
+
 @app.route('/gestion_personnel/<int:id_personnel>/delete', methods=['POST'])
 @login_required
 @role_access_rights(ROLE.administratif)
 def erase_personnel(id_personnel):
-    personnel = PERSONNEL.query.get(id_personnel)
+    personnel = db.session.get(PERSONNEL, id_personnel)
 
     if personnel:
         db.session.delete(personnel)
         db.session.commit()
     return redirect(url_for('gestion_personnel'))
 
-# NOUVELLE ROUTE (GET) pour afficher la page de modification
 @app.route('/gestion_personnel/edit/<int:id_personnel>', methods=['GET'])
 def show_edit_form(id_personnel):
-    personnel = PERSONNEL.query.get_or_404(id_personnel)
+    personnel = db.session.get(PERSONNEL, id_personnel)
+    if not personnel:
+        return "Personnel non trouvé", 404
     return render_template('edit_personnel.html', personnel=personnel)
 
-# ROUTE MODIFIÉE (POST) pour traiter la modification
-@app.route('/gestion_personnel/edit/<int:id_personnel>', methods=['POST'])
+@app.route('/gestion_personnel/edit/<int:id_personnel>/', methods=['POST'])
+
 @login_required
 @role_access_rights(ROLE.administratif)
 def edit_personnel(id_personnel):
-    personnel = PERSONNEL.query.get(id_personnel)
+    personnel = db.session.get(PERSONNEL, id_personnel)
 
     if personnel:
         try:
             personnel.nom = request.form.get('nom')
             personnel.prenom = request.form.get('prenom')
             personnel.role = request.form.get('role')
+            new_mdp = request.form.get('mdp')
+            if new_mdp:
+                personnel.mdp = new_mdp
+            
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-
             print(f"Erreur lors de la mise à jour : {e}")
             
     return redirect(url_for('gestion_personnel'))

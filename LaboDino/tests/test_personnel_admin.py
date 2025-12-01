@@ -8,9 +8,7 @@ from bs4 import BeautifulSoup
 @pytest.fixture
 def testapp():
     app.config.update({"TESTING":True,"SQLALCHEMY_DATABASE_URI":
-    'mysql://moins:moins@servinfo-maria/DBmoins',"WTF_CSRF_ENABLED": False})
-    with app.app_context():
-        pass
+    'mysql://root:moins@127.0.0.1/LaboDino',"WTF_CSRF_ENABLED": False})
     yield app
 
 @pytest.fixture
@@ -71,20 +69,123 @@ def test_gestion_personnel_get_with_filter(client):
     assert first_personnel_prenom == 'administratif'
 
 def test_erase_personnel(client):
-    # --- SETUP : Créer un utilisateur à supprimer ---
-    personnel_a_supprimer = PERSONNEL(nom='ASupprimer', prenom='Test', mdp='temp', role=ROLE.chercheur)
-    with app.app_context():
-        db.session.add(personnel_a_supprimer)
-        db.session.commit()
+    personnel_a_supprimer = PERSONNEL(nom='ASupprimer', prenom='Test', mdp='t_erase', role=ROLE.chercheur)
+    id_a_supprimer = None
+    try:
+        with app.app_context():
+            db.session.add(personnel_a_supprimer)
+            db.session.commit()
+            id_a_supprimer = personnel_a_supprimer.id_personnel
 
-        id_a_supprimer = personnel_a_supprimer.id_personnel
+        client.post('/login/', data={'id': '16', 'password': 'MM@34'}, follow_redirects=True)
+        response_delete = client.post(f'/gestion_personnel/{id_a_supprimer}/delete', follow_redirects=True)
 
-    client.post('/login/', data={'id': '16', 'password': 'MM@34'}, follow_redirects=True)
+        assert response_delete.status_code == 200
+        assert b'ASupprimer' not in response_delete.data
+    finally:
+        if id_a_supprimer:
+            with app.app_context():
+                user = db.session.get(PERSONNEL, id_a_supprimer)
+                if user:
+                    db.session.delete(user)
+                    db.session.commit()
 
-    # Appeler la bonne URL pour la suppression
-    response_delete = client.post(f'/gestion_personnel/{id_a_supprimer}/delete', follow_redirects=True)
+def test_edit_personnel(client):
+    personnel_a_modifier = PERSONNEL(nom='OriginalNom', prenom='OriginalPrenom', mdp='t_edit', role=ROLE.technicien)
+    id_a_modifier = None
+    try:
+        with app.app_context():
+            db.session.add(personnel_a_modifier)
+            db.session.commit()
+            id_a_modifier = personnel_a_modifier.id_personnel
 
-    assert response_delete.status_code == 200
-    assert b'Gestion du personnel' in response_delete.data
+        client.post('/login/', data={'id': '16', 'password': 'MM@34'}, follow_redirects=True)
+        response = client.post(
+            f'/gestion_personnel/edit/{id_a_modifier}', 
+            data={'nom': 'NouveauNom', 'prenom': 'NouveauPrenom', 'role': 'chercheur'},
+            follow_redirects=True
+        )
+        assert response.status_code == 200
 
-    assert b'ASupprimer' not in response_delete.data
+        with app.app_context():
+            personnel_modifie = db.session.get(PERSONNEL, id_a_modifier)
+            assert personnel_modifie.nom == 'NouveauNom'
+            assert personnel_modifie.role == ROLE.chercheur
+    finally:
+        if id_a_modifier:
+            with app.app_context():
+                user = db.session.get(PERSONNEL, id_a_modifier)
+                if user:
+                    db.session.delete(user)
+                    db.session.commit()
+
+def test_edit_personnel_fails_on_unique_constraint(client):
+    user_to_edit = PERSONNEL(nom='CibleNom', prenom='CiblePrenom', mdp='mdp1', role=ROLE.technicien)
+    blocking_user = PERSONNEL(nom='Bloqueur', prenom='Test', mdp='mdp2', role=ROLE.chercheur)
+    id_to_edit, id_to_block = None, None
+    try:
+        with app.app_context():
+            db.session.add_all([user_to_edit, blocking_user])
+            db.session.commit()
+            id_to_edit = user_to_edit.id_personnel
+            id_to_block = blocking_user.id_personnel
+
+        client.post('/login/', data={'id': '16', 'password': 'MM@34'}, follow_redirects=True)
+
+        client.post(
+            f'/gestion_personnel/edit/{id_to_edit}', 
+            data={'nom': 'Echec', 'prenom': 'Echec', 'role': 'chercheur', 'mdp': 'mdp2'},
+            follow_redirects=True
+        )
+
+        with app.app_context():
+            personnel_apres_echec = db.session.get(PERSONNEL, id_to_edit)
+            assert personnel_apres_echec.nom == 'CibleNom'
+    finally:
+        with app.app_context():
+            if id_to_edit:
+                u1 = db.session.get(PERSONNEL, id_to_edit)
+                if u1: db.session.delete(u1)
+            if id_to_block:
+                u2 = db.session.get(PERSONNEL, id_to_block)
+                if u2: db.session.delete(u2)
+            db.session.commit()
+
+def test_show_edit_form(client):
+    """
+    Teste que la page de modification s'affiche correctement
+    avec les bonnes informations pré-remplies.
+    """
+    personnel = PERSONNEL(nom='TestNom', prenom='TestPrenom', mdp='t_show', role=ROLE.technicien)
+    id_personnel = None
+    try:
+        with app.app_context():
+            db.session.add(personnel)
+            db.session.commit()
+            id_personnel = personnel.id_personnel
+        
+        client.post('/login/', data={'id': '16', 'password': 'MM@34'}, follow_redirects=True)
+        
+        response = client.get(f'/gestion_personnel/edit/{id_personnel}')
+        
+        assert response.status_code == 200
+        soup = BeautifulSoup(response.data, 'html.parser')
+
+        nom_input = soup.find('input', {'name': 'nom'})
+        prenom_input = soup.find('input', {'name': 'prenom'})
+        role_selected_option = soup.find('select', {'name': 'role'}).find('option', selected=True)
+
+        assert nom_input['value'] == 'TestNom'
+        assert prenom_input['value'] == 'TestPrenom'
+        assert role_selected_option['value'] == 'technicien'
+
+    finally:
+        if id_personnel:
+            with app.app_context():
+                user = db.session.get(PERSONNEL, id_personnel)
+                if user:
+                    db.session.delete(user)
+                    db.session.commit()
+
+
+
