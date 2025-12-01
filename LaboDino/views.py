@@ -560,7 +560,7 @@ def get_equipments():
 
 
 
-@app.route("/equipements/<int:id_equipment>/delete/")
+@app.route("/equipments/<int:id_equipment>/delete/")
 @login_required
 @role_access_rights(ROLE.technicien)
 def delete_equipment(id_equipment: int) -> None:
@@ -577,9 +577,11 @@ def delete_equipment(id_equipment: int) -> None:
     if equipment:
         db.session.delete(equipment)
         db.session.commit()
-        flash(f"Equipment ID {id_equipment} deleted successfully")
+        flash(f"Equipment deleted successfully")
     else:
         flash(f"Equipment ID {id_equipment} not found", category="error")
+
+    print(f"Deleting Equipment ID: {id_equipment}")
 
     return redirect(url_for("get_equipments"))
 

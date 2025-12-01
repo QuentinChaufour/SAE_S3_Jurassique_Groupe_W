@@ -52,19 +52,19 @@ def test_budget_modification_after_login(client, testapp):
         assert b"Fixer le budget mensuel" in response.data
 
         # Create initial budget
-        budget = BUDGET(date_mois_annee= date(2023, 11, 1), budget_total= 8000)
+        budget = BUDGET(date_mois_annee= date(2026, 11, 1), budget_total= 8000)
         db.session.add(budget)
         db.session.commit()
 
         # Modify the budget
         response = client.post("/budget/",
                               data={
-                                  "date": "2023-11-01",
+                                  "date": "2026-11-01",
                                   "montant": 12000
                               },
                               follow_redirects= True)
         
-        modified_budget: BUDGET = BUDGET.query.filter_by(date_mois_annee="2023-11-01").first()
+        modified_budget: BUDGET = BUDGET.query.filter_by(date_mois_annee="2026-11-01").first()
         assert modified_budget is not None
         assert modified_budget.budget_total == 12000
 

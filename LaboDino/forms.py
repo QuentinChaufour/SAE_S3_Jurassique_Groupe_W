@@ -203,7 +203,7 @@ class EquipmentForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.plateform.choices = [(None,"")] + [
-            p.nom_plateforme for p in PLATEFORME.query.all()
+            (p.nom_plateforme, p.nom_plateforme) for p in PLATEFORME.query.all()
         ]
         self.habilitation.choices = [(None, "")] + [
             (h.id_habilitation, h.nom_habilitation) for h in HABILITATION.query.all()
@@ -215,11 +215,11 @@ class EquipmentForm(FlaskForm):
         equipment: EQUIPEMENT = EQUIPEMENT(nom_equipement= self.name.data)
         db.session.add(equipment)
 
-        if self.plateform.data != "None":
+        if self.plateform.data != None:
             used_plateform: PLATEFORME = PLATEFORME.query.filter_by(nom_plateforme= self.plateform.data).first()
             equipment.plateformes.append(used_plateform)
-        
-        if self.habilitation.data != "None":
+
+        if self.habilitation.data != None:
             habilitation: HABILITATION = HABILITATION.query.get(int(self.habilitation.data))
             equipment.habilitations.append(habilitation)
 
@@ -237,7 +237,7 @@ class EquipmentForm(FlaskForm):
 
                 if self.plateform.data:
 
-                    if self.plateform.data == "None":
+                    if self.plateform.data == None:
                         equipment.plateformes.clear()
 
                     else:
@@ -248,12 +248,12 @@ class EquipmentForm(FlaskForm):
 
                 if self.habilitation.data:
 
-                    if self.habilitation.data == "None":
+                    if self.habilitation.data == None:
                         equipment.habilitations.clear()    
 
                     else:
                         equipment.habilitations.clear()
-                        habilitation: HABILITATION = HABILITATION.query.get(int(self.habilitation.data))
+                        habilitation: HABILITATION = HABILITATION.query.filter_by(id_habilitation=int(self.habilitation.data)).first()
 
                         if habilitation: equipment.habilitations.append(habilitation)
 

@@ -79,7 +79,7 @@ def testapp():
 
         camp1 = CAMPAGNE(plateforme_sequence.nom_plateforme, date(2024, 1, 15), 2, "Montana, USA", True)
         camp2 = CAMPAGNE(plateforme_paleontologie.nom_plateforme, date(2024, 3, 10), 3, "Patagonie, Argentine", True)
-        camp3 = CAMPAGNE(plateforme_analyse.nom_plateforme, date(2024, 6, 1), 4, "Gobi, Mongolie", False)
+        camp3 = CAMPAGNE(plateforme_analyse.nom_plateforme, date(2024, 6, 1), 4, "Gobi, Mongolie", True)
         db.session.add_all([camp1, camp2, camp3])
         db.session.commit()
         camp_ids = [c.id_campagne for c in (camp1, camp2, camp3)]
