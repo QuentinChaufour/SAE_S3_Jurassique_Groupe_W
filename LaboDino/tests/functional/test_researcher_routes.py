@@ -84,7 +84,8 @@ def test_campaign_unenrollment_before_login(client, testapp):
 
 
 def test_sample_dashboard_before_login(client):
-    pass
+    response = client.get("/samples/", follow_redirects= True)
+    assert b"Login" in response.data
 
 
 
@@ -337,7 +338,19 @@ def test_campaign_unenrollment_after_login(client, testapp):
 
 
 def test_sample_dashboard_after_login(client, testapp):
-    pass
+    
+    with testapp.app_context():
+        # User non connecté
+        response = client.get("/samples/", follow_redirects= False)
+        assert response.status_code == 302
+
+        assert "/login/?next=%2Fsamples%2F" in response.headers["Location"]
+
+        # User connecté
+        chercheur = _get_researcher(testapp)
+        response = login_researcher(client, id=chercheur.id_personnel, password="mdp456",next="/samples/")
+        assert response.status_code == 200
+        assert b"Tyrannosaurus" in response.data
 
 
 

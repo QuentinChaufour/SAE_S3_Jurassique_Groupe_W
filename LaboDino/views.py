@@ -389,9 +389,19 @@ def disenroll_campaign(campaign_id: int):
 @login_required
 @role_access_rights(ROLE.chercheur)
 def get_samples():
-    
-    return render_template("sample_dashboard.html",page=None, samples=[])
+    """
+    Affiche la page de présentation de l"ensembles des échantillons.
 
+    Returns:
+        str: Le rendu du template de la liste des échantillons.
+    """
+
+    page:int = request.args.get(key="page", default=1, type=int)
+    samples : list[ECHANTILLON] = ECHANTILLON.query.all()
+
+    shown_samples,page = _pagination(data= samples, page= page, items_per_page=5)
+    
+    return render_template("sample_dashboard.html",page=page, samples=shown_samples)
 
 
 @app.route("/campaigns/<int:campaign_id>/samples/<int:sample_id>/", methods=["GET"])
