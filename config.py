@@ -1,3 +1,4 @@
 
 SECRET_KEY = "2lzUl{$*D6#`8uXqlU."
-SQLALCHEMY_DATABASE_URI = "mysql://root:moins@127.0.0.1/LaboDino"
+
+SQLALCHEMY_DATABASE_URI = "mysql+pymysql://camera:camera@servinfo-maria/DBcamera"

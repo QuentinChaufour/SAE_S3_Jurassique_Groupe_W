@@ -1,0 +1,81 @@
+{% extends "base_template.html" %}
+{% block retour %}
+<li><a href="{{ url_for('menu_technician') }}">Retour</a></li>
+{% endblock %}
+{% block content %}
+<div id="platform_management">
+    <h1>Gestion des maintenances</h1>
+    <div id="platform_content">
+        <div id="platform_table">
+            <form action="{{ url_for('maintenance_management') }}" method="post" id="filter-form">
+                <select id="filter-button" name="filtre" onchange="this.form.submit()">
+                    <option value="">Filtrer</option>
+                    <option value="date" {% if filtre_actif == 'date' %}selected{% endif %}>Date</option>
+                    <option value="duree" {% if filtre_actif == 'duree' %}selected{% endif %}>Durée</option>
+                    <option value="plateforme" {% if filtre_actif == 'plateforme' %}selected{% endif %}>Plateforme</option>
+                </select>
+            </form>
+            <table class="table-borders">
+                <thead>
+                    <tr class="header-row">
+                        <th>Date</th>
+                        <th>Durée</th>
+                        <th>Plateforme</th>
+                        <th>Supression</th>
+                    </tr>
+                </thead> 
+                <tbody>
+                    {% for maintenance in maintenances %}
+                    <tr onclick="location.href='{{ url_for("maintenance_detail", platform_name=maintenance.nom_plateforme, date_maintenance=maintenance.date_maintenance.strftime('%Y-%m-%d')) }}'" style="cursor: grab;">
+                        <td>{{ maintenance.date_maintenance}}</td>
+                        <td>{{ maintenance.duree_maintenance}}</td>
+                        <td>{{ maintenance.nom_plateforme}}</td>
+                        <td><form action="{{ url_for('delete_maintenance', filtre=filtre_actif) }}" method="post" style="display: inline;">
+                            <input type="hidden" name="nom_plateforme" value="{{ maintenance.nom_plateforme }}">
+                            <input type="hidden" name="date_maintenance" value="{{ maintenance.date_maintenance }}">
+                            <button type="submit" class="supress-btn" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette maintenance ?');">
+                                Supprimer
+                            </button>
+                        </form></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div id="create_platform">
+            <h2>Créer une maintenance</h2>
+            <form id="plateform_creation_form" method="POST" role="form" action="{{ url_for('maintenance_management', filtre=filtre_actif) }}">
+                {{ form.hidden_tag() }}
+                <div class="login-form">
+                    {{ form.date_maintenance.label (class_ = "login-form-label") }}
+                    {{ form.date_maintenance (class_ ="login-input") }}
+                </div>
+                <div class="login-form">
+                    {{ form.duree_maintenance.label (class_ = "login-form-label") }}
+                    {{ form.duree_maintenance (class_ ="login-input") }}
+                </div>
+                <div class="login-form">
+                    {{ form.nom_plateforme.label (class_ = "login-form-label") }}
+                    {{ form.nom_plateforme (class_ ="login-input") }}
+                </div>
+                <div id="login-form-submit">
+                    <input type="hidden" name="filtre" value="{{ filtre_actif }}">
+                    <input type="submit" value="Créer">
+                </div>
+            </form>
+            {% with messages = get_flashed_messages()%}
+            {% if messages%}
+                {% for message in messages%}
+                <p>{{message}}</p>
+                {%endfor%}
+            {%endif%}
+            {%endwith%}
+        </div>
+    </div>
+    <section class="pagination">
+        <a href="{{ url_for('maintenance_management',page=page-1, filtre=filtre_actif) }}" class="pagination-btn typographie"><</a>
+        <p>{{ page }}</p>
+        <a href="{{ url_for('maintenance_management',page=page+1, filtre=filtre_actif) }}" class="pagination-btn typographie"> > </a>
+    </section>
+</div>
+{% endblock %}

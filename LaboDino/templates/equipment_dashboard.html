@@ -1,0 +1,81 @@
+{% extends "base_template.html" %}
+
+{% block content %}
+
+<div class="box_container">
+    <h1 class="title"> Gérer les Equipements</h1>
+
+    <table class="table-borders">
+        <thead>
+            <tr class="header-row">
+
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Plateforme attribué</th>
+                <th>Habilitation nécessaire</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for equipment in equipments %}
+            <tr onclick="location.href='{{ url_for("get_equipments", page= page, selected_equipment= equipment.id_equipement) }}'" style="cursor: grab;">
+                <td>{{ equipment.id_equipement }}</td>
+                <td>{{ equipment.nom_equipement }}</td>
+                    <td>
+                    {% if equipment.plateformes %}
+                        {{ equipment.plateformes[0].nom_plateforme }}
+                    {% else %}
+                        <em>Aucune assignation</em>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if equipment.habilitations %}
+                        {{ equipment.habilitations[0].nom_habilitation }}
+                    {% else %}
+                        <em>Aucune assignation</em>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <section class="pagination">
+        <a href="{{ url_for('get_equipments',page=page-1, selected_equipment= selected_equipment) }}" class="pagination-btn typographie"><</a>
+        <p>{{ page }}</p>
+        <a href="{{ url_for('get_equipments',page=page+1, selected_equipment= selected_equipment) }}" class="pagination-btn typographie"> > </a>
+    </section>
+
+    <aside>
+        <form method="POST" role="form" action="{{ url_for('get_equipments', page=page, selected_equipment= selected_equipment) }}">
+            {{ form.hidden_tag() }}
+            <div class="form_field">
+                {{ form.name.label (class_ = "form-label") }}
+                {{ form.name (class_ ="form-input") }}
+            </div>
+            <div class="form_field">
+                {{ form.plateform.label (class_ = "form-label") }}
+                {{ form.plateform (class_ ="form-input") }}
+            </div>
+            <div class="form_field">
+                {{ form.habilitation.label (class_ = "form-label") }}
+                {{ form.habilitation (class_ ="form-input") }}
+            </div>
+            <div id="login-form-submit">
+                {{ form.submit }}
+            </div>
+        </form>
+
+        {% if selected_equipment %}
+
+        <div id="login-form-submit">
+            <input type="button" value="Clear" id="login-form-submit" onclick="location.href='{{ url_for("get_equipments", page= page, selected_equipment= None) }}'">
+        </div>
+        <div id="login-form-submit">
+            <input type="button" value="Delete" class="btn-delete" onclick="if(confirm('Êtes-vous sûr de vouloir supprimer cet equipment ?')) { location.href='{{ url_for('delete_equipment', id_equipment= selected_equipment) }}' }">
+        </div>
+
+        {% endif %}
+    </aside>
+</div>
+
+{% endblock %}

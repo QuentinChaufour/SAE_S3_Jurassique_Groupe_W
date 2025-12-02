@@ -148,21 +148,21 @@ INSERT INTO NECESSITER_HABILITATION (idEquipement, idHabilitation) VALUES
 (25, 1);
 
 INSERT INTO MAINTENANCE (nomPlateforme, dateMaintenance, dureeMaintenance) VALUES
-('BioTech', '2025-01-15', true),
-('BioTech', '2025-02-14', true),
-('BioTech', '2025-03-16', false),
-('Génomique', '2025-01-20', true),
-('Génomique', '2025-03-06', false),
-('Einstein', '2025-02-01', true),
-('Physique', '2025-01-10', true),
-('Physique', '2025-03-11', false),
-('Newton', '2025-02-15', true),
-('Aristote', '2025-01-25', true),
-('Aristote', '2025-03-01', false),
-('Léonard de Vinci', '2025-02-10', true),
-('Marie Curie', '2025-01-05', true),
-('Louis Pasteur', '2025-02-20', true),
-('Oppenheimer', '2025-03-05', false);
+('BioTech', '2025-01-15', 10),
+('BioTech', '2025-02-14', 5),
+('BioTech', '2025-03-16', 3),
+('Génomique', '2025-01-20', 2),
+('Génomique', '2025-03-06', 1),
+('Einstein', '2025-02-01', 2),
+('Physique', '2025-01-10', 1),
+('Physique', '2025-03-11', 5),
+('Newton', '2025-02-15', 4),
+('Aristote', '2025-01-25', 3),
+('Aristote', '2025-03-01', 2),
+('Léonard de Vinci', '2025-02-10', 3),
+('Marie Curie', '2025-01-05', 10),
+('Louis Pasteur', '2025-02-20', 4),
+('Oppenheimer', '2025-03-05', 15);
 
 INSERT INTO CAMPAGNE (idCampagne, nomPlateforme, dateDebut, duree, lieu) VALUES 
 (1, 'BioTech', '2025-01-20', 5, 'Site de fouilles Alpha'),

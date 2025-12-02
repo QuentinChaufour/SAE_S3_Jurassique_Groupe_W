@@ -14,16 +14,42 @@
         <div id="navbar">
             <h1>Labo Din'O</h1>
 
+            {% if current_user.is_authenticated %}
+                <p class="user typographie">{{ current_user.prenom }} connecté</p>
+            {% endif %}
+
             <nav id="navbar-items">
                 <ul>
-                    <li>Langues</li>
-                    <li>Menu</li>
-                    {% block retour %}
+                    {% block menu %}
+
+                    <!-- Espace pour le menu spécifique à chaque page -->
                     {% endblock %}
+
+                    {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                    {% else %}
+                        <li id="disabled-logout">Logout</li>
+                    {% endif %}
                 </ul>
             </nav>
         </div>
     </header>
+
+    <div class="retour">
+    {% block retour %}
+    <!-- Espace pour un bouton de retour ou une navigation supplémentaire -->
+    {% endblock %}
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for categorie, message in messages %}
+                    <p class="{% if categorie == 'error' %}flash-error{% else %}flash{% endif %}">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
     {% block content %}
 

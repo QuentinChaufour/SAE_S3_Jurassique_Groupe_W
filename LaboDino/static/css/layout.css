@@ -30,7 +30,7 @@ h2{
 }
 #navbar-items ul{
     display: flex;
-    gap: 8rem;
+    gap: 10%;
     align-items: center;
     margin: 0;
     padding: 0;
@@ -40,6 +40,10 @@ h2{
 #navbar-items li{
     padding: 1rem;
     margin: 0;
+}
+
+#navbar-items li:last-child{
+    margin-right: 10%;
 }
 
 #logo{
@@ -53,6 +57,30 @@ h2{
     width: auto;
     padding: 2vh;
     margin: 2vh;
+}
+
+.flashes {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.flashes > p {
+    margin: 1rem;
+    padding: 1rem;
+    border: 2px solid #4F4F4F;
+    border-radius: 10px;
+}
+
+.retour {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin: 1rem 0;
+}
+
+.back-link {
+    margin: 0 5%;
 }
 
 .box_container{
@@ -127,6 +155,14 @@ h2{
     margin: 5%;
 }
 
+.menu_selection{
+    display: block;
+    width: 45%;
+    text-align: center;
+    margin: 2% auto;
+    padding: 2%;
+}
+
 .table-btn{
     display: flex;
     justify-content: center;
@@ -160,8 +196,11 @@ table {
     margin-top: 2vh;
 }
 
+.pagination-btn{
+    padding: 7.5%;
+}
+
 th {
-    padding: 1%;
     text-align: center;
 }
 
@@ -169,13 +208,23 @@ th {
     width: 90%;
 }
 
+.table-borders tr{
+    height: 8vh;
+}
+
 .table-borders-bottom td{
     padding: 2%;
+    text-align: center;
+    width: 33.33%;
 }
 
 .table-borders-bottom {
-    width: 80%;
+    width: 90%;
     margin-bottom: 2%;
+}
+
+#participant-table {
+    margin-bottom: 5%;
 }
 
 #participant-table td {
@@ -281,6 +330,22 @@ th {
     box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
     height:2rem;
     width: 100%;
+.CRUD_btn{
+    display: flex;
+    width: 50%;
+    justify-content: space-around;
+    padding: 2% 2%;
+}
+
+#add_sample{
+    padding: 1%;
+    margin: 1.5%;
+}
+
+.comparison-table {
+    width: 90vw;
+    margin-top: 2vh;
+    margin-bottom: 4vh;
 }
 #main_tech_dashboard{
     display: flex;
