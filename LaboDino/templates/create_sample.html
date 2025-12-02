@@ -1,5 +1,9 @@
 {% extends "base_template.html" %}
 
+{% block menu %}
+    <li><a href="{{ url_for('menu_researcher') }}">Menu</a></li>
+{% endblock %}
+
 {% block retour %}
     <a href="{{ url_for('campaign_detail', campaign_id=campaign_id) }}" class="back-link typographie">← Retour au menu</a>
 {% endblock %}

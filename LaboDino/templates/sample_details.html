@@ -1,5 +1,9 @@
 {% extends "base_template.html" %}
 
+{% block menu %}
+    <li><a href="{{ url_for('menu_researcher') }}">Menu</a></li>
+{% endblock %}
+
 {% block retour %}
     <a href="{{ url_for('campaign_detail', campaign_id=sample.id_campagne) }}" class="back-link typographie">← Retour au détails campagne</a>
     <a href="{{ url_for('get_samples') }}" class="back-link typographie">← Retour au dashboard d'échantillon</a>
@@ -7,9 +11,8 @@
 
 {% block content %}
 
-<h2 class="title">Sample Details</h2>
-
 <div class="box_container">
+<h2 class="title typographie">Sample Details</h2>
     <section>
         <p><strong>Sample ID:</strong> {{ sample.id_echantillon }}</p>
         <p><strong>Espece:</strong> {% if sample.id_espece != None %} {{ sample.espece.nom_espece }} {% else %} Inconnu {% endif %}</p>
@@ -22,12 +25,12 @@
     </div>
 
     <section>
-        <h2 class="title">Select a sample to compare</h2>
-        <table>
+        <h2 class="title typographie">Select a sample to compare</h2>
+        <table class="table-borders comparison-table">
             <thead>
-                <tr>
-                    <th>Sample ID</th>
+                <tr class="header-row">
                     <th>Espece</th>
+                    <th>Description</th>
                 </tr>
             </thead>
             <tbody>
@@ -56,15 +59,15 @@
                 {% endfor %}
             </tbody>
         </table>
-
-        <section class="pagination">
-            <a href="{{ url_for('sample_detail', sample_id=sample.id_echantillon, campaign_id= sample.id_campagne, page=page-1) }}" class="pagination-btn typographie"><</a>
-            <p>{{ page }}</p>
-            <a href="{{ url_for('sample_detail', sample_id=sample.id_echantillon, campaign_id= sample.id_campagne, page=page+1) }}" class="pagination-btn typographie"> > </a>
-        </section>
-
     </section>
+
+    <div class="pagination">
+        <a href="{{ url_for('sample_detail', sample_id=sample.id_echantillon, campaign_id= sample.id_campagne, page=page-1) }}" class="pagination-btn typographie"><</a>
+        <p class="typographie">{{ page }}</p>
+        <a href="{{ url_for('sample_detail', sample_id=sample.id_echantillon, campaign_id= sample.id_campagne, page=page+1) }}" class="pagination-btn typographie"> > </a>
+    </div>
 </div>
+
 
 
 {% endblock %}

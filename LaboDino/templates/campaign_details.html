@@ -1,5 +1,9 @@
 {% extends "base_template.html" %}
 
+{% block menu %}
+    <li><a href="{{ url_for('menu_researcher') }}">Menu</a></li>
+{% endblock %}
+
 {% block retour %}
     <a href="{{ url_for('get_campaigns',completed= None) }}" class="back-link typographie">← Retour au dashboard</a>
 {% endblock %}
@@ -7,22 +11,22 @@
 {% block content %}
 
 <div class="box_container">
-    <h1 class="title">{{ campaign.id_campagne }}</h1>
+    <h1 class="title">Campagne {{ campaign.id_campagne }}</h1>
 
     <table class="table-borders-bottom">
         <tbody>
             <tr>
-                <td>Lieu de campagne: {{ campaign.lieu }}</td>
+                <td><strong>Lieu de campagne:</strong> {{ campaign.lieu }}</td>
             </tr>
             <tr>
-                <td>Date de début: {{ campaign.dateDebut }}</td>
-                <td>Date de fin: {{ campaign.dateDebut + timedelta(days=campaign.duree) }}</td>
-                <td>Durée: {{ campaign.duree }} jours</td>
+                <td><strong>Date de début:</strong> {{ campaign.dateDebut }}</td>
+                <td><strong>Date de fin:</strong> {{ campaign.dateDebut + timedelta(days=campaign.duree) }}</td>
+                <td><strong>Durée:</strong> {{ campaign.duree }} jours</td>
             </tr>
             <tr>
-                <td>Status: {{ "Validée" if campaign.valide else "Non validée" }}</td>
-                <td>Plateforme: {{ campaign.nom_plateforme }}</td>
-                <td>Coût total: {{ campaign.plateforme.cout_journalier * campaign.duree }}</td>
+                <td><strong>Status:</strong> {{ "Validée" if campaign.valide else "Non validée" }}</td>
+                <td><strong>Plateforme:</strong> {{ campaign.nom_plateforme }}</td>
+                <td><strong>Coût total:</strong> {{ campaign.plateforme.cout_journalier * campaign.duree }} €</td>
             </tr>
         </tbody>
     </table>

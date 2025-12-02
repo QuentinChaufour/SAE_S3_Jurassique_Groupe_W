@@ -3,9 +3,8 @@
 {% block content %}
 
 <div class="box_container">
-    <a href="{{ url_for('get_campaigns', completed=None) }}">Campagnes</a>
-    <a href="{{ url_for('get_samples') }}">Echantillons et espèces</a>
-    <a href="{{ url_for('get_campaigns', completed=None) }}">Traitements</a>
+    <a class="menu_selection typographie" href="{{ url_for('get_campaigns', completed=None) }}">Campagnes</a>
+    <a class="menu_selection typographie" href="{{ url_for('get_samples') }}">Echantillons</a>
 </div>
 
 {% endblock %}
