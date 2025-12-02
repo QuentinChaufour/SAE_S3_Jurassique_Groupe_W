@@ -1,0 +1,85 @@
+{% extends "base_template.html" %}
+            <nav id="navbar-items">
+                <ul>
+                    <li>Langues</li>
+                    <li>Menu</li>
+                    <li>Retour</li>
+                </ul>
+            </nav>
+{% block content %}
+<div id="main-div">
+    <section id="box_container">
+        <h1>Gestion du personnel</h1>
+    </section>
+    <div id="admin-div">
+        <article id="personnel">
+            <form action="{{ url_for('gestion_personnel') }}" method="post" id="filter-form">
+                <select id="filter-button" name="filtre" onchange="this.form.submit()">
+                    <option value="">Filtrer par...</option>
+                    <!-- On utilise filtre_actif pour garder la sélection -->
+                    <option value="nom" {% if filtre_actif == 'nom' %}selected{% endif %}>Nom</option>
+                    <option value="prenom" {% if filtre_actif == 'prenom' %}selected{% endif %}>Prénom</option>
+                    <option value="role" {% if filtre_actif == 'role' %}selected{% endif %}>Rôle</option>
+                </select>
+            </form>
+            <table id="table-admin">
+                <thead>
+                    <th name="nom">Nom</th>
+                    <th name="prenom">Prénom</th>
+                    <th name="role">Rôle</th>
+                    <th>Action</th>
+                </thead>
+                <tbody>
+                    {% for personnel in personnels %}
+                        <tr>
+                            <td>{{ personnel.nom }}</td>
+                            <td>{{ personnel.prenom }}</td>
+                            <td>{{ personnel.role.value }}</td>
+                            <td>
+                                <form action="{{ url_for('erase_personnel', id_personnel=personnel.id_personnel) }}" method="post" style="display: inline;">
+                                    <input type="hidden" name="id_personnel" value="{{ personnel.id_personnel }}">
+                                    <button type="submit" class="action-btn" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette personne ?');">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                                <a href="{{ url_for('show_edit_form', id_personnel=personnel.id_personnel) }}" class="action-btn">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </article>
+        <article id="ajout-personne"> 
+            <h2>Ajouter une personne</h2>
+            <form action="{{ url_for('add_personnel') }}" method="post">
+                <section>
+                    <p>Nom :</p>
+                    <input type="text" name="nom">
+                </section>
+                <section>
+                    <p>Prénom :</p>
+                    <input type="text" name="prenom">
+                </section>
+                <section>
+                    <p>Rôle :</p>
+                    <select name="role">
+                        <option value="">--Sélectionner un rôle--</option>
+                        <option value="direction">Directeur de laboratoire</option>
+                        <option value="administratif">Personnel administratif</option>
+                        <option value="chercheur">Chercheur/se</option>
+                        <option value="technicien">Personnel technique</option>
+                    </select>
+                </section>
+                <button type="submit">Ajouter une personne</button>
+            </form>
+        </article>
+    </div>
+    <section class="pagination">
+        <a href="{{ url_for('gestion_personnel', page=page-1, filtre=filtre_actif) }}" class="pagination-btn typographie"><</a>
+        <p>{{ page }}</p>
+        <a href="{{ url_for('gestion_personnel', page=page+1, filtre=filtre_actif) }}" class="pagination-btn typographie"> > </a>
+    </section>
+</div>
+{% endblock %}

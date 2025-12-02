@@ -3,10 +3,11 @@ from .app import app,db
 from .decorators import role_access_rights
 from .models import PERSONNEL, CAMPAGNE, ECHANTILLON, ROLE, ECHANTILLON,PARTICIPER_CAMPAGNE, BUDGET, EQUIPEMENT, ESPECE, PLATEFORME, MAINTENANCE
 from flask import render_template,redirect, url_for,request,jsonify,flash
-from flask_login import login_user, logout_user, login_required, current_user
+from flask_login import login_user, logout_user, login_required, current_user, Response
 from datetime import datetime, timedelta, date
 from sqlalchemy.exc import OperationalError, IntegrityError
 from sqlalchemy import extract,func
+import json
 import matplotlib
 matplotlib.use('Agg')  # Use non-GUI backend
 from matplotlib import pyplot as plt
@@ -16,7 +17,6 @@ from matplotlib import pyplot as plt
 def home():
 
     return redirect(url_for("login"))
-    #return render_template("campaign_details.html",campaign_id= 2 ,participants= {1:["a","b","c"],2:["d","e"]})
 
 @app.route("/login/", methods=["GET", "POST"])
 def login():
@@ -29,8 +29,9 @@ def login():
 
     form.next.data = request.args.get("next")
 
+
     if form.validate_on_submit():
-        unUser: PERSONNEL = form.authenticate()
+        un_user: PERSONNEL = form.authenticate()
         if unUser:
             login_user(unUser)
 
@@ -38,12 +39,17 @@ def login():
 
             if next is None or next == "":
             
-                match(unUser.role):
+                match(un_user.role):
                     case ROLE.direction:
                         next = url_for("set_budget")
                     case ROLE.chercheur:
                         next = url_for("menu_researcher", completed=None)
                     case ROLE.technicien:
+                        next_page = url_for("menu_technician")
+                    case ROLE.direction:
+                        next_page = url_for("set_budget")
+                    case ROLE.administratif:
+                        next_page = url_for("gestion_personnel")
                         next = url_for("get_equipments")
                     case default:
                         next = url_for("login")
@@ -614,7 +620,6 @@ def edit_sample(sample_id: int):
         str: Le rendu du template d'édition d'échantillon ou une redirection vers la page de détails de l'échantillon.
     """
     form: SampleForm = SampleForm()
-
     edit_sample: ECHANTILLON = ECHANTILLON.query.filter_by(id_echantillon=sample_id).first()
 
     print(form.validate_on_submit())
@@ -738,8 +743,134 @@ def delete_equipment(id_equipment: int) -> None:
     return redirect(url_for("get_equipments"))
 
 
+  
+@app.route('/gestion_personnel/', methods=['GET', 'POST'])
+@login_required
+@role_access_rights(ROLE.administratif)
+def gestion_personnel():
+    if request.method == 'POST':
+        filtre = request.form.get('filtre')
+    else:
+        filtre = request.args.get('filtre')
+    
+    # On commence par une requête de base
+    query = PERSONNEL.query
 
-def _pagination(data: list, page: int, items_per_page: int = 5) -> tuple[list,int]:
+    # On applique le tri en fonction du filtre
+    if filtre == 'nom':
+        query = query.order_by(PERSONNEL.nom)
+    elif filtre == 'prenom':
+        query = query.order_by(PERSONNEL.prenom)
+    elif filtre == 'role':
+        query = query.order_by(PERSONNEL.role)
+    else:
+        # Tri par défaut si aucun filtre n'est sélectionné
+        query = query.order_by(PERSONNEL.id_personnel)
+
+    # On exécute la requête finale
+    personnels = query.all()
+
+    page = request.args.get('page', 1, type=int)
+    personnels_paginated, page = _pagination(personnels, page)
+    return render_template('personnel_administratif.html', personnels=personnels_paginated, page=page, filtre_actif=filtre)
+
+@app.route('/gestion_personnel/add', methods=['POST'])
+@login_required
+@role_access_rights(ROLE.administratif)
+def add_personnel():
+    try:
+        id_personnel_str = str(request.form.get('idPersonnel'))
+        nom = request.form.get('nom')
+        prenom = request.form.get('prenom')
+        role_str = request.form.get('role')
+
+        personnel_existant = PERSONNEL.query.filter_by(nom=nom, prenom=prenom, role=role_str).first()
+        if nom == '' or prenom == '' or role_str == '':
+            data = {
+                'success': False,
+                'message': 'Vous ne pouvez pas créer un personnel avec un nom vide, un prénom vide ou sans role, vous pouvez retourner en arrière'
+            }
+            json_response = json.dumps(data, indent=4, ensure_ascii=False)
+            
+            return Response(response=json_response,
+                            status=400,
+                            mimetype='application/json')
+        if personnel_existant:
+            data = {
+                'success': False,
+                'message': 'Un personnel avec ce nom, prénom et rôle existe déjà, vous pouvez retourner en arrière'
+            }
+            json_response = json.dumps(data, indent=4, ensure_ascii=False)
+            
+            return Response(response=json_response,
+                            status=400,
+                            mimetype='application/json')
+ 
+        new_personnel = PERSONNEL(nom=nom,
+                                prenom=prenom,
+                                mdp = id_personnel_str+role_str[0],
+                                role=role_str)
+        
+        db.session.add(new_personnel)
+        db.session.commit()
+        return redirect(url_for('gestion_personnel'))
+    
+    except Exception as e:
+        db.session.rollback()
+        data = {
+            'success': False,
+            'message': f'Erreur lors de la modification: {str(e)}'
+        }
+        json_response = json.dumps(data, indent=4, ensure_ascii=False)
+            
+        return Response(response=json_response,
+                        status=400,
+                        mimetype='application/json')
+
+@app.route('/gestion_personnel/<int:id_personnel>/delete', methods=['POST'])
+@login_required
+@role_access_rights(ROLE.administratif)
+def erase_personnel(id_personnel):
+    personnel = db.session.get(PERSONNEL, id_personnel)
+
+    if personnel:
+        db.session.delete(personnel)
+        db.session.commit()
+    return redirect(url_for('gestion_personnel'))
+
+@app.route('/gestion_personnel/edit/<int:id_personnel>', methods=['GET'])
+def show_edit_form(id_personnel):
+    personnel = db.session.get(PERSONNEL, id_personnel)
+    if not personnel:
+        return "Personnel non trouvé", 404
+    return render_template('edit_personnel.html', personnel=personnel)
+
+@app.route('/gestion_personnel/edit/<int:id_personnel>/', methods=['POST'])
+
+@login_required
+@role_access_rights(ROLE.administratif)
+def edit_personnel(id_personnel):
+    personnel = db.session.get(PERSONNEL, id_personnel)
+
+    if personnel:
+        try:
+            personnel.nom = request.form.get('nom')
+            personnel.prenom = request.form.get('prenom')
+            personnel.role = request.form.get('role')
+            new_mdp = request.form.get('mdp')
+            if new_mdp:
+                personnel.mdp = new_mdp
+            
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"Erreur lors de la mise à jour : {e}")
+            
+    return redirect(url_for('gestion_personnel'))
+  
+  
+  
+  def _pagination(data: list, page: int, items_per_page: int = 5) -> tuple[list,int]:
     """
     Pagine les données en fonction de la page et du nombre d"éléments par page.
     

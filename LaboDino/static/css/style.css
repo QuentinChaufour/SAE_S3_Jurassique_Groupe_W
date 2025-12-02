@@ -122,6 +122,14 @@ body {
     font-weight: 500;
     line-height: normal;
 }
+#box_block > p{
+    color: #7A7A7A;
+    font-family: Metropolis;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
 
 .form-label {
     text-align: left;
@@ -301,6 +309,80 @@ table {
     transition: ease-in-out 0.3s;
 }
 
+#filter-button{
+    background-color: #E2B362;
+    border-radius: 10px;
+    padding: 0.2rem;
+    cursor: pointer;
+    font-family: "Climate Crisis";
+    font-size: 2rem;
+    margin: 2%;
+    flex-grow: 0;
+}
+
+#ajout-personne{
+    border-radius: 3px;
+    border: 1px solid #999;
+}
+
+#ajout-personne p{
+    color: #7A7A7A;
+    font-family: Inter;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+#ajout-personne > h2{
+    color: #000;
+    font-family: Inter;
+    font-size: 40px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 130%;
+}
+
+#ajout-personne button{
+    border-radius: 15px;
+    background: #26BD5B;
+}
+
+#in-the-background{
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+#edit-personne p{
+    color: #7A7A7A;
+    font-family: Inter;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+#edit-personne button{
+    border-radius: 15px;
+    background: #26BD5B;
+}
+
+#edit-personne a{
+    border-color: #7A7A7A;
+    border-radius: 15px;
+    background: orangered;
+    color: black;
+    font-family: Inter;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    text-decoration: none;
+}
+
+#edit-personne{
+    border-radius: 3px;
+    border: 1px solid #999;
+}
 #main_tech_dashboard h1{
     font-size: 64px;
 }
