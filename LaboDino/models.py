@@ -10,8 +10,8 @@ class ROLE(enum.Enum):
     direction = 'direction'
 
 inclure_equipement = db.Table("INCLURE_EQUIPEMENT", 
-                              db.Column("nom_plateforme_inclure", db.String(50), db.ForeignKey("PLATEFORME.nomPlateforme"), primary_key=True), 
-                              db.Column("id_equipement_inclure", db.Integer, db.ForeignKey("EQUIPEMENT.idEquipement"), primary_key=True))
+                              db.Column("nomPlateforme", db.String(50), db.ForeignKey("PLATEFORME.nomPlateforme"), primary_key=True), 
+                              db.Column("idEquipement", db.Integer, db.ForeignKey("EQUIPEMENT.idEquipement"), primary_key=True))
 
 necessiter_habilitation = db.Table("NECESSITER_HABILITATION", 
                                    db.Column("id_equipement_necessiter", db.Integer, db.ForeignKey("EQUIPEMENT.idEquipement"), primary_key=True),
@@ -37,20 +37,20 @@ class ECHANTILLON(db.Model):
     __tablename__ = 'ECHANTILLON'
     id_echantillon = db.Column("idEchantillon",db.Integer, primary_key=True, autoincrement=True)
     id_campagne = db.Column("idCampagne",db.Integer,db.ForeignKey("CAMPAGNE.idCampagne"))
-    fichier_sequence_adn = db.Column(MEDIUMTEXT)
+    fichier_sequence_adn = db.Column("fichierSequenceADN", MEDIUMTEXT)
     id_espece = db.Column("idEspece", db.Integer, db.ForeignKey("ESPECE.idEspece"), nullable=True)
     commentaire = db.Column(db.Text)
     espece = db.relationship("ESPECE", back_populates="echantillons")
     campagne = db.relationship("CAMPAGNE", back_populates="echantillons")
 
-    def __init__(self, idCampagne, fichier_sequence_adn, commentaire=None, id_espece=None):
-        self.idCampagne = idCampagne
+    def __init__(self, id_campagne, fichier_sequence_adn, commentaire=None, id_espece=None):
+        self.id_campagne = id_campagne
         self.fichier_sequence_adn = fichier_sequence_adn
         self.id_espece = id_espece
         self.commentaire = commentaire
 
     def __repr__(self):
-        return f"<Échantillon de la campagne n°{self.idCampagne} la séquence adn: {self.fichier_sequence_adn}>"
+        return f"<Échantillon de la campagne n°{self.id_campagne} la séquence adn: {self.fichier_sequence_adn}>"
     
 class CAMPAGNE(db.Model):
     __tablename__ = 'CAMPAGNE'
@@ -60,7 +60,7 @@ class CAMPAGNE(db.Model):
     duree = db.Column(db.Integer)
     lieu = db.Column(db.String(100))
     valide = db.Column(db.Boolean)
-    participerCampagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="campagne")
+    participerCampagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="campagne", cascade="all, delete-orphan")
     plateforme = db.relationship("PLATEFORME", back_populates="campagnes")
     echantillons = db.relationship("ECHANTILLON", back_populates="campagne")
 
@@ -73,7 +73,7 @@ class CAMPAGNE(db.Model):
         self.valide = valide
 
     def __repr__(self):
-        return f"<Campagne n°{self.idCampagne} sur la plateforme {self.nom_plateforme} a commencé le {self.dateDebut} pour une durée de {self.duree}>"
+        return f"<Campagne n°{self.id_campagne} sur la plateforme {self.nom_plateforme} a commencé le {self.dateDebut} pour une durée de {self.duree}>"
 
 
 
@@ -110,14 +110,14 @@ class PARTICIPER_CAMPAGNE(db.Model):
     campagne = db.relationship("CAMPAGNE", back_populates="participerCampagne")
     personnel = db.relationship("PERSONNEL", back_populates="participerCampagne")
 
-    def __init__(self, idCampagne, idPersonnel):
-        self.idCampagne = idCampagne
-        self.idPersonnel = idPersonnel
+    def __init__(self, id_campagne, id_personnel):
+        self.id_campagne = id_campagne
+        self.id_personnel = id_personnel
 
     def __repr__(self):
         nom = getattr(self.personnel, 'nom', None)
         prenom = getattr(self.personnel, 'prenom', None)
-        return f"<POSSEDER campagne= n°{self.idCampagne} personnel={nom!r} {prenom!r}>"
+        return f"<POSSEDER campagne= n°{self.id_campagne} personnel={nom!r} {prenom!r}>"
 
 class POSSEDER(db.Model):
     __tablename__ = "POSSEDER_HABILITATION"
@@ -126,9 +126,9 @@ class POSSEDER(db.Model):
     personnels = db.relationship("PERSONNEL", back_populates="posseder")
     habilitations = db.relationship("HABILITATION", back_populates="posseder")
 
-    def __init__(self, idHabilitation, idPersonnel):
-        self.idHabilitation = idHabilitation
-        self.idPersonnel = idPersonnel
+    def __init__(self, id_habilitation, id_personnel):
+        self.id_habilitation = id_habilitation
+        self.id_personnel = id_personnel
 
     def __repr__(self):
         hab = getattr(self.habilitation, 'nom_habilitation', None)
@@ -159,8 +159,8 @@ class PLATEFORME(db.Model):
     intervalle_maintenance = db.Column("intervalleMaintenance", db.Integer)
     
     equipements = db.relationship('EQUIPEMENT', secondary=inclure_equipement, back_populates='plateformes')
-    maintenances = db.relationship('MAINTENANCE', back_populates='plateforme')
-    campagnes = db.relationship('CAMPAGNE', back_populates='plateforme')
+    maintenances = db.relationship('MAINTENANCE', back_populates='plateforme', cascade="all, delete-orphan")
+    campagnes = db.relationship('CAMPAGNE', back_populates='plateforme', cascade="all, delete-orphan")
     
 
     def __init__(self, nom_plateforme="", nb_personnes_requises=0, cout_journalier=0, intervalle_maintenance=0):
