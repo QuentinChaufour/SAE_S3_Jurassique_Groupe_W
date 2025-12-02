@@ -1,7 +1,7 @@
 from .app import app, db
 from .decorators import role_access_rights
-from flask import render_template,redirect, url_for,request, jsonify, request, redirect, url_for, Response
-from flask_login import login_user, logout_user, login_required, current_user
+from flask import render_template,redirect, url_for, request, redirect, url_for, Response
+from flask_login import login_user, logout_user, login_required
 from .forms import LoginForm, BudgetForm, PlatformForm
 from .models import PERSONNEL, ROLE, PLATEFORME
 from sqlalchemy.exc import OperationalError
@@ -27,7 +27,6 @@ def login():
     elif form.validate_on_submit():
         un_user = form.authenticate()
         if un_user:
-            # Successful login logic here
             login_user(un_user)
             
             if form.next.data:

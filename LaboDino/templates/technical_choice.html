@@ -1,0 +1,14 @@
+{% extends "base_template.html" %}
+{% block retour %}
+<li><a href="{{ url_for('login') }}">Retour</a></li>
+{% endblock %}
+{% block content %}
+<div id="main_tech_dashboard">
+    <h1>Choix des actions</h1>
+    <div id="main_tech_choice">
+        <a href="{{ url_for('login') }}">Gérer les maintenances</a>
+        <a href="{{ url_for('platform_management') }}">Gérer les plateformes</a>
+        <a href="{{ url_for('login') }}">Modifier le matériel</a>
+    </div>
+</div>
+{% endblock %}
