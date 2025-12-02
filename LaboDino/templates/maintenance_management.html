@@ -1,7 +1,9 @@
 {% extends "base_template.html" %}
+
 {% block retour %}
-<li><a href="{{ url_for('menu_technician') }}">Retour</a></li>
+<li><a href="{{ url_for('menu_technician') }}" class="back-link typographie">Retour</a></li>
 {% endblock %}
+
 {% block content %}
 <div id="platform_management">
     <h1>Gestion des maintenances</h1>

@@ -1,5 +1,4 @@
 from LaboDino.models import PERSONNEL, PLATEFORME,EQUIPEMENT
-from LaboDino.tests.conftest import testapp
 from LaboDino.app import db
 from datetime import date
 
@@ -194,7 +193,7 @@ def test_equipment_create_after_login(client, testapp):
         equipment: EQUIPEMENT = EQUIPEMENT.query.filter_by(nom_equipement="Brush").first()
         assert equipment is not None
 
-        response = client.get("/equipments/?page=6", follow_redirects= True)
+        response = client.get("/equipments/?page=7", follow_redirects= True)
         assert b"Brush" in response.data
 
         db.session.delete(equipment)

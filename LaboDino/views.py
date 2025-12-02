@@ -2,8 +2,8 @@ from .forms import LoginForm, BudgetForm, CampaignForm, SampleForm, EquipmentFor
 from .app import app,db
 from .decorators import role_access_rights
 from .models import PERSONNEL, CAMPAGNE, ECHANTILLON, ROLE, ECHANTILLON,PARTICIPER_CAMPAGNE, BUDGET, EQUIPEMENT, ESPECE, PLATEFORME, MAINTENANCE
-from flask import render_template,redirect, url_for,request,jsonify,flash
-from flask_login import login_user, logout_user, login_required, current_user, Response
+from flask import render_template,redirect, url_for,request,jsonify,flash, Response
+from flask_login import login_user, logout_user, login_required, current_user
 from datetime import datetime, timedelta, date
 from sqlalchemy.exc import OperationalError, IntegrityError
 from sqlalchemy import extract,func
@@ -32,8 +32,8 @@ def login():
 
     if form.validate_on_submit():
         un_user: PERSONNEL = form.authenticate()
-        if unUser:
-            login_user(unUser)
+        if un_user:
+            login_user(un_user)
 
             next: str = form.next.data
 
@@ -45,12 +45,12 @@ def login():
                     case ROLE.chercheur:
                         next = url_for("menu_researcher", completed=None)
                     case ROLE.technicien:
-                        next_page = url_for("menu_technician")
+                        next = url_for("menu_technician")
+                        #next = url_for("get_equipments")
                     case ROLE.direction:
-                        next_page = url_for("set_budget")
+                        next = url_for("set_budget")
                     case ROLE.administratif:
-                        next_page = url_for("gestion_personnel")
-                        next = url_for("get_equipments")
+                        next = url_for("gestion_personnel")
                     case default:
                         next = url_for("login")
 
@@ -100,7 +100,10 @@ def platform_management():
     data = query.all()  
 
     page = request.args.get('page', 1, type=int)
-    return render_template('platform_management.html', form=form, platforms= _pagination(data, page), page= page, filtre_actif=filtre)
+
+    plateforms, page = _pagination(data, page)
+
+    return render_template('platform_management.html', form=form, platforms= plateforms, page= page, filtre_actif=filtre)
 
 @app.route("/menu_technician/platform_management/<string:platform_name>/", methods=["GET", "POST"])
 @login_required
@@ -163,7 +166,9 @@ def maintenance_management():
     data = query.all()  
     page = request.args.get('page', 1, type=int)
 
-    return render_template('maintenance_management.html', form=form, maintenances= _pagination(data, page), page= page, filtre_actif=filtre)
+    maintenances, page = _pagination(data, page)
+
+    return render_template('maintenance_management.html', form=form, maintenances=maintenances, page= page, filtre_actif=filtre)
 
 @app.route("/menu_technician/maintenance_management/<string:platform_name>/<string:date_maintenance>", methods=["GET", "POST"])
 @login_required
@@ -870,7 +875,7 @@ def edit_personnel(id_personnel):
   
   
   
-  def _pagination(data: list, page: int, items_per_page: int = 5) -> tuple[list,int]:
+def _pagination(data: list, page: int, items_per_page: int = 5) -> tuple[list,int]:
     """
     Pagine les données en fonction de la page et du nombre d"éléments par page.
     

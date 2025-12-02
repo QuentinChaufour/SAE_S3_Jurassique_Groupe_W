@@ -330,6 +330,8 @@ th {
     box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
     height:2rem;
     width: 100%;
+}
+
 .CRUD_btn{
     display: flex;
     width: 50%;
@@ -417,6 +419,3 @@ th {
     padding: 15px; 
     margin-right: 40px;
 }
-
-
-
