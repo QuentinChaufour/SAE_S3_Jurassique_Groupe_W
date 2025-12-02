@@ -14,8 +14,8 @@ inclure_equipement = db.Table("INCLURE_EQUIPEMENT",
                               db.Column("idEquipement", db.Integer, db.ForeignKey("EQUIPEMENT.idEquipement"), primary_key=True))
 
 necessiter_habilitation = db.Table("NECESSITER_HABILITATION", 
-                                   db.Column("id_equipement_necessiter", db.Integer, db.ForeignKey("EQUIPEMENT.idEquipement"), primary_key=True),
-                                   db.Column("id_habilitation_necessiter", db.Integer, db.ForeignKey("HABILITATION.idHabilitation"), primary_key=True))
+                                   db.Column("idEquipement", db.Integer, db.ForeignKey("EQUIPEMENT.idEquipement"), primary_key=True),
+                                   db.Column("idHabilitation", db.Integer, db.ForeignKey("HABILITATION.idHabilitation"), primary_key=True))
 
 class ESPECE(db.Model):
     __tablename__ = 'ESPECE'
@@ -37,7 +37,7 @@ class ECHANTILLON(db.Model):
     __tablename__ = 'ECHANTILLON'
     id_echantillon = db.Column("idEchantillon",db.Integer, primary_key=True, autoincrement=True)
     id_campagne = db.Column("idCampagne",db.Integer,db.ForeignKey("CAMPAGNE.idCampagne"))
-    fichier_sequence_adn = db.Column("fichierSequenceADN", MEDIUMTEXT)
+    fichier_sequence_adn = db.Column("fichierSequenceADN",MEDIUMTEXT)
     id_espece = db.Column("idEspece", db.Integer, db.ForeignKey("ESPECE.idEspece"), nullable=True)
     commentaire = db.Column(db.Text)
     espece = db.relationship("ESPECE", back_populates="echantillons")
@@ -219,7 +219,7 @@ class MAINTENANCE(db.Model):
 
     def __repr__(self):
         return 'Maintenance : ' + self.nom_plateforme
-
+    
 @login_manager.user_loader
 def load_user(user_id: int) -> PERSONNEL:
     return PERSONNEL.query.filter_by(id_personnel=user_id).first()
