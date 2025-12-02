@@ -1,16 +1,31 @@
 {% extends "base_template.html" %}
 
 {% block content %}
+
 <section id="logo">
     <img src="{{ url_for('static', filename='image/logo.png') }}" alt="logo">
 </section>
 
 <div class="box_container">
     <section class="box_block">
-        <h2>Fixer le budget mensuel</h2>
+
+        <h2 class="title">Budget du mois</h2>
+        {% if remaining_budget != None %}
+            <section>
+                <p>Budget total : {{ total_budget }} €</p>
+                <p>Budget restant : {{ remaining_budget }} €</p>
+            </section>
+        {% else %}
+            <section>
+                <p>Pas de Budget établis pour le mois actuel</p>
+            </section>
+        {% endif %}
+
+        <h2 class="title">Fixer le budget mensuel</h2>
         <!-- Formulaire de definition du budget -->
         <form method="POST" role="form" action="{{ url_for('set_budget') }}">
             {{ form.csrf_token }}
+            {{ form.hidden_tag() }}
             <div class="form_field">
                 {{ form.date.label (class_ = "form-label") }}
                 {{ form.date (class_ ="form-input") }}
@@ -23,5 +38,35 @@
             </div>
         </form>
     </section>
+
+    <section>
+        <h2 class="title"> Evolution du budget</h2>
+
+        <img src="{{ url_for('static', filename='image/budget_graph.png') }}" alt="">
+    </section>
+    
+    <script>
+
+        document.getElementById('date').addEventListener('change', function() {
+            const selectedDate = this.value;
+
+            if (selectedDate) {
+                // Fetch budget for selected date
+                fetch(`{{ url_for('get_budget') }}?date=${selectedDate}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.montant) {
+                            document.getElementById('montant').value = data.montant;
+                            document.querySelector('input[type="submit"]').value = "Update le budget"
+                        }
+                        else {
+                            document.getElementById('montant').value = "";
+                            document.querySelector('input[type="submit"]').value = "Valider le budget";
+                        }
+                    })
+            }
+        });
+    </script>
+
 </div>
 {% endblock %}

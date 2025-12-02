@@ -24,7 +24,7 @@ services:
       MYSQL_ROOT_PASSWORD: root_password
       MYSQL_USER: user
       MYSQL_PASSWORD: password
-      MYSQL_DATABASE: labodino_test
+      MYSQL_DATABASE: labodino
     ports:
       - "3307:3306"
     volumes:

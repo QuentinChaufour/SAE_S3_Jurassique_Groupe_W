@@ -15,9 +15,6 @@ def testapp():
 
     with app.app_context():
 
-        db.drop_all()
-        db.create_all()
-
         personnel1 = PERSONNEL("Dupont", "Jean", "mdp123", ROLE.administratif)
         personnel2 = PERSONNEL("Martin", "Sophie", "mdp456", ROLE.chercheur)
         personnel3 = PERSONNEL("Bernard", "Luc", "mdp789", ROLE.technicien)
@@ -82,7 +79,7 @@ def testapp():
 
         camp1 = CAMPAGNE(plateforme_sequence.nom_plateforme, date(2024, 1, 15), 2, "Montana, USA", True)
         camp2 = CAMPAGNE(plateforme_paleontologie.nom_plateforme, date(2024, 3, 10), 3, "Patagonie, Argentine", True)
-        camp3 = CAMPAGNE(plateforme_analyse.nom_plateforme, date(2024, 6, 1), 4, "Gobi, Mongolie", False)
+        camp3 = CAMPAGNE(plateforme_analyse.nom_plateforme, date(2024, 6, 1), 4, "Gobi, Mongolie", True)
         db.session.add_all([camp1, camp2, camp3])
         db.session.commit()
         camp_ids = [c.id_campagne for c in (camp1, camp2, camp3)]
@@ -97,7 +94,7 @@ def testapp():
                       (maint3.nom_plateforme, maint3.date_maintenance)]
 
         part_camp1 = PARTICIPER_CAMPAGNE(camp1.id_campagne, personnel1.id_personnel)
-        part_camp2 = PARTICIPER_CAMPAGNE(camp2.id_campagne, personnel2.id_personnel)
+        part_camp2 = PARTICIPER_CAMPAGNE(camp2.id_campagne, personnel4.id_personnel)
         part_camp3 = PARTICIPER_CAMPAGNE(camp1.id_campagne, personnel3.id_personnel)
         part_camp4 = PARTICIPER_CAMPAGNE(camp2.id_campagne, personnel3.id_personnel)
         db.session.add_all([part_camp1, part_camp2, part_camp3, part_camp4])
@@ -115,9 +112,10 @@ def testapp():
 
         echantillon1 = ECHANTILLON(camp1.id_campagne, "TRex_dent.adn", "Dent de T-Rex")
         echantillon2 = ECHANTILLON(camp2.id_campagne, "Tric_corne.adn", "Corne de Triceratops")
-        db.session.add_all([echantillon1, echantillon2])
+        echantillon3 = ECHANTILLON(camp3.id_campagne, "plume.adn", "Vertebre de sauropode")
+        db.session.add_all([echantillon1, echantillon2, echantillon3])
         db.session.commit()
-        echantillon_ids = [echantillon1.id_echantillon, echantillon2.id_echantillon]
+        echantillon_ids = [echantillon1.id_echantillon, echantillon2.id_echantillon, echantillon3.id_echantillon]
 
         # Association table snapshots (keys) created
         inclure_keys = [(plateforme_sequence.nom_plateforme, sequenceur.id_equipement),
@@ -160,8 +158,8 @@ def testapp():
         for eq, hab in created["necessiter"]:
             db.session.execute(
                 necessiter_habilitation.delete()
-                .where(necessiter_habilitation.c.id_equipement_necessiter == eq)
-                .where(necessiter_habilitation.c.id_habilitation_necessiter == hab)
+                .where(necessiter_habilitation.c.idEquipement == eq)
+                .where(necessiter_habilitation.c.idHabilitation == hab)
             )
         db.session.commit()
 
