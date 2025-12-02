@@ -60,7 +60,7 @@ class CAMPAGNE(db.Model):
     duree = db.Column(db.Integer)
     lieu = db.Column(db.String(100))
     valide = db.Column(db.Boolean)
-    participerCampagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="campagne")
+    participerCampagne = db.relationship("PARTICIPER_CAMPAGNE", back_populates="campagne", cascade="all, delete-orphan")
     plateforme = db.relationship("PLATEFORME", back_populates="campagnes")
     echantillons = db.relationship("ECHANTILLON", back_populates="campagne")
 
@@ -159,8 +159,8 @@ class PLATEFORME(db.Model):
     intervalle_maintenance = db.Column("intervalleMaintenance", db.Integer)
     
     equipements = db.relationship('EQUIPEMENT', secondary=inclure_equipement, back_populates='plateformes')
-    maintenances = db.relationship('MAINTENANCE', back_populates='plateforme')
-    campagnes = db.relationship('CAMPAGNE', back_populates='plateforme')
+    maintenances = db.relationship('MAINTENANCE', back_populates='plateforme', cascade="all, delete-orphan")
+    campagnes = db.relationship('CAMPAGNE', back_populates='plateforme', cascade="all, delete-orphan")
     
 
     def __init__(self, nom_plateforme="", nb_personnes_requises=0, cout_journalier=0, intervalle_maintenance=0):
@@ -222,4 +222,4 @@ class MAINTENANCE(db.Model):
     
 @login_manager.user_loader
 def load_user(user_id: int) -> PERSONNEL:
-    return PERSONNEL.query.get(user_id)
+    return PERSONNEL.query.filter_by(id_personnel=user_id).first()

@@ -238,3 +238,76 @@ th {
     margin-top: 2vh;
     margin-bottom: 4vh;
 }
+#main_tech_dashboard{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20vh;
+}
+
+#main_tech_choice{
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    gap: 10vh;
+}
+
+#platform_management{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 3vh;
+}
+
+#platform_content {
+    width: 95%;
+    display: flex;
+    flex-direction: row;
+    gap: 2vw;
+}
+
+#platform_table {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1vh;
+    flex: 1;
+}
+
+#filter-button {
+    padding: 10px;
+    margin-left: 2vh;
+    font-size: 18px;
+}
+
+#platform_table table{
+    margin: 2vh 2vh 0vh 2vh;
+}
+
+#platform_table th, #platform_table td{
+    text-align: left;
+    padding: 1.5vh 1.8vh;
+    font-size: 18px;
+
+}
+
+#platform_table button {
+    width: auto;
+    align-self: flex-start;
+    padding: 1vh 2vh;  
+    margin-left: 2vh;
+    font-size: 18px;
+}
+
+#create_platform{
+    display: flex;
+    flex-basis: 30%;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px; 
+    margin-right: 40px;
+}
+
+
+
