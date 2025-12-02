@@ -72,6 +72,9 @@ def test_create_platform_success(client, testapp):
         created_plat = PLATEFORME.query.filter_by(nom_plateforme="Aristote").first()
         assert created_plat is not None
 
+        db.session.delete(created_plat)
+        db.session.commit()
+
 def test_delete_platform_success(client, testapp):
     """Teste la supression d'une plateforme"""
     with testapp.app_context():
@@ -95,6 +98,9 @@ def test_delete_platform_success(client, testapp):
         
         deleted = PLATEFORME.query.filter_by(nom_plateforme="Aristote").first()
         assert deleted is None
+        if deleted is not None:
+            db.session.delete(deleted)
+            db.session.commit()
 
 def test_update_platform_success(client, testapp):
     """Teste la modification d'une plateforme"""
