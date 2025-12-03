@@ -31,6 +31,8 @@ L'URL de cette nouvelle base de donnée sera : `"mysql+pymysql://root:root_passw
 Pour lancer les tests, executez la commande: `coverage run -m pytest`
 Pour lancer l'application web, executez la commande: `flask run`
 
+### Vidéo de présentation : https://youtu.be/9p5bDq0hDaI
+
 ### Se connecter
 
 Voici les identifiants de connexion de membre test du personnel possédant chacun un rôle différent:\
