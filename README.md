@@ -8,6 +8,29 @@
 
 executez la commande `python -m exploitation_echantillons.app`
 
+### Lancement de l'application Web
+
+#### Installer les dépendances
+Il faut avoir l'ensemble des dépendances nécessaires.
+Nous pouvons utiliser un environment virtuel dans le dossier du projet avec notament la commande : `virtualenv venv -p python3`
+Puis : `Source venv/bin/activate` sur linux, ou `Source venv/Script/activate` sur windows
+Enfin installez les dépendances : `pip install -r requirements.txt`
+
+#### Utilisation en local
+
+Pour pouvoir utiliser l'application hors de l'IUT, un fichier docker est disponible.
+Le logiciel Docker doit être installé sur la machine, et tourner en arrière plan.
+Puis, dans le dossier du projet executez la commande : `docker compose up -d`
+(Suppression des containes avec la commande : `docker compose down -v`)
+
+Par la suite il faut modifier l'URL de la base de données, spécifié dans le fichier config.py
+L'URL de cette nouvelle base de donnée sera : "mysql+pymysql://root:root_password@localhost:3306/labodino"
+
+#### Lancer les tests et l'application
+
+Pour lancer les tests, executez la commande: `coverage run -m pytest`
+Pour lancer l'application web, executez la commande: `flask run`
+
 ## Le parc du Jurassique
 
 Dans une équipe de trois personnes, nous avons pour but de créer une application web pour le laboratoire de paléontologie, l'application a pour but principal de préparer des campagnes de fouilles dans les différentes plateformes dont ils disposent et d'en traiter les résultats. \
