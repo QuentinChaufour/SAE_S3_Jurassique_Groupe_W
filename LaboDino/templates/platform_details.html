@@ -1,0 +1,55 @@
+{% extends "base_template.html" %}
+
+{% block retour %}
+    <a href="{{ url_for('platform_management') }}" class="back-link typographie">Retour</a>
+{% endblock %}
+
+{% block menu %}
+<li><a href="{{ url_for('menu_technician') }}">Menu</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="box_container">
+    <h1 class="title">{{ platform.nom_plateforme }}</h1>
+
+    <table class="table-borders-bottom">
+        <tbody>
+            <tr>
+                <td>Nom plateforme: {{ platform.nom_plateforme}}</td>
+            </tr>
+            <tr>
+                <td>Nb Personnes: {{ platform.nb_personnes_requises}}</td>
+                <td>Prix/jour: {{ platform.cout_journalier}}</td>
+                <td>Maintenance: {{ platform.intervalle_maintenance}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div id="create_platform">
+            <h2>Modifier une plateforme</h2>
+            <form id="plateform_creation_form" method="POST" role="form" action="{{ url_for('platform_detail', platform_name=platform.nom_plateforme) }}">
+                {{ form.hidden_tag() }}
+                <div class="login-form">
+                    {{ form.nom_plateforme.label (class_ = "login-form-label") }}
+                    <input type="text" class="login-input prefilled-input" name="nom_plateforme" value="{{ platform.nom_plateforme }}" readonly>
+                </div>
+                <div class="login-form">
+                    {{ form.nb_personnes_requises.label (class_ = "login-form-label") }}
+                    {{ form.nb_personnes_requises (class_ ="login-input") }}
+                </div>
+                <div class="login-form">
+                    {{ form.cout_journalier.label (class_ = "login-form-label") }}
+                    {{ form.cout_journalier (class_ ="login-input") }}
+                </div>
+                <div class="login-form">
+                    {{ form.intervalle_maintenance.label (class_ = "login-form-label") }}
+                    {{ form.intervalle_maintenance (class_ ="login-input") }}
+                </div>
+                <div id="login-form-submit">
+                    <input type="submit" value="Modifier">
+                </div>
+            </form>
+        </div>
+</div>
+
+{% endblock %}

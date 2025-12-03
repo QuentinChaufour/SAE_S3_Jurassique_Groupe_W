@@ -1,0 +1,434 @@
+body{
+    padding: 0;
+    margin: 0;   
+}
+
+.title{
+    text-align: center;
+}
+
+h2{
+    text-align: left;
+}
+
+#navbar {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 0 1rem 0 2rem;
+}
+
+#navbar h1 {
+    margin: 0;
+    padding: 0;
+}
+
+#navbar-items {
+    position: static;
+    margin-right: 2rem;
+    margin-left: auto;
+}
+#navbar-items ul{
+    display: flex;
+    gap: 10%;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+}
+
+#navbar-items li{
+    padding: 1rem;
+    margin: 0;
+}
+
+#navbar-items li:last-child{
+    margin-right: 10%;
+}
+
+#logo{
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
+#logo img{
+    height: 20vh;
+    width: auto;
+    padding: 2vh;
+    margin: 2vh;
+}
+
+.flashes {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.flashes > p {
+    margin: 1rem;
+    padding: 1rem;
+    border: 2px solid #4F4F4F;
+    border-radius: 10px;
+}
+
+.retour {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin: 1rem 0;
+}
+
+.back-link {
+    margin: 0 5%;
+}
+
+.box_container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#box_container h1{
+    font-size: 52px;
+}
+
+#box_container h1{
+    font-size: 52px;
+}
+
+.box_block{
+    margin-top: 2vh;
+    padding: 2vh;
+    width: 50vw;
+}
+
+.form_field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5vh;
+    margin: 0 15% 0 15%;
+}
+
+.form-label {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    margin: 2% 0 2% 0;
+}
+
+.form-input{
+    width: 100%;
+    height: 4.5vh;
+    padding: 0;
+    margin: 0;
+}
+
+#login-form-submit{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#login-form-submit input{
+    display: flex;
+    width: 70%;
+    padding: 2%;
+    justify-content: center;
+    align-items: center;
+    margin: 5%;
+}
+
+#budget-form-submit{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#budget-form-submit input{
+    display: flex;
+    width: 50%;
+    padding: 2%;
+    justify-content: center;
+    align-items: center;
+    margin: 5%;
+}
+
+.menu_selection{
+    display: block;
+    width: 45%;
+    text-align: center;
+    margin: 2% auto;
+    padding: 2%;
+}
+
+.table-btn{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
+    margin-bottom: 2%;
+    gap: 5%;
+}
+
+table {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.btn-filter{
+    margin-right: 25%;
+    padding: 1%;
+}
+
+#btn-add-campaign{
+    flex-grow: 1;
+    margin-right: 35%;
+    padding: 1%;
+}
+
+.pagination{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 2vh;
+}
+
+.pagination-btn{
+    padding: 7.5%;
+}
+
+th {
+    text-align: center;
+}
+
+.table-borders {
+    width: 90%;
+}
+
+.table-borders tr{
+    height: 8vh;
+}
+
+.table-borders-bottom td{
+    padding: 2%;
+    text-align: center;
+    width: 33.33%;
+}
+
+.table-borders-bottom {
+    width: 90%;
+    margin-bottom: 2%;
+}
+
+#participant-table {
+    margin-bottom: 5%;
+}
+
+#participant-table td {
+    padding: 2%;
+}
+
+#ajout-personne button{
+    padding: 10px;
+    width: 100%;
+    font-size: xx-large;
+}
+#ajout-personne{
+    margin-right: 15rem;
+    margin-left: 5rem;
+    padding: 2rem;
+    height: 0%;
+}
+
+#ajout-personne section{
+    margin: 1rem;
+}
+
+#ajout-personne h2{
+    margin-block-start: 0;
+    margin-block-end: 0;
+}
+#ajout-personne input, #ajout-personne select{
+    border-radius: 10px;
+    border: 1px solid #000;
+    background: #FFF;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+    height:2rem;
+    width: 100%;
+}
+
+#main-div{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    width: 100%;
+}
+
+#admin-div{
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    width: 100%;
+}
+#table-admin{
+    border-radius: 4px;
+    border: 1px solid #7D7D7D;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-left: 1rem;
+    margin-bottom: 1rem;
+    width: 100%
+}
+
+#table-admin th, #table-admin td{
+    border-bottom: 1px solid #7D7D7D;
+    width: 100%;
+    text-align: left;
+}
+#table-admin thead, #table-admin tbody{
+    width: 100%;
+}
+
+#personnel{
+    display: flex;
+    flex-direction: column;
+    margin-left: 5rem;
+    margin-right: 5rem;
+    width: 40vw;
+}
+#personnel tr{
+    display: flex;
+    justify-content: space-between;
+}
+#personnel td, #personnel th, #personnel i{
+    font-size: xx-large;
+    padding: 0.5rem;
+}
+
+#edit-personne{
+    padding: 2rem;
+    height: 0%;
+}
+
+#edit-personne button, #edit-personne a{
+    margin-bottom: 1rem;
+    padding: 10px;
+    font-size: xx-large;
+}
+
+#edit-personne section{
+    margin: 1rem;
+}
+
+#edit-personne input, #edit-personne select{
+    border-radius: 10px;
+    border: 1px solid #000;
+    background: #FFF;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+    height:2rem;
+    width: 100%;
+}
+
+.CRUD_btn{
+    display: flex;
+    width: 50%;
+    justify-content: space-around;
+    padding: 2% 2%;
+}
+
+#add_sample{
+    padding: 1%;
+    margin: 1.5%;
+}
+
+.comparison-table {
+    width: 90vw;
+    margin-top: 2vh;
+    margin-bottom: 4vh;
+}
+#main_tech_dashboard{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20vh;
+}
+
+#main_tech_choice{
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    gap: 10vh;
+}
+
+#platform_management{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 1vh;
+}
+
+#platform_content {
+    width: 95%;
+    display: flex;
+    flex-direction: row;
+    gap: 2vw;
+}
+
+#platform_table {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.3vh;
+    flex: 1;
+}
+
+#filter-button {
+    padding: 10px;
+    margin-left: 2vh;
+    margin-top: 0; /* Supprime la marge supérieure du filtre */
+    margin-bottom: 0.5vh; /* Réduit l'espace sous le filtre */
+    font-size: 18px;
+}
+
+#platform_table table{
+    margin: 2vh 2vh 0vh 2vh;
+}
+
+#platform_table th, #platform_table td{
+    text-align: left;
+    padding: 1.5vh 1.8vh;
+    font-size: 18px;
+
+}
+
+#platform_table button {
+    width: auto;
+    align-self: flex-start;
+    padding: 1vh 2vh;  
+    margin-left: 2vh;
+    font-size: 18px;
+}
+
+#create_platform{
+    display: flex;
+    flex-basis: 30%;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px; 
+    margin-right: 40px;
+}
+
+#platform_management,
+#maintenance_management {
+    padding-top: 0vh; 
+}
+
+#platform_management h1,
+#maintenance_management h1 {
+    margin-top: 0rem;
+    margin-bottom: 0.7rem;
+}

@@ -1,0 +1,486 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+body {
+    background: #F5F5F0;
+}
+
+#navbar {
+    background: #BEEAC5;
+}
+
+.typographie {
+    color: #000;
+    font-family: Inter;
+    font-size: 2rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 130%;
+}
+
+.user {
+    margin: 0;
+    margin-left: 2rem;
+    font-size: 2.5rem;
+}
+
+.title {
+    color: #000;
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+}
+
+#navbar h1 {
+    color: #000;
+    font-family: "Climate Crisis";
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    font-size: 5rem;
+}
+
+#navbar-items {
+    font-size: 2rem;
+}
+
+#navbar-items li {
+    background-color: #C2A68C;
+    border-radius: 1rem;
+    cursor: pointer;
+}
+
+#navbar-items li:hover {
+    background-color: #D7C097;
+    transition: ease-in-out 0.5s;
+}
+
+#navbar-items ul {
+    list-style: none;
+}
+
+#navbar-items a {
+    text-decoration: none;
+    color: #000;
+}
+
+#logo {
+    text-align: center;
+}
+
+#logo img {
+    background-color: #E6D8C3;
+    border-radius: 100%;
+}
+
+.flash {
+    color: #000;
+    font-family: Inter;
+    font-size: 1.5rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 130%;
+    background-color: #90EE90;
+}
+
+.flash-error {
+    color: #000;
+    font-family: Inter;
+    font-size: 1.5rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 130%;
+    background-color: #F08080;
+}
+
+.back-link {
+    text-decoration: none;
+    color: #000;
+    border: 2px solid #4F4F4F;
+    background-color: #E6D8C3;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+}
+
+.back-link:hover {
+    background-color: #C2A68C;
+    transition: ease-in-out 0.3s;
+}
+
+#box_block {
+    text-align: center;
+    border-radius: 2vh;
+    border-radius: 15px;
+    border: 2px solid #4F4F4F;
+}
+
+#box_block>h2 {
+    color: #000;
+    font-family: Metropolis;
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+#box_block > p{
+    color: #7A7A7A;
+    font-family: Metropolis;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.form-label {
+    text-align: left;
+    color: #4F4F4F;
+    font-family: Metropolis;
+    font-style: normal;
+    font-size: 1.5rem;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.login-input {
+    border-radius: 10px;
+    border: 1px solid #4F4F4F;
+    background: #FFF;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+#login-form-submit input {
+    border-radius: 60px;
+    background: #007E6E;
+    transition: ease-in-out 0.3s;
+}
+
+#login-form-submit input:hover {
+    border-radius: 60px;
+    background: #BEEAC5;
+}
+
+#budget-form-submit input {
+    border-radius: 60px;
+    background: #007E6E;
+    transition: ease-in-out 0.3s;
+}
+
+#budget-form-submit input:hover {
+    background: #BEEAC5;
+}
+
+.menu_selection {
+    border-radius: 10px;
+    background: #C2A68C;
+    text-decoration: none;
+    transition: ease-in-out 0.3s;
+}
+
+.menu_selection:hover {
+    background: #D7C097;
+}
+
+#login-form-submit input:active{
+    border-radius: 60px;
+    background: #8f8c8c;
+}
+
+table {
+    border-collapse: collapse;
+    border-radius: 20px;
+}
+
+
+.table-borders {
+    border-collapse: separate; /* Change to separate */
+    border-spacing: 0; /* Remove gaps between cells */
+    border-radius: 20px;
+    border: 2px solid #4F4F4F; /* Border around the entire table */
+    overflow: hidden; /* Clips content to rounded corners */
+}
+
+.table-borders th, .table-borders td{
+    border-bottom: 2px solid #4F4F4F;
+}
+
+.table-borders td{
+    text-align: center;
+}
+
+.table-borders tr:not(.header-row):hover {
+    background-color: #E7DEAF;
+    transition: ease-in-out 0.3s;
+}
+
+.btn-filter {
+    border-radius: 9.075px;
+    background: #E2B362;
+}
+
+#btn-add-campaign {
+    border-radius: 40px;
+    background: #73AF6F;
+}
+
+#btn-add-campaign:hover {
+    background: #5D866C;
+    transition: ease-in-out 0.3s;
+}
+
+.pagination-btn:hover{
+    background-color: #C2A68C;
+    border-radius: 20px;
+    transition: ease-in-out 0.3s;
+}
+
+.table-borders-bottom tr {
+    border-bottom: 2px solid #4F4F4F;
+}
+
+/* remove double border on the last row */
+.table-borders tr:last-child td{
+    border-bottom: None;
+}
+
+.table-borders-bottom td {
+    color: #000;
+    font-family: Inter;
+    font-size: 1.5rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 130%;
+}
+
+#participant-table {
+    border-top: #000 2px solid;
+}
+
+#participant-table td {
+    color: #000;
+    font-family: Inter;
+    font-size: 1.5rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 130%;
+    text-align: center;
+}
+
+.selected-sample{
+    background-color: blueviolet;
+}
+
+.btn-delete, .btn-disengage{
+    border-radius: 9.075px;
+    background: #F08080;
+}
+
+.btn-delete:hover, .btn-disengage:hover{
+    background: #E63946;
+    transition: ease-in-out 0.3s;
+}
+
+.btn-edit{
+    border-radius: 9.075px;
+    background: #E2B362;
+}
+
+.btn-edit:hover{
+    background: #ffaf25;
+    transition: ease-in-out 0.3s;
+}
+
+.btn-participate{
+    border-radius: 9.075px;
+    background: #007E6E;
+}
+
+.btn-participate:hover{
+    background: #73AF6F;
+    transition: ease-in-out 0.3s;
+}
+
+#add_sample{
+    border-radius: 9.075px;
+    background: #73AF6F;
+}
+
+#add_sample:hover{
+    background: #5D866C;
+    transition: ease-in-out 0.3s;
+}
+
+#filter-button{
+    background-color: #E2B362;
+    border-radius: 10px;
+    padding: 0.2rem;
+    cursor: pointer;
+    font-family: "Climate Crisis";
+    font-size: 2rem;
+    margin: 2%;
+    flex-grow: 0;
+}
+
+#ajout-personne{
+    border-radius: 3px;
+    border: 1px solid #999;
+}
+
+#ajout-personne p{
+    color: #7A7A7A;
+    font-family: Inter;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+#ajout-personne > h2{
+    color: #000;
+    font-family: Inter;
+    font-size: 40px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 130%;
+}
+
+#ajout-personne button{
+    border-radius: 15px;
+    background: #26BD5B;
+}
+
+#in-the-background{
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+#edit-personne p{
+    color: #7A7A7A;
+    font-family: Inter;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+#edit-personne button{
+    border-radius: 15px;
+    background: #26BD5B;
+}
+
+#edit-personne a{
+    border-color: #7A7A7A;
+    border-radius: 15px;
+    background: orangered;
+    color: black;
+    font-family: Inter;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    text-decoration: none;
+}
+
+#edit-personne{
+    border-radius: 3px;
+    border: 1px solid #999;
+}
+#main_tech_dashboard h1{
+    font-size: 64px;
+}
+
+#main_tech_choice a{
+    text-decoration: none;
+    font-size: 42px;
+    padding: 10px;
+    border-radius: 10px;
+    color: black;
+    background-color: #EAC5BE;
+}
+
+#main_tech_choice a:hover{
+    background-color: #ac8b85;
+}
+
+#platform_management{
+    font-family: Inter;
+}
+
+#platform_management h1{
+    font-size: 50px;
+    
+}
+
+#platform_table th, #platform_table td{
+    border:solid;
+    font-size: 24px;
+}
+
+#platform_table button, #filter-button{
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 10px;
+    background-color: #E2B362;
+
+}
+
+#platform_table button:hover{
+    background-color: #8e6c31;
+}
+
+#platform_table button:active{
+    background-color: #54401e;
+}
+
+#create_platform {
+    border: 2px solid #474747;
+    border-radius: 15px;
+    margin-right: 20px;
+}
+
+#create_platform h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+
+
+#plateform_creation_form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+#plateform_creation_form .login-form {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+}
+
+#plateform_creation_form .login-form-label {
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
+}
+
+#plateform_creation_form .login-input {
+    padding: 20px;
+    border-radius: 8px;
+    max-height: 2px;
+    width: 100%;
+}
+
+#plateform_creation_form #login-form-submit {
+    margin-top: 10px;
+    width: 500px;
+}
+
+.prefilled-input{
+    background-color: #c9c9c9;
+    opacity: 0.5;
+}
+/* 
+https://colorhunt.co/palette/d7c097e7deaf73af6f007e6e
+https://colorhunt.co/palette/f5f5f0e6d8c3c2a68c5d866c
+*/
+
