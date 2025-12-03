@@ -356,8 +356,8 @@ def test_maintenance_detail_page_after_login(client, testapp):
     """Teste l'accès à la page de détail d'une maintenance"""
     with testapp.app_context():
         
-        platform_name = "Plateforme Sequence"
-        date_maint = "2026-01-15"
+        platform_name = "BioTech"
+        date_maint = "2025-01-15"
         
         technicien = _get_technician(testapp)
         login_technician(
@@ -373,6 +373,7 @@ def test_maintenance_detail_page_after_login(client, testapp):
         )
         
         assert response.status_code == 200
+        print(response.data)
         assert b"Maintenance du" in response.data
         assert platform_name.encode() in response.data
 
@@ -381,7 +382,7 @@ def test_maintenance_detail_before_login(client, testapp):
     """Teste l'accès à la page de détail d'une maintenance avant connexion"""
     with testapp.app_context():
         platform_name = "Plateforme Sequence"
-        date_maint = "2026-01-15"
+        date_maint = "2025-01-15"
         
         response = client.get(
             f"/menu_technician/maintenance_management/{platform_name}/{date_maint}", 
