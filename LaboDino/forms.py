@@ -1,7 +1,7 @@
 from .app import db,app
 from .models import PERSONNEL,ROLE,PLATEFORME, CAMPAGNE,PARTICIPER_CAMPAGNE,ESPECE,ECHANTILLON, EQUIPEMENT, HABILITATION, MAINTENANCE
-from flask import flash, redirect, url_for
 from flask_wtf import FlaskForm
+from flask import flash, redirect, url_for
 from wtforms import HiddenField, StringField, PasswordField, SubmitField,DateField, FloatField, IntegerField, BooleanField, SelectField, TextAreaField, FileField
 from wtforms.validators import DataRequired
 from flask_login import current_user
