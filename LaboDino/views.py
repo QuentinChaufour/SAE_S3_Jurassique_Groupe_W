@@ -267,12 +267,7 @@ def set_budget():
                 db.session.commit()
         
         except OperationalError as e:
-            print(e)
-            # TODO
-
-        print("Budget Form Data:", date,montant)
-        # Production du graphe
-        # possibilité d'ajouter des filtres/paramètres
+            flash(f"Error updating budget: {e}", category="error")
 
     return render_template("budget_page.html", form=form, remaining_budget= remaining_budget, total_budget= curr_budget_value)
 
