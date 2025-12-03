@@ -1,0 +1,39 @@
+{% extends "base_template.html" %}
+
+{% block menu %}
+    <li><a href="{{ url_for('menu_researcher') }}"> Menu</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="box_container">
+    <h1 class="title"> Gérer les échantillons</h1>
+
+    <table class="table-borders">
+        <thead>
+            <tr class="header-row">
+
+                <th>Sample ID</th>
+                <th>Espece </th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sample in samples %}
+            <tr onclick="location.href='{{ url_for("sample_detail", sample_id=sample.id_echantillon, campaign_id=sample.id_campagne) }}'" style="cursor: grab;">
+                <td>{{ sample.id_echantillon }}</td>
+                <td>{% if sample.id_espece != None %} {{ sample.espece.nom_espece }} {% else %} Inconnu {% endif %}</td>
+                <td>{{ sample.commentaire }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <section class="pagination">
+        <a href="{{ url_for('get_samples',page=page-1,) }}" class="pagination-btn typographie"><</a>
+        <p>{{ page }}</p>
+        <a href="{{ url_for('get_samples',page=page+1) }}" class="pagination-btn typographie"> > </a>
+    </section>
+</div>
+
+{% endblock %}

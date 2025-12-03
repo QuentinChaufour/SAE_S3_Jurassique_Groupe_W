@@ -1,0 +1,100 @@
+{% extends "base_template.html" %}
+
+{% block menu %}
+    <li><a href="{{ url_for('menu_researcher') }}">Menu</a></li>
+{% endblock %}
+
+{% block retour %}
+    <a href="{{ url_for('get_campaigns',completed= None) }}" class="back-link typographie">← Retour au dashboard</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="box_container">
+    <h1 class="title">Campagne {{ campaign.id_campagne }}</h1>
+
+    <table class="table-borders-bottom">
+        <tbody>
+            <tr>
+                <td><strong>Lieu de campagne:</strong> {{ campaign.lieu }}</td>
+            </tr>
+            <tr>
+                <td><strong>Date de début:</strong> {{ campaign.dateDebut }}</td>
+                <td><strong>Date de fin:</strong> {{ campaign.dateDebut + timedelta(days=campaign.duree) }}</td>
+                <td><strong>Durée:</strong> {{ campaign.duree }} jours</td>
+            </tr>
+            <tr>
+                <td><strong>Status:</strong> {{ "Validée" if campaign.valide else "Non validée" }}</td>
+                <td><strong>Plateforme:</strong> {{ campaign.nom_plateforme }}</td>
+                <td><strong>Coût total:</strong> {{ campaign.plateforme.cout_journalier * campaign.duree }} €</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="CRUD_btn">
+        <input type="button" value="Delete" class="btn-delete typographie" onclick="if(confirm('Êtes-vous sûr de vouloir supprimer cette campagne ?')) { location.href='{{ url_for('delete_campaign', campaign_id=campaign.id_campagne) }}' }">
+        <input type="button" value="Update" class="btn-edit typographie" onclick="location.href='{{ url_for('edit_campaign', campaign_id=campaign.id_campagne) }}'">
+    </div>
+
+    <h2>Echantillons ADN retrouvé</h2>
+    
+    <input type="submit" id="add_sample" value="Ajouter échantillon" onclick="location.href='{{ url_for('create_sample', campaign_id=campaign.id_campagne) }}'">
+
+    <table class="table-borders">
+        <thead>
+            <tr class="header-row">
+                <th>ID</th>
+                <th>Espece</th>
+                <th colspan="3">Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sample in campaign.echantillons %}
+            <tr onclick="location.href='{{ url_for("sample_detail", sample_id=sample.id_echantillon, campaign_id=campaign.id_campagne) }}'">
+                <td>{{ sample.id_echantillon }}</td>
+                
+                {% if sample.espece != None %}
+                    <td>{{ sample.espece.nom_espece }}</td>
+                {% else %}
+                    <td>Inconnu</td>
+                {% endif %}
+                
+                {% if sample.commentaire == "" %}
+                    <td>Aucune description disponible</td>
+                {% else %}
+                    <td>{{ sample.commentaire }}</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Participants : </h2>
+
+    <div class="CRUD_btn">
+        {% if current_user.is_authenticated and not is_participating %}
+        <input type="button" value="Enroll" class="btn-participate typographie" onclick="location.href='{{ url_for('enroll_campaign', campaign_id=campaign.id_campagne) }}'">
+        <input type="button" disabled value="Disenroll" class="btn-disengage typographie" onclick="if(confirm('Êtes-vous sûr de vouloir supprimer cette campagne ?')) { location.href='{{ url_for('disenroll_campaign', campaign_id=campaign.id_campagne) }}' }">
+        {% else %}
+        <input type="button" disabled value="Enroll" class="btn-participate typographie" onclick="location.href='{{ url_for('enroll_campaign', campaign_id=campaign.id_campagne) }}'">
+        <input type="button" value="Disenroll" class="btn-disengage typographie" onclick="if(confirm('Êtes-vous sûr de vouloir supprimer cette campagne ?')) { location.href='{{ url_for('disenroll_campaign', campaign_id=campaign.id_campagne) }}' }">
+        {% endif %}
+
+    </div>
+
+    <table id="participant-table">
+        <tbody>
+            {% for i in range(campaign.participerCampagne|length) %}
+
+                {% if i % 3 == 0 %}<tr>{% endif %}
+                <td>{{ campaign.participerCampagne[i].personnel.nom }} {{ campaign.participerCampagne[i].personnel.prenom }}</td>
+                {% if i % 3 == 2 %}</tr>{% endif %}
+
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}

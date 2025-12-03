@@ -1,0 +1,73 @@
+{% extends "base_template.html" %}
+
+{% block menu %}
+    <li><a href="{{ url_for('menu_researcher') }}">Menu</a></li>
+{% endblock %}
+
+{% block retour %}
+    <a href="{{ url_for('campaign_detail', campaign_id=sample.id_campagne) }}" class="back-link typographie">← Retour au détails campagne</a>
+    <a href="{{ url_for('get_samples') }}" class="back-link typographie">← Retour au dashboard d'échantillon</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="box_container">
+<h2 class="title typographie">Sample Details</h2>
+    <section>
+        <p><strong>Sample ID:</strong> {{ sample.id_echantillon }}</p>
+        <p><strong>Espece:</strong> {% if sample.id_espece != None %} {{ sample.espece.nom_espece }} {% else %} Inconnu {% endif %}</p>
+        <p><strong>Description:</strong> {{ sample.commentaire }}</p>
+    </section>
+
+    <div class="CRUD_btn">
+        <input type="button" value="Delete" class="btn-delete typographie" onclick="if(confirm('Êtes-vous sûr de vouloir supprimer cet échantillon ?')) { location.href='{{ url_for('delete_sample', sample_id=sample.id_echantillon) }}' }">
+        <input type="button" value="Update" class="btn-edit typographie" onclick="location.href='{{ url_for('edit_sample', sample_id=sample.id_echantillon) }}'">
+    </div>
+
+    <section>
+        <h2 class="title typographie">Select a sample to compare</h2>
+        <table class="table-borders comparison-table">
+            <thead>
+                <tr class="header-row">
+                    <th>Espece</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for other_sample in samples %}
+                {% if other_sample.id_echantillon != sample.id_echantillon %}
+
+                {% if other_sample.id_echantillon == selected_sample_id %}
+                <tr class="selected-sample">
+                {% else %}
+                <tr onclick="location.href='{{ url_for("sample_detail", sample_id=sample.id_echantillon, campaign_id=sample.id_campagne, page= page, selected_sample= other_sample.id_echantillon) }}'">
+                {% endif %}
+
+                    {% if other_sample.espece != None %}
+                        <td>{{ other_sample.espece.nom_espece }}</td>
+                    {% else %}
+                        <td>Inconnu</td>
+                    {% endif %}
+
+                    {% if other_sample.commentaire == "" %}
+                        <td>Aucune description disponible</td>
+                    {% else %}
+                        <td>{{ other_sample.commentaire }}</td>
+                    {% endif %}
+                {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <div class="pagination">
+        <a href="{{ url_for('sample_detail', sample_id=sample.id_echantillon, campaign_id= sample.id_campagne, page=page-1) }}" class="pagination-btn typographie"><</a>
+        <p class="typographie">{{ page }}</p>
+        <a href="{{ url_for('sample_detail', sample_id=sample.id_echantillon, campaign_id= sample.id_campagne, page=page+1) }}" class="pagination-btn typographie"> > </a>
+    </div>
+</div>
+
+
+
+{% endblock %}

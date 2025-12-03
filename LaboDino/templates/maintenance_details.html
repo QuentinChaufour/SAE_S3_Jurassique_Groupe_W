@@ -1,0 +1,49 @@
+{% extends "base_template.html" %}
+
+{% block retour %}
+<li><a href="{{ url_for('maintenance_management') }}" class="back-link typographie">Retour</a></li>
+{% endblock %}
+
+{% block menu %}
+<li><a href="{{ url_for('menu_technician') }}">Menu</a></li>
+{% endblock %}
+
+{% block content %}
+
+<div class="box_container">
+    <h1 class="title">Maintenance du {{ maintenance.date_maintenance }} sur la Plateforme : {{ maintenance.nom_plateforme}}</h1>
+
+    <table class="table-borders-bottom">
+        <tbody>
+            <tr>
+                <td>Date Maintenance: {{ maintenance.date_maintenance}}</td>
+                <td>Durée: {{ maintenance.duree_maintenance}}</td>
+                <td>Nom Plateforme: {{ maintenance.nom_plateforme}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div id="create_platform">
+        <h2>Modifier une maintenance</h2>
+        <form id="plateform_creation_form" method="POST" role="form" action="{{ url_for('maintenance_detail', platform_name=maintenance.nom_plateforme, date_maintenance=maintenance.date_maintenance.strftime('%Y-%m-%d')) }}">
+            {{ form.hidden_tag() }}
+            <div class="login-form">
+                {{ form.date_maintenance.label (class_ = "login-form-label") }}
+                {{ form.date_maintenance (class_ ="login-input") }}
+            </div>
+            <div class="login-form">
+                {{ form.duree_maintenance.label (class_ = "login-form-label") }}
+                {{ form.duree_maintenance (class_ ="login-input") }}
+            </div>
+            <div class="login-form">
+                {{ form.nom_plateforme.label (class_ = "login-form-label") }}
+                {{ form.nom_plateforme (class_ ="login-input") }}
+            </div>
+            <div id="login-form-submit">
+                <input type="submit" value="Modifier">
+                
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
